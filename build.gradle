@@ -1,0 +1,49 @@
+subprojects {
+    group = 'instep'
+    version = '0.1.0-SNAPSHOT'
+
+    apply plugin: 'idea'
+    apply plugin: 'java'
+    apply plugin: 'maven-publish'
+
+    configurations {
+        provided
+    }
+
+    idea {
+        module {
+            scopes.PROVIDED.plus += [configurations.provided]
+        }
+    }
+
+    sourceSets {
+        main { compileClasspath += configurations.provided }
+    }
+
+    dependencies {
+        testCompile group: 'org.testng', name: 'testng', version: '6.9.+'
+    }
+
+    publishing {
+        publications {
+            main(MavenPublication) {
+                from components.java
+                artifactId "instep-$project.name"
+                artifact sourceJar
+            }
+        }
+    }
+
+    tasks.withType(JavaCompile) {
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
+
+        options.encoding = "UTF-8"
+    }
+
+    task sourceJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+}
+
