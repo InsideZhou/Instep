@@ -8,7 +8,7 @@ import instep.servicecontainer.ServiceContainer
 import instep.servicecontainer.impl.MemoryServiceContainer
 import instep.typeconvert.TypeConvert
 import instep.typeconvert.TypeConvertException
-import instep.typeconvert.TypeConvertImpl
+import instep.typeconvert.DefaultTypeConvert
 
 object Instep {
     var serviceContainer: ServiceContainer
@@ -18,7 +18,7 @@ object Instep {
         serviceContainer = container
 
         container.bind(Cache::class.java, MemoryCache())
-        container.bind(TypeConvert::class.java, TypeConvertImpl())
+        container.bind(TypeConvert::class.java, DefaultTypeConvert())
     }
 
     /**

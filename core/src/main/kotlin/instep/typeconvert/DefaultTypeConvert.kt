@@ -3,7 +3,7 @@ package instep.typeconvert
 import instep.Instep
 import instep.cache.Cache
 
-open class TypeConvertImpl : TypeConvert {
+open class DefaultTypeConvert : TypeConvert {
     protected val cache = Instep.make(Cache::class.java)
 
     override fun <From, To> canConvert(from: Class<From>, to: Class<To>): Boolean {

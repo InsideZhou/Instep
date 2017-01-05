@@ -23,7 +23,8 @@ class IdGenerator(val workerId: Long = 0, val regionId: Long = 0) : Serializable
         return nextId(false, 0)
     }
 
-    @Synchronized private fun nextId(isPadding: Boolean, busId: Long): Long {
+    @Synchronized
+    private fun nextId(isPadding: Boolean, busId: Long): Long {
 
         var timestamp = timeGen()
         var paddingnum = regionId

@@ -6,19 +6,19 @@ abstract class Column<T : Column<T>>(val name: String) {
     var default = ""
 
     @Suppress("UNCHECKED_CAST")
-    open fun primary(): T {
+    fun primary(): T {
         primary = true
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
-    open fun nullable(nullable: Boolean): T {
+    fun nullable(nullable: Boolean): T {
         this.nullable = nullable
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
-    open fun default(exp: String): T {
+    fun default(exp: String): T {
         default = exp
         return this as T
     }
@@ -49,6 +49,9 @@ enum class IntegerColumnType {
     Tiny, Small, Int, Long
 }
 
+/**
+ * @remark Float&Double should ignore precision and scale indication.
+ */
 enum class FloatingColumnType {
     Float, Double, Numeric
 }
