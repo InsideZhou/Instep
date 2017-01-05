@@ -2,7 +2,6 @@ package instep.cache.driver
 
 import instep.cache.Cache
 import instep.cache.CacheKeyNotExistsException
-import java.io.Serializable
 import java.util.concurrent.ConcurrentHashMap
 
 open class MemoryCache : Cache {
@@ -50,7 +49,7 @@ open class MemoryCache : Cache {
         }
     }
 
-    override fun <T : Serializable> set(key: String, value: T) {
+    override fun set(key: String, value: Any) {
         put(key, value, -1)
     }
 
@@ -61,7 +60,7 @@ open class MemoryCache : Cache {
         return store.value
     }
 
-    override fun <T : Serializable> put(key: String, value: T, ttl: Int) {
+    override fun put(key: String, value: Any, ttl: Int) {
         map.put(key, CacheStore(value, System.currentTimeMillis(), ttl))
     }
 

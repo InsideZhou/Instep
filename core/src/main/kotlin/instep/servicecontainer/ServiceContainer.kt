@@ -1,11 +1,9 @@
 package instep.servicecontainer
 
-import java.io.Serializable
-
 /**
  * Register service and make service instance.
  */
-interface ServiceContainer : Serializable {
+interface ServiceContainer {
     /**
      * Make instance by class.
      * @param tag binding tagged by.
@@ -14,7 +12,7 @@ interface ServiceContainer : Serializable {
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T
 
     /**
-     * Bind instance to class. Instance which is not serializable will lose in (de)serializable.
+     * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
      * @param tag binding tagged by.
      */
     fun <T : Any> bind(cls: Class<T>, obj: T, tag: String = "")

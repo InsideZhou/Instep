@@ -1,18 +1,17 @@
 package instep.cache
 
 import instep.cache.driver.CacheStore
-import java.io.Serializable
 
 /**
  * Cache with ttl(time to live, in millisecond) to every key-value pair.
  */
-interface Cache : Serializable, Map<String, Any> {
-    fun <T : Serializable> put(key: String, value: T, ttl: Int)
+interface Cache : Map<String, Any> {
+    fun put(key: String, value: Any, ttl: Int)
 
     /**
      * Set permanent key-value.
      */
-    operator fun <T : Serializable> set(key: String, value: T)
+    operator fun set(key: String, value: Any)
 
     fun touch(key: String, ttl: Int? = null)
     override fun get(key: String): Any
