@@ -1,19 +1,22 @@
 package instep.orm.planbuild
 
+import instep.collection.AssocArray
 import instep.orm.Expression
-import instep.orm.OrmException
 import instep.orm.PlaceHolder
+import instep.orm.PlaceHolderRemainingException
 
-open class DefaultExpression protected constructor(
+open class DefaultExpression private constructor(
     val txt: String,
-    val placeholder: Regex,
-    protected val params: MutableList<Any?>
+    val rule: PlaceHolder.Rule,
+    private val params: AssocArray,
+    paramsInitRequired: Boolean
 ) : Expression {
-    constructor(txt: String) : this(txt, PlaceHolder.regex, mutableListOf())
+    protected constructor(txt: String, paramsInitRequired: Boolean) : this(txt, PlaceHolder.rule.copy(), AssocArray(), paramsInitRequired)
+    constructor(txt: String) : this(txt, true)
 
     init {
-        if (params.isEmpty()) {
-            placeholder.findAll(txt).forEachIndexed { i, matchResult ->
+        if (paramsInitRequired) {
+            rule.placeholder.findAll(txt).forEachIndexed { i, matchResult ->
                 val paramName = matchResult.groupValues[1]
 
                 params.add(PlaceHolder(i, paramName))
@@ -24,14 +27,15 @@ open class DefaultExpression protected constructor(
     override val expression: String
         get() {
             var index = 0
-            return placeholder.replace(txt, { matchResult ->
+
+            return rule.normalize(rule.placeholder.replace(txt, { matchResult ->
                 val param = params[index++]
                 when (param) {
                     is Expression -> param.expression
                     is PlaceHolder -> if (param.ignore) "" else "?"
                     else -> "?"
                 }
-            })
+            }))
         }
 
     override val parameters: List<Any?>
@@ -56,10 +60,10 @@ open class DefaultExpression protected constructor(
         val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
 
         if (remainingPlaceHolderCount > 0) {
-            throw OrmException("$remainingPlaceHolderCount placeholders remaining, cannot add positional expressions.")
+            throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
         }
 
-        params.addAll(parameters)
+        params.add(*parameters)
 
         return this
     }
@@ -83,17 +87,16 @@ open class DefaultExpression protected constructor(
         val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
 
         if (remainingPlaceHolderCount > 0) {
-            throw OrmException("$remainingPlaceHolderCount placeholders remaining, cannot add positional expressions.")
+            throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional expressions.")
         }
 
-        params.addAll(expressions)
+        params.add(*expressions)
 
         return this
     }
 
     override fun clone(): Expression {
-        val c = DefaultExpression(txt, placeholder, params)
-        return c
+        return DefaultExpression(txt, rule, params, false)
     }
 
     companion object {

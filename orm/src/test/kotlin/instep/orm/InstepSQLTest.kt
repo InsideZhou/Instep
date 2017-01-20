@@ -3,23 +3,15 @@ package instep.orm
 import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
 import instep.InstepLogger
-import instep.collection.AssocArray
 import instep.orm.sql.ConnectionManager
 import instep.orm.sql.InstepSQL
-import instep.orm.sql.execute
-import instep.orm.sql.executeUpdate
 import instep.orm.sql.impl.DefaultConnectionManager
-import instep.typeconvert.TypeConvert
-import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
-import java.sql.ResultSet
-import java.util.*
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
 object InstepSQLTest {
     val datasource = DruidDataSource()
-    val stringGenerator = RandomStringGenerator()
-
-    private val accountNames = mutableListOf<String>()
 
     init {
         datasource.url = "jdbc:h2:mem:instep_orm;DB_CLOSE_DELAY=-1"
@@ -49,62 +41,8 @@ object InstepSQLTest {
     }
 
     @Test
-    fun requiredService() {
-        Instep.make(ConnectionManager::class.java)
-    }
-
-    @Test
-    fun optionalService() {
-        val typeconvert = Instep.make(TypeConvert::class.java)
-        assert(typeconvert.canConvert(ResultSet::class.java, AssocArray::class.java))
-    }
-
-    @Test
-    fun createAccountTable() {
-        val plan = AccountTable.create()
-        InstepLogger.info(plan.statement)
-        plan.execute()
-    }
-
-    @Test(dependsOnMethods = arrayOf("createAccountTable"))
-    fun insertAccounts() {
-        val random = Random()
-        val total = random.ints(10, 100).findAny().orElse(100)
-
-        accountNames.clear()
-
-        for (index in 0..total) {
-            val name = stringGenerator.generateByRegex("\\w{1,256}")
-            InstepSQL.plan("""insert into account(name) values(?)""").addParameters(name).executeUpdate()
-            accountNames.add(name)
-        }
-    }
-
-    @Test
-    fun rawSQLStatement() {
-        val raw = InstepSQL.plan("""select * from account where name=:name""")
-        assert("""select * from account where name=?""" == raw.statement)
-    }
-
-    @Test
-    fun rawSQLParameters() {
-        val raw = InstepSQL.plan("""select * from account where name=:name""").addParameter("name", "haha")
-        assert(raw.parameters.all { item -> item !is PlaceHolder })
-    }
-
-    @Test(dependsOnMethods = arrayOf("insertAccounts", "optionalService"))
-    fun selectAccounts() {
-        val random = Random()
-        val totalTaken = random.nextInt(accountNames.size)
-
-        val accountIndexes = mutableListOf<Int>()
-        for (index in 0..totalTaken) {
-            accountIndexes.add(random.nextInt(accountNames.size))
-        }
-
-        accountIndexes.map { index -> accountNames[index] }.forEach { name ->
-            val record = InstepSQL.plan("""select * from account where name=:name""").addParameter("name", name).execute(AssocArray::class.java).first()
-            assert(record["name"] as String == name)
-        }
+    fun executeScalar() {
+        val scalar = InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS.FF3')""")
+        LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss.SSS"""))
     }
 }

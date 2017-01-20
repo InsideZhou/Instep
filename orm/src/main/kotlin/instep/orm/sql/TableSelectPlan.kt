@@ -2,6 +2,7 @@ package instep.orm.sql
 
 import instep.collection.AssocArray
 import instep.orm.Plan
+import instep.orm.sql.impl.DefaultTableSelectPlan
 
 interface TableSelectPlan : Plan {
     val select: AssocArray
@@ -19,4 +20,10 @@ interface TableSelectPlan : Plan {
     fun orderBy(vararg orderBys: OrderBy): TableSelectPlan
     fun limit(limit: Int): TableSelectPlan
     fun offset(offset: Int): TableSelectPlan
+
+    companion object {
+        fun createInstance(table: Table): TableSelectPlan {
+            return DefaultTableSelectPlan(table)
+        }
+    }
 }

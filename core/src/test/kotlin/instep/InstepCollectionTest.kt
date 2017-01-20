@@ -6,23 +6,23 @@ import org.testng.annotations.Test
 object InstepCollectionTest {
     @Test
     fun assocArrayStringKeyCase() {
-        val array = AssocArray(true)
+        val caseInsensitiveArray = AssocArray(true)
 
+        caseInsensitiveArray["name"] = "name"
+        assert(caseInsensitiveArray["name"] == "name")
+        assert(caseInsensitiveArray["NAME"] == "name")
+
+        caseInsensitiveArray["name2"] = "name2"
+        assert(caseInsensitiveArray["name2"] == "name2")
+        assert(caseInsensitiveArray["NAME2"] == "name2")
+
+        caseInsensitiveArray["NAME3"] = "name3"
+        assert(caseInsensitiveArray["name3"] == "name3")
+        assert(caseInsensitiveArray["NAME3"] == "name3")
+
+        val array = AssocArray()
         array["name"] = "name"
         assert(array["name"] == "name")
-        assert(array["NAME"] == "name")
-
-        array["name2"] = "name2"
-        assert(array["name2"] == "name2")
-        assert(array["NAME2"] == "name2")
-
-        array["NAME3"] = "name3"
-        assert(array["name3"] == "name3")
-        assert(array["NAME3"] == "name3")
-
-        val caseSensitiveArray = AssocArray(false)
-        caseSensitiveArray["name"] = "name"
-        assert(caseSensitiveArray["name"] == "name")
-        assert(caseSensitiveArray["NAME"] == null)
+        assert(array["NAME"] == null)
     }
 }

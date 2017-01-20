@@ -1,7 +1,5 @@
 package instep.orm
 
-import instep.orm.OrmException
-import instep.orm.PlaceHolder
-
-class PlaceHolderRemainingException(val placeHolder: PlaceHolder) : OrmException("${placeHolder.index}-${placeHolder.name} is remaining.") {
+class PlaceHolderRemainingException(msg: String) : OrmException(msg) {
+    constructor(placeHolder: PlaceHolder) : this("${placeHolder.index}-${placeHolder.name} is remaining.")
 }

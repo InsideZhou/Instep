@@ -100,7 +100,13 @@ abstract class Table(val tableName: String) {
     }
 
     fun select(): TableSelectPlan {
-        throw NotImplementedError()
+        val factory = Instep.make(TableSelectPlan.Companion::class.java)
+        return factory.createInstance(this)
+    }
+
+    fun insert(): TableInsertPlan {
+        val factory = Instep.make(TableInsertPlan.Companion::class.java)
+        return factory.createInstance(this)
     }
 
     companion object {
@@ -110,6 +116,20 @@ abstract class Table(val tableName: String) {
             }
             catch(e: ServiceNotFoundException) {
                 Instep.bind(Dialect::class.java, H2Dialect())
+            }
+
+            try {
+                Instep.make(TableSelectPlan.Companion::class.java)
+            }
+            catch(e: ServiceNotFoundException) {
+                Instep.bind(TableSelectPlan.Companion::class.java, TableSelectPlan.Companion)
+            }
+
+            try {
+                Instep.make(TableInsertPlan.Companion::class.java)
+            }
+            catch(e: ServiceNotFoundException) {
+                Instep.bind(TableInsertPlan.Companion::class.java, TableInsertPlan.Companion)
             }
         }
     }

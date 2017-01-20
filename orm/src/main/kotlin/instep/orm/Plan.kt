@@ -1,5 +1,6 @@
 package instep.orm
 
+import instep.InstepLogger
 import java.io.Serializable
 
 /**
@@ -11,6 +12,12 @@ interface Plan : Serializable, Cloneable {
      * Order of parameters need to be same as order of statement's placeholders.
      */
     val parameters: List<Any?>
+
+    fun log(): Plan {
+        InstepLogger.info(statement)
+        InstepLogger.info(parameters.map { it.toString() }.joinToString("|"))
+        return this
+    }
 
     override fun clone(): Plan
 }

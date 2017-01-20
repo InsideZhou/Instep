@@ -137,15 +137,16 @@ class AAKey private constructor() : Serializable, Any() {
 
     constructor(key: Int) : this() {
         intKey = key
+        usingInt = true
     }
 
     constructor(key: String) : this() {
         try {
             intKey = key.toInt()
+            usingInt = true
         }
         catch(e: NumberFormatException) {
             stringKey = key
-            usingInt = false
         }
     }
 

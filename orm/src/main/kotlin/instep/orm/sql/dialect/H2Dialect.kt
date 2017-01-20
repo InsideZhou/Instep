@@ -1,7 +1,7 @@
 package instep.orm.sql.dialect
 
 import instep.InstepLogger
-import instep.UnexpectedCode
+import instep.UnexpectedTouch
 import instep.orm.Plan
 import instep.orm.sql.*
 
@@ -29,7 +29,7 @@ open class H2Dialect : Dialect {
                 is FloatingColumn -> definitionForFloatingColumn(it)
                 is DateTimeColumn -> definitionForDateTimeColumn(it)
                 is BinaryColumn -> definitionForBinaryColumn(it)
-                else -> throw UnexpectedCode()
+                else -> throw UnexpectedTouch()
             }
 
             if (!it.nullable) {

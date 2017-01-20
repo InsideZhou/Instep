@@ -1,15 +1,10 @@
 package instep.orm.planbuild
 
 import instep.orm.Expression
-import instep.orm.PlaceHolder
 import instep.orm.PlanFromText
 
-open class DefaultPlanFromText protected constructor(
-    txt: String,
-    placeholder: Regex,
-    params: MutableList<Any?>
-) : DefaultExpression(txt, placeholder, params), PlanFromText {
-    constructor(txt: String) : this(txt, PlaceHolder.regex, mutableListOf())
+open class DefaultPlanFromText private constructor(txt: String, paramsInitRequired: Boolean) : DefaultExpression(txt, paramsInitRequired), PlanFromText {
+    constructor(txt: String) : this(txt, true)
 
     override fun addExpression(placeHolderName: String, expression: Expression?): PlanFromText {
         super.addExpression(placeHolderName, expression)
@@ -32,8 +27,7 @@ open class DefaultPlanFromText protected constructor(
     }
 
     override fun clone(): PlanFromText {
-        val c = DefaultPlanFromText(txt, placeholder, params)
-        return c
+        return DefaultPlanFromText(txt, false)
     }
 
     override val statement: String

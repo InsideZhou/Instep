@@ -1,6 +1,7 @@
 package instep.orm.sql
 
 import instep.orm.Plan
+import instep.orm.sql.impl.DefaultObjectSelectPlan
 
 interface ObjectSelectPlan : Plan {
     val select: List<String>
@@ -18,4 +19,10 @@ interface ObjectSelectPlan : Plan {
     fun orderBy(vararg orderBys: String): ObjectSelectPlan
     fun limit(limit: Int): ObjectSelectPlan
     fun offset(offset: Int): ObjectSelectPlan
+
+    companion object {
+        fun createInstance(obj: Any): DefaultObjectSelectPlan {
+            return DefaultObjectSelectPlan(obj)
+        }
+    }
 }
