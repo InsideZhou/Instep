@@ -13,7 +13,7 @@ open class DefaultConnectionManager(val ds: DataSource) : ConnectionManager {
             return connInTransaction
         }
 
-        return ConnectionWithTransactionAcrossMethod(ds.connection, threadLocalConnectionSet)
+        return ConnectionWithTransactionAcrossMethod(ds.connection, connSet)
     }
 
     companion object {
@@ -27,7 +27,7 @@ open class DefaultConnectionManager(val ds: DataSource) : ConnectionManager {
 
 class ConnectionWithTransactionAcrossMethod(
     private val conn: Connection,
-    private val threadLocalConnectionSet: ThreadLocal<MutableSet<ConnectionWithTransactionAcrossMethod>>
+    private val pool: MutableSet<ConnectionWithTransactionAcrossMethod>
 ) : Connection by conn {
     var depth = 0
 
@@ -80,20 +80,17 @@ class ConnectionWithTransactionAcrossMethod(
     private fun increaseConnectionTransactionDepth() {
         depth += 1
 
-        val connSet = threadLocalConnectionSet.get()
-        if (!connSet.contains(this)) {
-            connSet.add(this)
+        if (!pool.contains(this)) {
+            pool.add(this)
         }
     }
 
     private fun decreaseConnectionTransactionDepth() {
-        val connSet = threadLocalConnectionSet.get()
-
-        if (!connSet.contains(this)) return
+        if (!pool.contains(this)) return
 
         depth -= 1
         if (0 == depth) {
-            connSet.remove(this)
+            pool.remove(this)
         }
     }
 }

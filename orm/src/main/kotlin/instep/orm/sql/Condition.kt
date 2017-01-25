@@ -3,7 +3,7 @@ package instep.orm.sql
 import instep.orm.Expression
 import instep.orm.planbuild.DefaultExpression
 
-class Condition protected constructor(txt: String) : DefaultExpression(txt) {
+open class Condition protected constructor(txt: String) : DefaultExpression(txt) {
     var conjunction: Conjunction? = null
         private set
 
@@ -23,7 +23,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
             return super.parameters + conj.condition.parameters
         }
 
-    fun andEQ(left: String, right: Any): Condition {
+    open fun andEQ(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -33,7 +33,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left = ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -42,7 +42,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andNotEQ(left: String, right: Any): Condition {
+    open fun andNotEQ(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -52,7 +52,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left <> ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -61,7 +61,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andGT(left: String, right: Any): Condition {
+    open fun andGT(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -71,7 +71,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left > ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -80,7 +80,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andGTE(left: String, right: Any): Condition {
+    open fun andGTE(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -90,7 +90,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left >= ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -99,7 +99,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andLT(left: String, right: Any): Condition {
+    open fun andLT(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -109,7 +109,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left < ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -118,7 +118,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andLTE(left: String, right: Any): Condition {
+    open fun andLTE(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -128,7 +128,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left <= ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -137,7 +137,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andIsNull(left: String): Condition {
+    open fun andIsNull(left: String): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -146,14 +146,14 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left IS NULL")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             conj.condition = condition
         }
 
         return this
     }
 
-    fun andIsNotNull(left: String): Condition {
+    open fun andIsNotNull(left: String): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -162,14 +162,14 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left IS NOT NULL")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             conj.condition = condition
         }
 
         return this
     }
 
-    fun andContains(left: String, right: Any): Condition {
+    open fun andContains(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -179,7 +179,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ? || '%'")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -188,7 +188,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andStartsWith(left: String, right: Any): Condition {
+    open fun andStartsWith(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -198,7 +198,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE ? || '%'")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -207,7 +207,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andEndsWith(left: String, right: Any): Condition {
+    open fun andEndsWith(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -217,7 +217,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -226,7 +226,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orEQ(left: String, right: Any): Condition {
+    open fun orEQ(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -236,7 +236,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left = ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -245,7 +245,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orNotEQ(left: String, right: Any): Condition {
+    open fun orNotEQ(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -255,7 +255,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left <> ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -264,7 +264,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orGT(left: String, right: Any): Condition {
+    open fun orGT(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -274,7 +274,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left > ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -283,7 +283,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orGTE(left: String, right: Any): Condition {
+    open fun orGTE(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -293,7 +293,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left >= ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -302,7 +302,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orLT(left: String, right: Any): Condition {
+    open fun orLT(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -312,7 +312,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left < ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -321,7 +321,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orLTE(left: String, right: Any): Condition {
+    open fun orLTE(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -331,7 +331,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left <= ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -340,7 +340,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orIsNull(left: String): Condition {
+    open fun orIsNull(left: String): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -349,14 +349,14 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left IS NULL")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             conj.condition = condition
         }
 
         return this
     }
 
-    fun orIsNotNull(left: String): Condition {
+    open fun orIsNotNull(left: String): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -365,14 +365,14 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left IS NOT NULL")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             conj.condition = condition
         }
 
         return this
     }
 
-    fun orContains(left: String, right: Any): Condition {
+    open fun orContains(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -382,7 +382,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ? || '%'")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -391,7 +391,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orStartsWith(left: String, right: Any): Condition {
+    open fun orStartsWith(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -401,7 +401,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE ? || '%'")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -410,7 +410,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orEndsWith(left: String, right: Any): Condition {
+    open fun orEndsWith(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -420,7 +420,7 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ?")
-            condition.addParameters(conj.condition.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
 
             conj.condition = condition
@@ -429,18 +429,18 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun and(expression: Expression): Condition {
+    open fun and(expression: Expression): Condition {
         val conj = conjunction
 
         if (null == conj) {
             val condition = Condition(expression.expression)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*expression.parameters.toTypedArray())
             conjunction = Conjunction(AND, condition)
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND ${expression.expression}")
-            condition.addParameters(conj.condition.parameters)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*expression.parameters.toTypedArray())
 
             conj.condition = condition
         }
@@ -448,18 +448,18 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun or(expression: Expression): Condition {
+    open fun or(expression: Expression): Condition {
         val conj = conjunction
 
         if (null == conj) {
             val condition = Condition(expression.expression)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*expression.parameters.toTypedArray())
             conjunction = Conjunction(OR, condition)
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR ${expression.expression}")
-            condition.addParameters(conj.condition.parameters)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*expression.parameters.toTypedArray())
 
             conj.condition = condition
         }
@@ -467,18 +467,18 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun andGroup(expression: Expression): Condition {
+    open fun andGroup(expression: Expression): Condition {
         val conj = conjunction
 
         if (null == conj) {
             val condition = Condition("(${expression.expression})")
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*expression.parameters.toTypedArray())
             conjunction = Conjunction(AND, condition)
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND (${expression.expression})")
-            condition.addParameters(conj.condition.parameters)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*expression.parameters.toTypedArray())
 
             conj.condition = condition
         }
@@ -486,18 +486,18 @@ class Condition protected constructor(txt: String) : DefaultExpression(txt) {
         return this
     }
 
-    fun orGroup(expression: Expression): Condition {
+    open fun orGroup(expression: Expression): Condition {
         val conj = conjunction
 
         if (null == conj) {
             val condition = Condition("(${expression.expression})")
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*expression.parameters.toTypedArray())
             conjunction = Conjunction(OR, condition)
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR (${expression.expression})")
-            condition.addParameters(conj.condition.parameters)
-            condition.addParameters(expression.parameters)
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*expression.parameters.toTypedArray())
 
             conj.condition = condition
         }

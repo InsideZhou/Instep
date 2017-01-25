@@ -4,7 +4,7 @@ import instep.orm.OrmException
 import instep.orm.Plan
 import instep.orm.sql.impl.DefaultTableInsertPlan
 
-interface TableInsertPlan : Plan {
+interface TableInsertPlan : Plan<TableInsertPlan> {
     @Throws(OrmException::class)
     fun addValue(column: Column<*>, value: Any?): TableInsertPlan
 

@@ -20,7 +20,7 @@ private val init = run {
 /**
  * @see [SQLPlanExecutor.execute]
  */
-fun Plan.execute() {
+fun Plan<*>.execute() {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.execute(this)
 }
@@ -28,7 +28,7 @@ fun Plan.execute() {
 /**
  * @see [SQLPlanExecutor.execute]
  */
-fun <T : Any> Plan.execute(cls: Class<T>): List<T> {
+fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.execute(this, cls)
 }
@@ -36,7 +36,7 @@ fun <T : Any> Plan.execute(cls: Class<T>): List<T> {
 /**
  * @see [SQLPlanExecutor.executeScalar]
  */
-fun Plan.executeScalar(): String {
+fun Plan<*>.executeScalar(): String {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeScalar(this)
 }
@@ -44,7 +44,7 @@ fun Plan.executeScalar(): String {
 /**
  * @see [SQLPlanExecutor.executeUpdate]
  */
-fun Plan.executeUpdate(): Long {
+fun Plan<*>.executeUpdate(): Long {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeUpdate(this)
 }
@@ -52,23 +52,23 @@ fun Plan.executeUpdate(): Long {
 /**
  * @see [SQLPlanExecutor.executeResultSet]
  */
-fun Plan.executeResultSet(conn: Connection): ResultSet {
+fun Plan<*>.executeResultSet(conn: Connection): ResultSet {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeResultSet(conn, this)
 }
 
 @Suppress("unchecked_cast")
-fun <T : Table> TableSelectPlan.execute(): List<TableRow<T>> {
+fun TableSelectPlan.execute(): List<TableRow> {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     val connMan = Instep.make(ConnectionManager::class.java)
     val conn = connMan.getConnection()
-    val result = mutableListOf<TableRow<T>>()
+    val result = mutableListOf<TableRow>()
     val rowFactory = Instep.make(TableRow.Companion::class.java)
 
     try {
         val rs = planExec.executeResultSet(conn, this)
         while (rs.next()) {
-            result.add(rowFactory.createInstance(this.from, rs) as TableRow<T>)
+            result.add(rowFactory.createInstance(this.from, rs))
         }
         return result
     }

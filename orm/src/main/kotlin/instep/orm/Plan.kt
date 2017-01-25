@@ -6,18 +6,19 @@ import java.io.Serializable
 /**
  * Plan that is targeting relational database manipulated by SQL.
  */
-interface Plan : Serializable, Cloneable {
+interface Plan<T : Plan<T>> : Serializable, Cloneable {
     val statement: String
     /**
      * Order of parameters need to be same as order of statement's placeholders.
      */
     val parameters: List<Any?>
 
-    fun log(): Plan {
-        InstepLogger.info(statement)
-        InstepLogger.info(parameters.map { it.toString() }.joinToString("|"))
-        return this
+    @Suppress("UNCHECKED_CAST")
+    fun log(): T {
+        InstepLogger.info(statement, this.javaClass.name)
+        InstepLogger.info(parameters.map { it.toString() }.joinToString("|"), this.javaClass.name)
+        return this as T
     }
 
-    override fun clone(): Plan
+    override fun clone(): T
 }

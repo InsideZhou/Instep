@@ -1,21 +1,29 @@
 package instep.orm.sql
 
-import instep.Instep
 import instep.UnexpectedTouch
 import instep.orm.sql.impl.Helper
-import instep.servicecontainer.ServiceNotFoundException
+import java.io.InputStream
+import java.math.BigDecimal
+import java.sql.Blob
 import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 import java.time.OffsetDateTime
 
 /**
  * A table row filled with data.
  */
-class TableRow<out T : Table>(val table: T) {
+class TableRow(val table: Table) {
     private val map = mutableMapOf<Column<*>, Any?>()
 
     @Suppress("unchecked_cast")
     operator fun <Result : Any> get(column: Column<*>): Result? {
         return map[column] as? Result?
+    }
+
+    operator fun get(column: BooleanColumn): Boolean {
+        return map[column] as Boolean
     }
 
     operator fun get(column: IntegerColumn): Int {
@@ -26,25 +34,46 @@ class TableRow<out T : Table>(val table: T) {
         return map[column] as String
     }
 
+    operator fun get(column: FloatingColumn): Double {
+        val value = map[column]
+        return when (value) {
+            is Double -> value
+            is Float -> value.toDouble()
+            is BigDecimal -> value.toDouble()
+            else -> throw UnsupportedOperationException("Converting $value to Double is not supported.")
+        }
+    }
+
+    operator fun get(column: DateTimeColumn): LocalDateTime {
+        val value = map[column]
+        return when (value) {
+            is LocalDateTime -> value
+            is LocalDate -> LocalDateTime.from(value)
+            is LocalTime -> LocalDateTime.from(value)
+            is OffsetDateTime -> LocalDateTime.from(value)
+            else -> throw UnsupportedOperationException("Converting $value to LocalDateTime is not supported.")
+        }
+    }
+
+    operator fun get(column: BinaryColumn): InputStream {
+        val value = map[column]
+        return when (value) {
+            is Blob -> value.binaryStream
+            is ByteArray -> value.inputStream()
+            else -> throw UnsupportedOperationException("Converting $value to InputStream is not supported.")
+        }
+    }
+
     operator fun set(column: Column<*>, value: Any?) {
         map[column] = value
     }
 
     companion object {
-        init {
-            try {
-                Instep.make(TableRow.Companion::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                Instep.bind(TableRow.Companion::class.java, TableRow.Companion)
-            }
-        }
-
-        fun <T : Table> createInstance(table: T, rs: ResultSet): TableRow<T> {
+        fun createInstance(table: Table, rs: ResultSet): TableRow {
             val row = TableRow(table)
 
             val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
-            table.columns().forEach { col ->
+            table.columns.forEach { col ->
                 val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) }
                 if (null == info) return@forEach
 

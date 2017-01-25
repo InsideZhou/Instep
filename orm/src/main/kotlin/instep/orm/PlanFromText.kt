@@ -2,7 +2,7 @@ package instep.orm
 
 import instep.orm.planbuild.DefaultPlanFromText
 
-interface PlanFromText : Plan, Expression {
+interface PlanFromText : Plan<PlanFromText>, Expression {
     override fun addParameters(vararg parameters: Any?): PlanFromText
     override fun addParameter(placeholderName: String, parameter: Any?): PlanFromText
 

@@ -6,28 +6,30 @@ import instep.servicecontainer.ServiceNotFoundException
  * Instep log everything through this logger, if there is a corresponding service bound in [Instep.ServiceContainer], none by default.
  */
 interface InstepLogger {
-    fun debug(log: String)
-    fun info(log: String)
-    fun warn(log: String)
+    val defaultLogger: String
+
+    fun debug(log: String, logger: String = "")
+    fun info(log: String, logger: String = "")
+    fun warn(log: String, logger: String = "")
 
     companion object {
-        var logger = try {
+        var root = try {
             Instep.make(InstepLogger::class.java)
         }
         catch (e: ServiceNotFoundException) {
             null
         }
 
-        fun debug(log: String) {
-            logger?.debug(log)
+        fun debug(log: String, logger: String = "") {
+            root?.debug(log, logger)
         }
 
-        fun info(log: String) {
-            logger?.info(log)
+        fun info(log: String, logger: String = "") {
+            root?.info(log, logger)
         }
 
-        fun warning(log: String) {
-            logger?.warn(log)
+        fun warning(log: String, logger: String = "") {
+            root?.warn(log, logger)
         }
     }
 }

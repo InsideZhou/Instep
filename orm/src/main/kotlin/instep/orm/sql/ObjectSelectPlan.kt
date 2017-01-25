@@ -3,7 +3,7 @@ package instep.orm.sql
 import instep.orm.Plan
 import instep.orm.sql.impl.DefaultObjectSelectPlan
 
-interface ObjectSelectPlan : Plan {
+interface ObjectSelectPlan : Plan<ObjectSelectPlan> {
     val select: List<String>
     val from: String
     val where: Condition?

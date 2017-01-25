@@ -16,7 +16,7 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
     constructor() : this(Instep.make(ConnectionManager::class.java)) {
     }
 
-    override fun execute(plan: instep.orm.Plan) {
+    override fun execute(plan: instep.orm.Plan<*>) {
         val conn = connectionManager.getConnection()
         try {
             val stmt = Helper.generateStatement(conn, plan)
@@ -27,15 +27,21 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
         }
     }
 
-    override fun executeScalar(plan: instep.orm.Plan): String {
+    override fun executeScalar(plan: instep.orm.Plan<*>): String {
         val conn = connectionManager.getConnection()
-        val rs = executeResultSet(conn, plan)
-        if (!rs.first() || rs.wasNull()) return ""
 
-        return rs.getString(1)
+        try {
+            val rs = executeResultSet(conn, plan)
+            if (!rs.first() || rs.wasNull()) return ""
+
+            return rs.getString(1)
+        }
+        finally {
+            conn.close()
+        }
     }
 
-    override fun executeUpdate(plan: instep.orm.Plan): Long {
+    override fun executeUpdate(plan: instep.orm.Plan<*>): Long {
         val conn = connectionManager.getConnection()
         val stmt = Helper.generateStatement(conn, plan)
         try {
@@ -49,12 +55,12 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
         }
     }
 
-    override fun executeResultSet(conn: Connection, plan: instep.orm.Plan): ResultSet {
+    override fun executeResultSet(conn: Connection, plan: instep.orm.Plan<*>): ResultSet {
         val stmt = Helper.generateStatement(conn, plan)
         return stmt.executeQuery()
     }
 
-    override fun <T : Any> execute(plan: instep.orm.Plan, cls: Class<T>): List<T> {
+    override fun <T : Any> execute(plan: instep.orm.Plan<*>, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
         connectionManager.getConnection().let { conn ->

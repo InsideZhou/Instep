@@ -35,6 +35,10 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collec
         }
     }
 
+    @Suppress("IMPLICIT_CAST_TO_ANY")
+    val entries: Set<Pair<Any, Any?>>
+        get() = map.map { (if (it.key.usingInt) it.key.intKey else it.key.stringKey) to it.value }.toSet()
+
     override val size: Int
         get() = map.size
 
@@ -49,10 +53,6 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collec
 
     override fun iterator(): Iterator<Any?> {
         return map.values.toList().iterator()
-    }
-
-    fun entries(): Set<Pair<Any, Any?>> {
-        return map.map { Pair(if (it.key.usingInt) it.key.intKey else it.key.stringKey, it.value) }.toSet()
     }
 
 

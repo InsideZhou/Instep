@@ -26,15 +26,17 @@ object InstepSQLTest {
 
         Instep.bind(ConnectionManager::class.java, DefaultConnectionManager(datasource))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
-            override fun debug(log: String) {
+            override val defaultLogger: String = this.javaClass.name
+
+            override fun debug(log: String, logger: String) {
                 println(log)
             }
 
-            override fun info(log: String) {
+            override fun info(log: String, logger: String) {
                 println(log)
             }
 
-            override fun warn(log: String) {
+            override fun warn(log: String, logger: String) {
                 System.err.println(log)
             }
         })

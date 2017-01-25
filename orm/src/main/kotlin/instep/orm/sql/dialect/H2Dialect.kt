@@ -6,11 +6,11 @@ import instep.orm.Plan
 import instep.orm.sql.*
 
 open class H2Dialect : Dialect {
-    override fun createTable(tableName: String, columns: List<Column<*>>): Plan {
+    override fun createTable(tableName: String, columns: List<Column<*>>): Plan<*> {
         val ddl = "CREATE TABLE IF NOT EXISTS $tableName (\n"
 
         if (columns.isEmpty()) {
-            InstepLogger.warning("Table $tableName has no columns.")
+            InstepLogger.warning("Table $tableName has no columns.", this.javaClass.name)
         }
 
         val columnTxt = columns.map {
@@ -50,15 +50,15 @@ open class H2Dialect : Dialect {
         return InstepSQL.plan(ddl + columnTxt + "\n)")
     }
 
-    override fun dropTable(tableName: String): Plan {
+    override fun dropTable(tableName: String): Plan<*> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun addColumns(tableName: String, columns: List<Column<*>>): Plan {
+    override fun addColumns(tableName: String, columns: List<Column<*>>): Plan<*> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun dropColumns(tableName: String, columns: List<Column<*>>): Plan {
+    override fun dropColumns(tableName: String, columns: List<Column<*>>): Plan<*> {
         throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 

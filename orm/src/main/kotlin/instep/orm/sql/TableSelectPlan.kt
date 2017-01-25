@@ -4,17 +4,17 @@ import instep.collection.AssocArray
 import instep.orm.Plan
 import instep.orm.sql.impl.DefaultTableSelectPlan
 
-interface TableSelectPlan : Plan {
+interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> {
     val select: AssocArray
     val from: Table
-    val where: Condition?
     val groupBy: List<Column<*>>
     val having: Condition?
     val orderBy: List<OrderBy>
     val limit: Int
     val offset: Int
 
-    fun where(vararg conditions: Condition): TableSelectPlan
+
+    fun select(vararg columnOrAggregates: Any): TableSelectPlan
     fun groupBy(vararg columns: Column<*>): TableSelectPlan
     fun having(vararg conditions: Condition): TableSelectPlan
     fun orderBy(vararg orderBys: OrderBy): TableSelectPlan

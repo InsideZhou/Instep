@@ -9,8 +9,8 @@ import instep.orm.sql.TableInsertPlan
 open class DefaultTableInsertPlan(val table: Table, protected val params: AssocArray) : TableInsertPlan {
     constructor(table: Table) : this(table, AssocArray())
 
-    private var usingColumn = false
-    private var usingPositional = false
+    protected var usingColumn = false
+    protected var usingPositional = false
 
     override fun addValue(column: Column<*>, value: Any?): TableInsertPlan {
         if (usingPositional) throw OrmException("Cannot use column and positional value together.")
@@ -18,9 +18,9 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
             usingColumn = true
         }
 
-        if (table.columns().none { it == column }) throw OrmException("Column ${column.name} not belong to Table ${table.tableName}")
+        if (table.columns.none { it == column }) throw OrmException("Column ${column.name} should belong to Table ${table.tableName}")
 
-        params.add(Pair(column.name, value))
+        params.add(column.name to value)
 
         return this
     }
@@ -39,7 +39,7 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
     override val statement: String
         get() {
             var txt = "INSERT INTO ${table.tableName} "
-            val columns = params.entries()
+            val columns = params.entries
 
             if (usingColumn) {
                 txt += columns.map { it.first }.joinToString(",", "(", ")")
@@ -51,9 +51,7 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
         }
 
     override val parameters: List<Any?>
-        get() {
-            return params.toList()
-        }
+        get() = params.toList()
 
     override fun clone(): DefaultTableInsertPlan {
         val plan = DefaultTableInsertPlan(table, params)

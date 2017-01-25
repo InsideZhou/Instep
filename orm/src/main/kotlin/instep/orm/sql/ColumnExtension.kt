@@ -39,50 +39,50 @@ infix fun <T : Temporal> DateTimeColumn.lte(value: T): Condition = Condition.lte
 
 fun Column<*>.count(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_count"
+        override val expression = "count($name)"
+        override val alias = "${name}_count"
     }
 }
 
 fun NumberColumn<*>.sum(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_sum"
+        override val expression = "sum($name)"
+        override val alias = "${name}_sum"
     }
 }
 
 fun NumberColumn<*>.avg(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_avg"
+        override val expression = "avg($name)"
+        override val alias = "${name}_avg"
     }
 }
 
 fun NumberColumn<*>.max(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_max"
+        override val expression = "max($name)"
+        override val alias = "${name}_max"
     }
 }
 
 fun NumberColumn<*>.min(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_min"
+        override val expression = "min($name)"
+        override val alias = "${name}_min"
     }
 }
 
 fun DateTimeColumn.max(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_max"
+        override val expression = "max($name)"
+        override val alias = "${name}_max"
     }
 }
 
 fun DateTimeColumn.min(): Aggregate {
     return object : Aggregate {
-        override val alias: String
-            get() = "${name}_min"
+        override val expression = "min($name)"
+        override val alias = "${name}_min"
     }
 }
 

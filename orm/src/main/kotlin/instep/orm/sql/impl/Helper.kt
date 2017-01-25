@@ -7,6 +7,7 @@ import java.io.InputStream
 import java.io.Reader
 import java.lang.reflect.Method
 import java.math.BigDecimal
+import java.math.BigInteger
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -59,6 +60,7 @@ object Helper {
             Short::class.java -> setter.invoke(instance, rs.getShort(col.index))
             Int::class.java -> setter.invoke(instance, rs.getInt(col.index))
             Long::class.java -> setter.invoke(instance, rs.getLong(col.index))
+            BigInteger::class.java -> setter.invoke(instance, rs.getLong(col.index))
             BigDecimal::class.java -> setter.invoke(instance, rs.getBigDecimal(col.index))
             Float::class.java -> setter.invoke(instance, rs.getFloat(col.index))
             Double::class.java -> setter.invoke(instance, rs.getDouble(col.index))
@@ -76,7 +78,7 @@ object Helper {
         }
     }
 
-    fun generateStatement(conn: Connection, plan: instep.orm.Plan): PreparedStatement {
+    fun generateStatement(conn: Connection, plan: instep.orm.Plan<*>): PreparedStatement {
         val stmt = conn.prepareStatement(plan.statement)
 
         plan.parameters.forEachIndexed { i, value ->
@@ -91,6 +93,7 @@ object Helper {
                 is Short -> stmt.setShort(paramIndex, value)
                 is Int -> stmt.setInt(paramIndex, value)
                 is Long -> stmt.setLong(paramIndex, value)
+                is BigInteger -> stmt.setLong(paramIndex, value.toLong())
                 is BigDecimal -> stmt.setBigDecimal(paramIndex, value)
                 is Float -> stmt.setFloat(paramIndex, value)
                 is Double -> stmt.setDouble(paramIndex, value)

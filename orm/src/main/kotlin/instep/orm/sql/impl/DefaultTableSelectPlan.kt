@@ -15,7 +15,7 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
             val selectClause = select.filterNotNull().map {
                 when (it) {
                     is Column<*> -> it.name
-                    is Aggregate -> it.alias
+                    is Aggregate -> "${it.expression} AS ${it.alias}"
                     else -> throw OrmException("Expression for SELECT must be Column or Aggregate, now got ${it.javaClass.name}.")
                 }
             }.joinToString(",")
@@ -32,10 +32,7 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
                 sql += "\nGROUP BY $groupByClause"
             }
 
-            val havingClause = having?.expression
-            if (null != havingClause) {
-                sql += "\nHAVING $havingClause"
-            }
+            having?.let { sql += "\nHAVING  ${it.expression}" }
 
             val orderByClause = orderBy.map {
                 val result = if (it.descending) "${it.column.name} DESC" else it.column.name
@@ -65,7 +62,6 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
         private set
 
     override var where: Condition? = null
-        private set
 
     override var groupBy: List<Column<*>> = emptyList()
         private set
@@ -82,8 +78,8 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
     override var offset: Int = 0
         private set
 
-    override fun where(vararg conditions: Condition): TableSelectPlan {
-        where = conditions.reduce(Condition::and)
+    override fun select(vararg columnOrAggregates: Any): TableSelectPlan {
+        this.select.add(*columnOrAggregates)
         return this
     }
 
@@ -93,7 +89,14 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
     }
 
     override fun having(vararg conditions: Condition): TableSelectPlan {
-        having = conditions.reduce(Condition::and)
+        if (null == having) {
+            having = conditions.reduce(Condition::and)
+        }
+        else {
+            val cond = having
+            cond?.andGroup(conditions.reduce(Condition::and))
+        }
+
         return this
     }
 

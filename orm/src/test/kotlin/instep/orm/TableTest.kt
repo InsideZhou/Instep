@@ -1,7 +1,6 @@
 package instep.orm
 
-import instep.orm.sql.Table
-import instep.orm.sql.execute
+import instep.orm.sql.*
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
 import java.time.LocalDateTime
@@ -19,6 +18,8 @@ object AccountTable : Table("account") {
 val stringGenerator = RandomStringGenerator()
 
 object TableTest {
+    val datasource = InstepSQLTest.datasource
+
     @Test
     fun createAccountTable() {
         AccountTable.create().log().execute()
@@ -49,5 +50,40 @@ object TableTest {
                 .log()
                 .execute()
         }
+    }
+
+    @Test(dependsOnMethods = arrayOf("insertAccounts"))
+    fun maxAccountId() {
+        AccountTable.select(AccountTable.id.max()).log().executeScalar().toInt()
+    }
+
+    @Test(dependsOnMethods = arrayOf("maxAccountId"))
+    fun updateAccounts() {
+        val random = Random()
+        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
+        val id = random.ints(1, max).findAny().orElse(max)
+
+        AccountTable.update()
+            .set(AccountTable.name, "laozi")
+            .set(AccountTable.balance, 3.33)
+            .where(id)
+            .log()
+            .executeUpdate()
+
+        var laozi = AccountTable[id]!!
+        assert(laozi[AccountTable.name] == "laozi")
+        assert(laozi[AccountTable.balance] == 3.33)
+
+
+        AccountTable.update()
+            .set(AccountTable.name, "dao de jing")
+            .set(AccountTable.balance, 6.66)
+            .where(AccountTable.name eq "laozi", AccountTable.balance lte 3.33)
+            .log()
+            .executeUpdate()
+
+        laozi = AccountTable.select().where(AccountTable.id eq id).log().execute().single()
+        assert(laozi[AccountTable.name] == "dao de jing")
+        assert(laozi[AccountTable.balance] == 6.66)
     }
 }
