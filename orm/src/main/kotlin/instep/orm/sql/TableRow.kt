@@ -18,8 +18,8 @@ class TableRow(val table: Table) {
     private val map = mutableMapOf<Column<*>, Any?>()
 
     @Suppress("unchecked_cast")
-    operator fun <Result : Any> get(column: Column<*>): Result? {
-        return map[column] as? Result?
+    operator fun get(column: Column<*>): Any? {
+        return map[column]
     }
 
     operator fun get(column: BooleanColumn): Boolean {

@@ -40,14 +40,12 @@ abstract class Table(val tableName: String) {
 
     fun autoIncrement(name: String): IntegerColumn {
         return IntegerColumn(this, name, IntegerColumnType.Int).apply {
-            primary = true
             autoIncrement = true
         }
     }
 
     fun autoIncrementLong(name: String): IntegerColumn {
         return IntegerColumn(this, name, IntegerColumnType.Long).apply {
-            primary = true
             autoIncrement = true
         }
     }
@@ -104,9 +102,24 @@ abstract class Table(val tableName: String) {
         return dialect.createTable(tableName, columns)
     }
 
+    fun insert(): TableInsertPlan {
+        val factory = Instep.make(TableInsertPlan.Companion::class.java)
+        return factory.createInstance(this)
+    }
+
     fun select(vararg columnOrAggregates: Any): TableSelectPlan {
         val factory = Instep.make(TableSelectPlan.Companion::class.java)
         return factory.createInstance(this).select(*columnOrAggregates)
+    }
+
+    fun update(): TableUpdatePlan {
+        val factory = Instep.make(TableUpdatePlan.Companion::class.java)
+        return factory.createInstance(this)
+    }
+
+    fun delete(): TableDeletePlan {
+        val factory = Instep.make(TableDeletePlan.Companion::class.java)
+        return factory.createInstance(this)
     }
 
     operator fun get(key: Number): TableRow? {
@@ -123,16 +136,27 @@ abstract class Table(val tableName: String) {
         return select().where(pk eq key).execute().singleOrNull()
     }
 
-    fun insert(): TableInsertPlan {
-        val factory = Instep.make(TableInsertPlan.Companion::class.java)
-        return factory.createInstance(this)
+    operator fun set(key: Number, row: TableRow) {
+        if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
+
+        val pk = primaryKey as IntegerColumn
+        val plan = update()
+        columns.forEach {
+            plan.set(it, row[it])
+        }
+        plan.where(pk eq key).execute()
     }
 
-    fun update(): TableUpdatePlan {
-        val factory = Instep.make(TableUpdatePlan.Companion::class.java)
-        return factory.createInstance(this)
+    operator fun set(key: String, row: TableRow) {
+        if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
+
+        val pk = primaryKey as StringColumn
+        val plan = update()
+        columns.forEach {
+            plan.set(it, row[it])
+        }
+        plan.where(pk eq key).execute()
     }
-    //TODO use set operator to insert&update
 
     companion object {
         init {
@@ -141,13 +165,6 @@ abstract class Table(val tableName: String) {
             }
             catch(e: ServiceNotFoundException) {
                 Instep.bind(Dialect::class.java, H2Dialect())
-            }
-
-            try {
-                Instep.make(TableRow.Companion::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                Instep.bind(TableRow.Companion::class.java, TableRow.Companion)
             }
 
             try {
@@ -169,6 +186,13 @@ abstract class Table(val tableName: String) {
             }
             catch(e: ServiceNotFoundException) {
                 Instep.bind(TableUpdatePlan.Companion::class.java, TableUpdatePlan.Companion)
+            }
+
+            try {
+                Instep.make(TableDeletePlan.Companion::class.java)
+            }
+            catch(e: ServiceNotFoundException) {
+                Instep.bind(TableDeletePlan.Companion::class.java, TableDeletePlan.Companion)
             }
         }
     }

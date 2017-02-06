@@ -86,4 +86,14 @@ object TableTest {
         assert(laozi[AccountTable.name] == "dao de jing")
         assert(laozi[AccountTable.balance] == 6.66)
     }
+
+    @Test(dependsOnMethods = arrayOf("maxAccountId"))
+    fun deleteAccounts() {
+        val random = Random()
+        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
+        val id = random.ints(1, max).findAny().orElse(max)
+
+        AccountTable.delete().where(AccountTable.id eq id).executeUpdate().let { println(it) }
+        assert(null == AccountTable[id])
+    }
 }

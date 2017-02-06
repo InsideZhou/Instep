@@ -26,13 +26,6 @@ object InstepSQL {
         }
 
         try {
-            Instep.make(TableSelectPlan.Companion::class.java)
-        }
-        catch(e: ServiceNotFoundException) {
-            Instep.bind(TableSelectPlan.Companion::class.java, TableSelectPlan.Companion)
-        }
-
-        try {
             Instep.make(ObjectSelectPlan.Companion::class.java)
         }
         catch(e: ServiceNotFoundException) {
