@@ -10,7 +10,7 @@ open class H2Dialect : Dialect {
         val ddl = "CREATE TABLE IF NOT EXISTS $tableName (\n"
 
         if (columns.isEmpty()) {
-            InstepLogger.warning("Table $tableName has no columns.", this.javaClass.name)
+            InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
         }
 
         val columnTxt = columns.map {

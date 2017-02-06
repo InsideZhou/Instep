@@ -26,6 +26,10 @@ object InstepSQLTest {
 
         Instep.bind(ConnectionManager::class.java, DefaultConnectionManager(datasource))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
+            override val enableDebug: Boolean = true
+            override val enableInfo: Boolean = true
+            override val enableWarning: Boolean = true
+
             override val defaultLogger: String = this.javaClass.name
 
             override fun debug(log: String, logger: String) {
@@ -36,7 +40,7 @@ object InstepSQLTest {
                 println(log)
             }
 
-            override fun warn(log: String, logger: String) {
+            override fun warning(log: String, logger: String) {
                 System.err.println(log)
             }
         })

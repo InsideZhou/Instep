@@ -8,9 +8,13 @@ import instep.servicecontainer.ServiceNotFoundException
 interface InstepLogger {
     val defaultLogger: String
 
+    val enableDebug: Boolean
+    val enableInfo: Boolean
+    val enableWarning: Boolean
+
     fun debug(log: String, logger: String = "")
     fun info(log: String, logger: String = "")
-    fun warn(log: String, logger: String = "")
+    fun warning(log: String, logger: String = "")
 
     companion object {
         var root = try {
@@ -20,16 +24,28 @@ interface InstepLogger {
             null
         }
 
-        fun debug(log: String, logger: String = "") {
-            root?.debug(log, logger)
+        fun debug(lazy: () -> String, logger: String = "") {
+            root?.let {
+                if (it.enableDebug) {
+                    it.debug(lazy(), logger)
+                }
+            }
         }
 
-        fun info(log: String, logger: String = "") {
-            root?.info(log, logger)
+        fun info(lazy: () -> String, logger: String = "") {
+            root?.let {
+                if (it.enableInfo) {
+                    it.info(lazy(), logger)
+                }
+            }
         }
 
-        fun warning(log: String, logger: String = "") {
-            root?.warn(log, logger)
+        fun warning(lazy: () -> String, logger: String = "") {
+            root?.let {
+                if (it.enableWarning) {
+                    it.warning(lazy(), logger)
+                }
+            }
         }
     }
 }
