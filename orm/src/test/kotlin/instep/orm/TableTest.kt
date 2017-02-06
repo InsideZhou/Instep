@@ -9,9 +9,9 @@ import java.util.*
 
 object AccountTable : Table("account") {
     val id = autoIncrementLong("id").primary()
-    val name = varchar("name", 256).nullable(false)
-    val balance = numeric("balance", Int.MAX_VALUE, 2).nullable(false)
-    val createdAt = datetime("created_at").nullable(false)
+    val name = varchar("name", 256).notnull()
+    val balance = numeric("balance", Int.MAX_VALUE, 2).notnull()
+    val createdAt = datetime("created_at").notnull()
     val avatar = lob("avatar")
 }
 
@@ -23,6 +23,11 @@ object TableTest {
     @Test
     fun createAccountTable() {
         AccountTable.create().log().execute()
+    }
+
+    @Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
+    fun addColumn() {
+        AccountTable.addColumn(AccountTable.boolean("verified").default("FALSE")).log().execute()
     }
 
     @Test(dependsOnMethods = arrayOf("createAccountTable"))

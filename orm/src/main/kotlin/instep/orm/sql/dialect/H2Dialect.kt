@@ -13,53 +13,12 @@ open class H2Dialect : Dialect {
             InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
         }
 
-        val columnTxt = columns.map {
-            var txt = "\t${it.name}"
-
-            txt += " " + when (it) {
-                is BooleanColumn -> definitionForBooleanColumn(it)
-                is StringColumn -> definitionForStringColumn(it)
-                is IntegerColumn ->
-                    if (it.autoIncrement) {
-                        definitionForAutoIncrementColumn(it)
-                    }
-                    else {
-                        definitionForIntegerColumn(it)
-                    }
-                is FloatingColumn -> definitionForFloatingColumn(it)
-                is DateTimeColumn -> definitionForDateTimeColumn(it)
-                is BinaryColumn -> definitionForBinaryColumn(it)
-                else -> throw UnexpectedTouch()
-            }
-
-            if (!it.nullable) {
-                txt += " NOT NULL"
-            }
-
-            if (it.default.isNotBlank()) {
-                txt += " ${it.default}"
-            }
-
-            if (it.primary) {
-                txt += " PRIMARY KEY"
-            }
-
-            return@map txt
-        }.joinToString(",\n")
-
-        return InstepSQL.plan(ddl + columnTxt + "\n)")
+        return InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
     }
 
-    override fun dropTable(tableName: String): Plan<*> {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun addColumns(tableName: String, columns: List<Column<*>>): Plan<*> {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun dropColumns(tableName: String, columns: List<Column<*>>): Plan<*> {
-        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    override fun addColumn(tableName: String, column: Column<*>): Plan<*> {
+        val columnDefinition = definitionForColumns(column)
+        return InstepSQL.plan("ALTER TABLE $tableName ADD COLUMN$columnDefinition")
     }
 
     override val pagination: Pagination = StandardPagination()
@@ -107,5 +66,41 @@ open class H2Dialect : Dialect {
             BinaryColumnType.Varying -> "BINARY(${column.length})"
             BinaryColumnType.BLOB -> "BLOB"
         }
+    }
+
+    private fun definitionForColumns(vararg columns: Column<*>): String {
+        return columns.map {
+            var txt = "\t${it.name}"
+
+            txt += " " + when (it) {
+                is BooleanColumn -> definitionForBooleanColumn(it)
+                is StringColumn -> definitionForStringColumn(it)
+                is IntegerColumn ->
+                    if (it.autoIncrement) {
+                        definitionForAutoIncrementColumn(it)
+                    }
+                    else {
+                        definitionForIntegerColumn(it)
+                    }
+                is FloatingColumn -> definitionForFloatingColumn(it)
+                is DateTimeColumn -> definitionForDateTimeColumn(it)
+                is BinaryColumn -> definitionForBinaryColumn(it)
+                else -> throw UnexpectedTouch()
+            }
+
+            if (!it.nullable) {
+                txt += " NOT NULL"
+            }
+
+            if (it.default.isNotBlank()) {
+                txt += " DEFAULT ${it.default}"
+            }
+
+            if (it.primary) {
+                txt += " PRIMARY KEY"
+            }
+
+            return@map txt
+        }.joinToString(",\n")
     }
 }

@@ -10,80 +10,84 @@ import instep.servicecontainer.ServiceNotFoundException
  * Abstract DAO object.
  */
 abstract class Table(val tableName: String) {
+    fun boolean(name: String): BooleanColumn {
+        return BooleanColumn(name)
+    }
+
     fun char(name: String, length: Int): StringColumn {
-        return StringColumn(this, name, StringColumnType.Char, length)
+        return StringColumn(name, StringColumnType.Char, length)
     }
 
     fun varchar(name: String, length: Int): StringColumn {
-        return StringColumn(this, name, StringColumnType.Varchar, length)
+        return StringColumn(name, StringColumnType.Varchar, length)
     }
 
     fun text(name: String): StringColumn {
-        return StringColumn(this, name, StringColumnType.Text)
+        return StringColumn(name, StringColumnType.Text)
     }
 
     fun tinyInt(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Tiny)
+        return IntegerColumn(name, IntegerColumnType.Tiny)
     }
 
     fun smallInt(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Small)
+        return IntegerColumn(name, IntegerColumnType.Small)
     }
 
     fun int(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Int)
+        return IntegerColumn(name, IntegerColumnType.Int)
     }
 
     fun long(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Long)
+        return IntegerColumn(name, IntegerColumnType.Long)
     }
 
     fun autoIncrement(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Int).apply {
+        return IntegerColumn(name, IntegerColumnType.Int).apply {
             autoIncrement = true
         }
     }
 
     fun autoIncrementLong(name: String): IntegerColumn {
-        return IntegerColumn(this, name, IntegerColumnType.Long).apply {
+        return IntegerColumn(name, IntegerColumnType.Long).apply {
             autoIncrement = true
         }
     }
 
     fun float(name: String): FloatingColumn {
-        return FloatingColumn(this, name, FloatingColumnType.Float)
+        return FloatingColumn(name, FloatingColumnType.Float)
     }
 
     fun double(name: String): FloatingColumn {
-        return FloatingColumn(this, name, FloatingColumnType.Double)
+        return FloatingColumn(name, FloatingColumnType.Double)
     }
 
     fun numeric(name: String, precision: Int, scale: Int): FloatingColumn {
-        return FloatingColumn(this, name, FloatingColumnType.Numeric, precision, scale)
+        return FloatingColumn(name, FloatingColumnType.Numeric, precision, scale)
     }
 
     fun date(name: String): DateTimeColumn {
-        return DateTimeColumn(this, name, DateTimeColumnType.Date)
+        return DateTimeColumn(name, DateTimeColumnType.Date)
     }
 
     fun time(name: String): DateTimeColumn {
-        return DateTimeColumn(this, name, DateTimeColumnType.Time)
+        return DateTimeColumn(name, DateTimeColumnType.Time)
     }
 
     fun datetime(name: String): DateTimeColumn {
-        return DateTimeColumn(this, name, DateTimeColumnType.DateTime)
+        return DateTimeColumn(name, DateTimeColumnType.DateTime)
     }
 
     fun offsetDateTime(name: String): DateTimeColumn {
-        return DateTimeColumn(this, name, DateTimeColumnType.OffsetDateTime)
+        return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
     }
 
     fun bytes(name: String, length: Int): BinaryColumn {
-        return BinaryColumn(this, name, BinaryColumnType.Varying, length)
+        return BinaryColumn(name, BinaryColumnType.Varying, length)
     }
 
     fun lob(name: String): BinaryColumn {
-        return BinaryColumn(this, name, BinaryColumnType.BLOB)
+        return BinaryColumn(name, BinaryColumnType.BLOB)
     }
 
     val columns: List<Column<*>>
@@ -100,6 +104,11 @@ abstract class Table(val tableName: String) {
     fun create(): Plan<*> {
         val dialect = Instep.make(Dialect::class.java)
         return dialect.createTable(tableName, columns)
+    }
+
+    fun addColumn(column: Column<*>): Plan<*> {
+        val dialect = Instep.make(Dialect::class.java)
+        return dialect.addColumn(tableName, column)
     }
 
     fun insert(): TableInsertPlan {

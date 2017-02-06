@@ -1,6 +1,6 @@
 package instep.orm.sql
 
-abstract class Column<T : Column<T>>(val table: Table, val name: String) {
+abstract class Column<T : Column<T>>(val name: String) {
     var primary = false
     var nullable = true
     var default = ""
@@ -12,8 +12,8 @@ abstract class Column<T : Column<T>>(val table: Table, val name: String) {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun nullable(nullable: Boolean): T {
-        this.nullable = nullable
+    fun notnull(): T {
+        this.nullable = false
         return this as T
     }
 
@@ -24,9 +24,9 @@ abstract class Column<T : Column<T>>(val table: Table, val name: String) {
     }
 }
 
-abstract class NumberColumn<T : Column<T>>(table: Table, name: String) : Column<T>(table, name)
+abstract class NumberColumn<T : Column<T>>(name: String) : Column<T>(name)
 
-class IntegerColumn(table: Table, name: String, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(table, name) {
+class IntegerColumn(name: String, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name) {
     var autoIncrement = false
 
     fun autoIncrement(): IntegerColumn {
@@ -39,16 +39,16 @@ class IntegerColumn(table: Table, name: String, val type: IntegerColumnType) : N
     }
 }
 
-class BooleanColumn(table: Table, name: String) : Column<BooleanColumn>(table, name)
-class StringColumn(table: Table, name: String, val type: StringColumnType, val length: Int = 256) : Column<StringColumn>(table, name) {
+class BooleanColumn(name: String) : Column<BooleanColumn>(name)
+class StringColumn(name: String, val type: StringColumnType, val length: Int = 256) : Column<StringColumn>(name) {
     override public fun primary(): StringColumn {
         return super.primary()
     }
 }
 
-class FloatingColumn(table: Table, name: String, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) : NumberColumn<FloatingColumn>(table, name)
-class DateTimeColumn(table: Table, name: String, val type: DateTimeColumnType) : Column<DateTimeColumn>(table, name)
-class BinaryColumn(table: Table, name: String, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(table, name)
+class FloatingColumn(name: String, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) : NumberColumn<FloatingColumn>(name)
+class DateTimeColumn(name: String, val type: DateTimeColumnType) : Column<DateTimeColumn>(name)
+class BinaryColumn(name: String, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(name)
 
 enum class StringColumnType {
     Char, Varchar, Text

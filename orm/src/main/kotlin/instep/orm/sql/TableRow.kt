@@ -14,7 +14,7 @@ import java.time.OffsetDateTime
 /**
  * A table row filled with data.
  */
-class TableRow(val table: Table) {
+class TableRow {
     private val map = mutableMapOf<Column<*>, Any?>()
 
     @Suppress("unchecked_cast")
@@ -70,7 +70,7 @@ class TableRow(val table: Table) {
 
     companion object {
         fun createInstance(table: Table, rs: ResultSet): TableRow {
-            val row = TableRow(table)
+            val row = TableRow()
 
             val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
             table.columns.forEach { col ->
