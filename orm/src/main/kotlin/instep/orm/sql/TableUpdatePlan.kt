@@ -11,9 +11,13 @@ interface TableUpdatePlan : Plan<TableUpdatePlan>, WhereClause<TableUpdatePlan> 
     @Throws(OrmException::class)
     fun where(value: Any): TableUpdatePlan
 
-    companion object {
-        fun createInstance(table: Table): TableUpdatePlan {
+    companion object : TableUpdatePlanFactory {
+        override fun createInstance(table: Table): TableUpdatePlan {
             return DefaultTableUpdatePlan(table)
         }
     }
+}
+
+interface TableUpdatePlanFactory {
+    fun createInstance(table: Table): TableUpdatePlan
 }

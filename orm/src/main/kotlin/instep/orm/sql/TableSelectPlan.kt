@@ -23,18 +23,23 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
     fun limit(limit: Int): TableSelectPlan
     fun offset(offset: Int): TableSelectPlan
 
-    companion object {
+    companion object : TableSelectPlanFactory {
         init {
             try {
-                Instep.make(TableRow.Companion::class.java)
+                Instep.make(TableRow.Factory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableRow.Companion::class.java, TableRow.Companion)
+                Instep.bind(TableRow.Factory::class.java, TableRow.Companion)
             }
         }
 
-        fun createInstance(table: Table): TableSelectPlan {
+        override fun createInstance(table: Table): TableSelectPlan {
             return DefaultTableSelectPlan(table)
         }
     }
 }
+
+interface TableSelectPlanFactory {
+    fun createInstance(table: Table): TableSelectPlan
+}
+

@@ -11,9 +11,13 @@ interface TableInsertPlan : Plan<TableInsertPlan> {
     @Throws(OrmException::class)
     fun addValues(vararg values: Any?): TableInsertPlan
 
-    companion object {
-        fun createInstance(table: Table): TableInsertPlan {
+    companion object : TableInsertPlanFactory {
+        override fun createInstance(table: Table): TableInsertPlan {
             return DefaultTableInsertPlan(table)
         }
     }
+}
+
+interface TableInsertPlanFactory {
+    fun createInstance(table: Table): TableInsertPlan
 }

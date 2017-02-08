@@ -1,7 +1,6 @@
 package instep.orm.sql
 
 import instep.Instep
-import instep.InstepLogger
 import instep.UnexpectedTouch
 import instep.orm.OrmException
 import instep.orm.Plan
@@ -114,22 +113,22 @@ abstract class Table(val tableName: String) {
     }
 
     fun insert(): TableInsertPlan {
-        val factory = Instep.make(TableInsertPlan.Companion::class.java)
+        val factory = Instep.make(TableInsertPlanFactory::class.java)
         return factory.createInstance(this)
     }
 
     fun select(vararg columnOrAggregates: Any): TableSelectPlan {
-        val factory = Instep.make(TableSelectPlan.Companion::class.java)
+        val factory = Instep.make(TableSelectPlanFactory::class.java)
         return factory.createInstance(this).select(*columnOrAggregates)
     }
 
     fun update(): TableUpdatePlan {
-        val factory = Instep.make(TableUpdatePlan.Companion::class.java)
+        val factory = Instep.make(TableUpdatePlanFactory::class.java)
         return factory.createInstance(this)
     }
 
     fun delete(): TableDeletePlan {
-        val factory = Instep.make(TableDeletePlan.Companion::class.java)
+        val factory = Instep.make(TableDeletePlanFactory::class.java)
         return factory.createInstance(this)
     }
 
@@ -207,31 +206,31 @@ abstract class Table(val tableName: String) {
             }
 
             try {
-                Instep.make(TableSelectPlan.Companion::class.java)
+                Instep.make(TableSelectPlanFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableSelectPlan.Companion::class.java, TableSelectPlan.Companion)
+                Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlan.Companion)
             }
 
             try {
-                Instep.make(TableInsertPlan.Companion::class.java)
+                Instep.make(TableInsertPlanFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableInsertPlan.Companion::class.java, TableInsertPlan.Companion)
+                Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlan.Companion)
             }
 
             try {
-                Instep.make(TableUpdatePlan.Companion::class.java)
+                Instep.make(TableUpdatePlanFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableUpdatePlan.Companion::class.java, TableUpdatePlan.Companion)
+                Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlan.Companion)
             }
 
             try {
-                Instep.make(TableDeletePlan.Companion::class.java)
+                Instep.make(TableDeletePlanFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableDeletePlan.Companion::class.java, TableDeletePlan.Companion)
+                Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlan.Companion)
             }
         }
     }

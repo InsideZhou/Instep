@@ -8,9 +8,13 @@ interface TableDeletePlan : Plan<TableDeletePlan>, WhereClause<TableDeletePlan> 
     @Throws(OrmException::class)
     fun where(value: Any): TableDeletePlan
 
-    companion object {
-        fun createInstance(table: Table): TableDeletePlan {
+    companion object : TableDeletePlanFactory {
+        override fun createInstance(table: Table): TableDeletePlan {
             return DefaultTableDeletePlan(table)
         }
     }
+}
+
+interface TableDeletePlanFactory {
+    fun createInstance(table: Table): TableDeletePlan
 }
