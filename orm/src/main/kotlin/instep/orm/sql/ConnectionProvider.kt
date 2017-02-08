@@ -2,6 +2,6 @@ package instep.orm.sql
 
 import java.sql.Connection
 
-interface ConnectionManager {
+interface ConnectionProvider {
     fun getConnection(): Connection
 }

@@ -17,7 +17,6 @@ import java.time.OffsetDateTime
 class TableRow {
     private val map = mutableMapOf<Column<*>, Any?>()
 
-    @Suppress("unchecked_cast")
     operator fun get(column: Column<*>): Any? {
         return map[column]
     }

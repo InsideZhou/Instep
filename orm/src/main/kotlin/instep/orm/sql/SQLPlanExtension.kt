@@ -60,7 +60,7 @@ fun Plan<*>.executeResultSet(conn: Connection): ResultSet {
 @Suppress("unchecked_cast")
 fun TableSelectPlan.execute(): List<TableRow> {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
-    val connMan = Instep.make(ConnectionManager::class.java)
+    val connMan = Instep.make(ConnectionProvider::class.java)
     val conn = connMan.getConnection()
     val result = mutableListOf<TableRow>()
     val rowFactory = Instep.make(TableRow.Companion::class.java)

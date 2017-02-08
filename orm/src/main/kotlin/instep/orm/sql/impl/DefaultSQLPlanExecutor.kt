@@ -2,7 +2,7 @@ package instep.orm.sql.impl
 
 import instep.Instep
 import instep.collection.AssocArray
-import instep.orm.sql.ConnectionManager
+import instep.orm.sql.ConnectionProvider
 import instep.orm.sql.SQLPlanExecutor
 import instep.reflection.Mirror
 import instep.typeconvert.Converter
@@ -12,12 +12,12 @@ import java.sql.ResultSet
 import java.sql.Types
 import java.time.OffsetDateTime
 
-open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQLPlanExecutor {
-    constructor() : this(Instep.make(ConnectionManager::class.java)) {
+open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : SQLPlanExecutor {
+    constructor() : this(Instep.make(ConnectionProvider::class.java)) {
     }
 
     override fun execute(plan: instep.orm.Plan<*>) {
-        val conn = connectionManager.getConnection()
+        val conn = connectionProvider.getConnection()
         try {
             val stmt = Helper.generateStatement(conn, plan)
             stmt.execute()
@@ -28,7 +28,7 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
     }
 
     override fun executeScalar(plan: instep.orm.Plan<*>): String {
-        val conn = connectionManager.getConnection()
+        val conn = connectionProvider.getConnection()
 
         try {
             val rs = executeResultSet(conn, plan)
@@ -42,7 +42,7 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
     }
 
     override fun executeUpdate(plan: instep.orm.Plan<*>): Long {
-        val conn = connectionManager.getConnection()
+        val conn = connectionProvider.getConnection()
         val stmt = Helper.generateStatement(conn, plan)
         try {
             return stmt.executeLargeUpdate()
@@ -63,7 +63,7 @@ open class DefaultSQLPlanExecutor(val connectionManager: ConnectionManager) : SQ
     override fun <T : Any> execute(plan: instep.orm.Plan<*>, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
-        connectionManager.getConnection().let { conn ->
+        connectionProvider.getConnection().let { conn ->
             val typeconvert = Instep.make(TypeConvert::class.java)
 
             try {

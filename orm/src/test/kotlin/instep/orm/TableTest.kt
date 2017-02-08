@@ -6,28 +6,26 @@ import org.testng.annotations.Test
 import java.time.LocalDateTime
 import java.util.*
 
-
-object AccountTable : Table("account") {
-    val id = autoIncrementLong("id").primary()
-    val name = varchar("name", 256).notnull()
-    val balance = numeric("balance", Int.MAX_VALUE, 2).notnull()
-    val createdAt = datetime("created_at").notnull()
-    val avatar = lob("avatar")
-}
-
-val stringGenerator = RandomStringGenerator()
-
 object TableTest {
+    val stringGenerator = RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
+
+    object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
+        val id = autoIncrementLong("id").primary()
+        val name = varchar("name", 256).notnull()
+        val balance = numeric("balance", Int.MAX_VALUE, 2).notnull()
+        val createdAt = datetime("created_at").notnull()
+        val avatar = lob("avatar")
+    }
 
     @Test
     fun createAccountTable() {
-        AccountTable.create().log().execute()
+        AccountTable.create().debug().execute()
     }
 
     @Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
     fun addColumn() {
-        AccountTable.addColumn(AccountTable.boolean("verified").default("FALSE")).log().execute()
+        AccountTable.addColumn(AccountTable.boolean("verified").default("FALSE")).debug().execute()
     }
 
     @Test(dependsOnMethods = arrayOf("createAccountTable"))
@@ -52,14 +50,14 @@ object TableTest {
                 .addValue(AccountTable.name, name)
                 .addValue(AccountTable.balance, random.nextDouble())
                 .addValue(AccountTable.createdAt, LocalDateTime.now())
-                .log()
+                .debug()
                 .execute()
         }
     }
 
     @Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun maxAccountId() {
-        AccountTable.select(AccountTable.id.max()).log().executeScalar().toInt()
+        AccountTable.select(AccountTable.id.max()).debug().executeScalar().toInt()
     }
 
     @Test(dependsOnMethods = arrayOf("maxAccountId"))
@@ -72,7 +70,7 @@ object TableTest {
             .set(AccountTable.name, "laozi")
             .set(AccountTable.balance, 3.33)
             .where(id)
-            .log()
+            .debug()
             .executeUpdate()
 
         var laozi = AccountTable[id]!!
@@ -84,10 +82,10 @@ object TableTest {
             .set(AccountTable.name, "dao de jing")
             .set(AccountTable.balance, 6.66)
             .where(AccountTable.name eq "laozi", AccountTable.balance lte 3.33)
-            .log()
+            .debug()
             .executeUpdate()
 
-        laozi = AccountTable.select().where(AccountTable.id eq id).log().execute().single()
+        laozi = AccountTable.select().where(AccountTable.id eq id).debug().execute().single()
         assert(laozi[AccountTable.name] == "dao de jing")
         assert(laozi[AccountTable.balance] == 6.66)
     }

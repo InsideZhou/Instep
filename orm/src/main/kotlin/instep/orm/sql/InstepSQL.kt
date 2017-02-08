@@ -8,7 +8,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 object InstepSQL {
-    var transactionLevel = Connection.TRANSACTION_READ_COMMITTED;
+    var transactionLevel = Connection.TRANSACTION_READ_COMMITTED
 
     init {
         try {
@@ -83,30 +83,56 @@ object InstepSQL {
         return factory.createInstance(txt).executeResultSet(conn)
     }
 
-    inline fun <R : Any?> transaction(runner: () -> R): R {
+    fun <R : Any?> transaction(runner: TransactionContext.() -> R): R {
         return transaction(transactionLevel, runner)
     }
 
-    inline fun <R : Any?> transaction(level: Int, runner: () -> R): R {
-        val connMan = Instep.make(ConnectionManager::class.java)
-        val conn = connMan.getConnection()
-        try {
+    fun <R : Any?> transaction(level: Int, runner: TransactionContext.() -> R): R {
+        var transactionContext = TransactionContext.threadLocalTransactionContext.get()
+        if (null == transactionContext) {
+            val connMan = Instep.make(ConnectionProvider::class.java)
+            val conn = connMan.getConnection()
             conn.transactionIsolation = level
+            conn.autoCommit = false
+            transactionContext = TransactionContext(conn)
+        }
+        else {
+            transactionContext.depth += 1
+        }
 
-            conn.setSavepoint()
-            val result = runner()
-            conn.commit()
+        TransactionContext.threadLocalTransactionContext.set(transactionContext)
+        val conn = transactionContext.conn
+        val sp = conn.setSavepoint()
+
+        try {
+            val result = runner(transactionContext)
+
+            if (transactionContext.depth > 0) {
+                conn.releaseSavepoint(sp)
+            }
+            else {
+                TransactionContext.threadLocalTransactionContext.set(null)
+                conn.commit()
+            }
 
             return result
         }
+        catch(e: TransactionContext.AbortException) {
+            conn.rollback(sp)
+            return null as R
+        }
         catch(e: Exception) {
-            conn.rollback()
-
+            conn.rollback(sp)
             throw e
         }
         finally {
-            conn.close()
+            if (transactionContext.depth > 0) {
+                transactionContext.depth -= 1
+            }
+            else {
+                TransactionContext.threadLocalTransactionContext.set(null)
+                conn.close()
+            }
         }
     }
 }
-

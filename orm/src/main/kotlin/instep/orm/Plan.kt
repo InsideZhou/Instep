@@ -14,9 +14,15 @@ interface Plan<T : Plan<T>> : Serializable, Cloneable {
     val parameters: List<Any?>
 
     @Suppress("UNCHECKED_CAST")
-    fun log(): T {
-        InstepLogger.info({ statement }, this.javaClass.name)
-        InstepLogger.info({ parameters.map { it.toString() }.joinToString("|") }, this.javaClass.name)
+    fun debug(): T {
+        InstepLogger.debug({ statement }, this.javaClass.name)
+        InstepLogger.debug({ parameters.map { it.toString() }.joinToString("|") }, this.javaClass.name)
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun log(runner: () -> Unit): T {
+        runner()
         return this as T
     }
 

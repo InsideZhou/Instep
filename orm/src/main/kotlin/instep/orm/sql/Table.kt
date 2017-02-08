@@ -1,6 +1,8 @@
 package instep.orm.sql
 
 import instep.Instep
+import instep.InstepLogger
+import instep.UnexpectedTouch
 import instep.orm.OrmException
 import instep.orm.Plan
 import instep.orm.sql.dialect.H2Dialect
@@ -135,7 +137,7 @@ abstract class Table(val tableName: String) {
         if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
 
         val pk = primaryKey as IntegerColumn
-        return select().where(pk eq key).execute().singleOrNull()
+        return select().where(pk eq key).debug().execute().singleOrNull()
     }
 
     operator fun get(key: String): TableRow? {
@@ -146,25 +148,53 @@ abstract class Table(val tableName: String) {
     }
 
     operator fun set(key: Number, row: TableRow) {
-        if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
-
-        val pk = primaryKey as IntegerColumn
-        val plan = update()
-        columns.forEach {
-            plan.set(it, row[it])
-        }
-        plan.where(pk eq key).execute()
+        insertOrUpdate(key, row)
     }
 
     operator fun set(key: String, row: TableRow) {
-        if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
+        insertOrUpdate(key, row)
+    }
 
-        val pk = primaryKey as StringColumn
-        val plan = update()
-        columns.forEach {
-            plan.set(it, row[it])
+    private fun insertOrUpdate(key: Any, row: TableRow) {
+        val pk = primaryKey
+        if (null == pk) throw OrmException("Table $tableName should has primary key")
+
+        when (key) {
+            is Number -> {
+                val existsRow = this[key]
+                if (null != existsRow) {
+                    val plan = update()
+                    columns.forEach {
+                        plan.set(it, row[it])
+                    }
+                    plan.where(pk as NumberColumn eq key).execute()
+                    return
+                }
+            }
+            is String -> {
+                val existsRow = this[key]
+                if (null != existsRow) {
+                    val plan = update()
+                    columns.forEach {
+                        plan.set(it, row[it])
+                    }
+                    plan.where(pk as StringColumn eq key).execute()
+                    return
+                }
+            }
+            else -> throw UnexpectedTouch()
         }
-        plan.where(pk eq key).execute()
+
+        val plan = insert()
+        columns.forEach {
+            plan.addValue(it, row[it])
+        }
+
+        if (null == row[pk]) {
+            plan.addValue(pk, key)
+        }
+
+        plan.debug().execute()
     }
 
     companion object {
