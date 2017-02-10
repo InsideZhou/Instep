@@ -84,55 +84,12 @@ object InstepSQL {
     }
 
     fun <R : Any?> transaction(runner: TransactionContext.() -> R): R {
-        return transaction(transactionLevel, runner)
+        val transactionScope = Instep.make(TransactionScope::class.java)
+        return transactionScope.template(transactionLevel, runner)
     }
 
     fun <R : Any?> transaction(level: Int, runner: TransactionContext.() -> R): R {
-        var transactionContext = TransactionContext.threadLocalTransactionContext.get()
-        if (null == transactionContext) {
-            val connMan = Instep.make(ConnectionProvider::class.java)
-            val conn = connMan.getConnection()
-            conn.transactionIsolation = level
-            conn.autoCommit = false
-            transactionContext = TransactionContext(conn)
-        }
-        else {
-            transactionContext.depth += 1
-        }
-
-        TransactionContext.threadLocalTransactionContext.set(transactionContext)
-        val conn = transactionContext.conn
-        val sp = conn.setSavepoint()
-
-        try {
-            val result = runner(transactionContext)
-
-            if (transactionContext.depth > 0) {
-                conn.releaseSavepoint(sp)
-            }
-            else {
-                TransactionContext.threadLocalTransactionContext.set(null)
-                conn.commit()
-            }
-
-            return result
-        }
-        catch(e: TransactionContext.AbortException) {
-            conn.rollback(sp)
-            return null as R
-        }
-        catch(e: Exception) {
-            conn.rollback(sp)
-            throw e
-        }
-        finally {
-            if (transactionContext.depth > 0) {
-                transactionContext.depth -= 1
-            }
-            else {
-                TransactionContext.threadLocalTransactionContext.set(null)
-                conn.close()
-            }
-        }
+        val transactionScope = Instep.make(TransactionScope::class.java)
+        return transactionScope.template(level, runner)
     }
 }

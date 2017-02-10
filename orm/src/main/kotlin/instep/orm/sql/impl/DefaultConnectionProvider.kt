@@ -6,7 +6,7 @@ import java.sql.Connection
 import javax.sql.DataSource
 
 open class DefaultConnectionProvider(val ds: DataSource) : ConnectionProvider {
-    class ConnectionWithNestedTransaction(private val conn: Connection) : Connection by conn {
+    open class ConnectionWithNestedTransaction(private val conn: Connection) : Connection by conn {
         override fun rollback() {
             TransactionContext.threadLocalTransactionContext.get()?.run {
                 throw TransactionContext.AbortException()

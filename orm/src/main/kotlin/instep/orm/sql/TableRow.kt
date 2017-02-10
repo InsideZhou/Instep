@@ -15,10 +15,6 @@ import java.time.OffsetDateTime
  * A table row filled with data.
  */
 class TableRow {
-    interface Factory {
-        fun createInstance(table: Table, rs: ResultSet): TableRow
-    }
-
     private val map = mutableMapOf<Column<*>, Any?>()
 
     operator fun get(column: Column<*>): Any? {
@@ -71,7 +67,7 @@ class TableRow {
         map[column] = value
     }
 
-    companion object : Factory {
+    companion object : TableRowFactory {
         override fun createInstance(table: Table, rs: ResultSet): TableRow {
             val row = TableRow()
 
@@ -115,5 +111,9 @@ class TableRow {
             return row
         }
     }
+}
+
+interface TableRowFactory {
+    fun createInstance(table: Table, rs: ResultSet): TableRow
 }
 

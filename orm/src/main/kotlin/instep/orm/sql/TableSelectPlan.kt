@@ -26,10 +26,10 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
     companion object : TableSelectPlanFactory {
         init {
             try {
-                Instep.make(TableRow.Factory::class.java)
+                Instep.make(TableRowFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(TableRow.Factory::class.java, TableRow.Companion)
+                Instep.bind(TableRowFactory::class.java, TableRow.Companion)
             }
         }
 

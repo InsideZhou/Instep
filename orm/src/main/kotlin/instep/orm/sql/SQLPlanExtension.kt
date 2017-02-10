@@ -63,7 +63,7 @@ fun TableSelectPlan.execute(): List<TableRow> {
     val connMan = Instep.make(ConnectionProvider::class.java)
     val conn = connMan.getConnection()
     val result = mutableListOf<TableRow>()
-    val rowFactory = Instep.make(TableRow.Companion::class.java)
+    val rowFactory = Instep.make(TableRowFactory::class.java)
 
     try {
         val rs = planExec.executeResultSet(conn, this)
