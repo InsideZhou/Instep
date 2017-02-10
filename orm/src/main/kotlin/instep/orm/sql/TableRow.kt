@@ -1,6 +1,6 @@
 package instep.orm.sql
 
-import instep.UnexpectedTouch
+import instep.UnexpectedCode
 import instep.orm.sql.impl.Helper
 import java.io.InputStream
 import java.math.BigDecimal
@@ -104,7 +104,7 @@ class TableRow {
                         else -> rs.getBytes(info.index)
                     }
 
-                    else -> throw UnexpectedTouch()
+                    else -> throw UnexpectedCode()
                 }
             }
 
