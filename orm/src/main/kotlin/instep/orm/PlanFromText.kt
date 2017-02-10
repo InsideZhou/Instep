@@ -1,6 +1,6 @@
 package instep.orm
 
-import instep.orm.planbuild.DefaultPlanFromText
+import instep.orm.impl.DefaultPlanFromText
 
 interface PlanFromText : Plan<PlanFromText>, Expression {
     override fun addParameters(vararg parameters: Any?): PlanFromText

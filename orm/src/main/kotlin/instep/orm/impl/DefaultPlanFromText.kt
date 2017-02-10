@@ -1,4 +1,4 @@
-package instep.orm.planbuild
+package instep.orm.impl
 
 import instep.orm.Expression
 import instep.orm.PlanFromText

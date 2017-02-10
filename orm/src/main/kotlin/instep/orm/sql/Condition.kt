@@ -1,7 +1,7 @@
 package instep.orm.sql
 
 import instep.orm.Expression
-import instep.orm.planbuild.DefaultExpression
+import instep.orm.impl.DefaultExpression
 
 open class Condition protected constructor(txt: String) : DefaultExpression(txt) {
     var conjunction: Conjunction? = null
