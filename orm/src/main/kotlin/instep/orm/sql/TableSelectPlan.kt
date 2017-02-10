@@ -8,6 +8,7 @@ import instep.servicecontainer.ServiceNotFoundException
 
 interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> {
     val select: AssocArray
+    val distinct: Boolean
     val from: Table
     val groupBy: List<Column<*>>
     val having: Condition?
@@ -17,6 +18,7 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
 
 
     fun select(vararg columnOrAggregates: Any): TableSelectPlan
+    fun distinct(): TableSelectPlan
     fun groupBy(vararg columns: Column<*>): TableSelectPlan
     fun having(vararg conditions: Condition): TableSelectPlan
     fun orderBy(vararg orderBys: OrderBy): TableSelectPlan

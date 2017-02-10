@@ -20,7 +20,9 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
                 }
             }.joinToString(",")
 
-            var sql = if (selectClause.isBlank()) "SELECT * FROM ${from.tableName}" else "SELECT $selectClause FROM ${from.tableName}"
+            val selectTxt = if (distinct) "SELECT DISTINCT" else "SELECT"
+
+            var sql = if (selectClause.isBlank()) "$selectTxt * FROM ${from.tableName}" else "$selectTxt $selectClause FROM ${from.tableName}"
 
             val whereClause = where?.expression
             if (null != whereClause) {
@@ -61,6 +63,9 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
     override var select: AssocArray = AssocArray()
         private set
 
+    override var distinct: Boolean = false
+        private set
+
     override var where: Condition? = null
 
     override var groupBy: List<Column<*>> = emptyList()
@@ -80,6 +85,11 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
 
     override fun select(vararg columnOrAggregates: Any): TableSelectPlan {
         this.select.add(*columnOrAggregates)
+        return this
+    }
+
+    override fun distinct(): TableSelectPlan {
+        this.distinct = true
         return this
     }
 

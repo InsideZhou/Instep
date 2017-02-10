@@ -77,5 +77,7 @@ object InstepSQLTest {
             abort()
         }
         assert(TransactionTable[2] == null)
+
+        assert(TransactionTable.select(TransactionTable.id.count()).distinct().debug().executeScalar().toInt() == 1)
     }
 }

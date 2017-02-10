@@ -136,7 +136,7 @@ abstract class Table(val tableName: String) {
         if (null == primaryKey) throw OrmException("Table $tableName should has primary key")
 
         val pk = primaryKey as IntegerColumn
-        return select().where(pk eq key).debug().execute().singleOrNull()
+        return select().where(pk eq key).execute().singleOrNull()
     }
 
     operator fun get(key: String): TableRow? {
@@ -193,7 +193,7 @@ abstract class Table(val tableName: String) {
             plan.addValue(pk, key)
         }
 
-        plan.debug().execute()
+        plan.execute()
     }
 
     companion object {
