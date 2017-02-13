@@ -70,10 +70,4 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
 
             return result
         }
-
-    override fun clone(): DefaultTableUpdatePlan {
-        val plan = DefaultTableUpdatePlan(table, params)
-        plan.where = where
-        return plan
-    }
 }

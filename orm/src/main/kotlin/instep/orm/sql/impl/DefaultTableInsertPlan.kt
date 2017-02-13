@@ -52,11 +52,4 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
 
     override val parameters: List<Any?>
         get() = params.toList()
-
-    override fun clone(): DefaultTableInsertPlan {
-        val plan = DefaultTableInsertPlan(table, params)
-        plan.usingColumn = usingColumn
-        plan.usingPositional = usingPositional
-        return plan
-    }
 }

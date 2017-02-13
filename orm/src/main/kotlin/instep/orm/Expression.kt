@@ -28,8 +28,6 @@ interface Expression : Serializable, Cloneable {
      */
     @Throws(PlaceHolderRemainingException::class)
     fun addExpressions(vararg expressions: Expression): Expression
-
-    override public fun clone(): Expression
 }
 
 class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false) {

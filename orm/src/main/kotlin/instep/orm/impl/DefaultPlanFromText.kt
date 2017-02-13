@@ -3,8 +3,7 @@ package instep.orm.impl
 import instep.orm.Expression
 import instep.orm.PlanFromText
 
-open class DefaultPlanFromText private constructor(txt: String, paramsInitRequired: Boolean) : DefaultExpression(txt, paramsInitRequired), PlanFromText {
-    constructor(txt: String) : this(txt, true)
+open class DefaultPlanFromText(txt: String) : DefaultExpression(txt), PlanFromText {
 
     override fun addExpression(placeHolderName: String, expression: Expression?): PlanFromText {
         super.addExpression(placeHolderName, expression)
@@ -24,10 +23,6 @@ open class DefaultPlanFromText private constructor(txt: String, paramsInitRequir
     override fun addParameters(vararg parameters: Any?): PlanFromText {
         super.addParameters(*parameters)
         return this
-    }
-
-    override fun clone(): PlanFromText {
-        return DefaultPlanFromText(txt, false)
     }
 
     override val statement: String

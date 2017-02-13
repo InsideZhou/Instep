@@ -125,18 +125,6 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
         return this
     }
 
-    override fun clone(): TableSelectPlan {
-        val n = DefaultTableSelectPlan(from, dialect)
-        n.select = select
-        n.where = where
-        n.groupBy = groupBy
-        n.having = having
-        n.limit = limit
-        n.offset = offset
-
-        return n
-    }
-
     companion object {
         private const val serialVersionUID = -3599950472910618651L
 

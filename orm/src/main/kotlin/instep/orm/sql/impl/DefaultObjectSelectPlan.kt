@@ -93,18 +93,6 @@ class DefaultObjectSelectPlan(val obj: Any, val dialect: Dialect) : ObjectSelect
         return this
     }
 
-    override fun clone(): ObjectSelectPlan {
-        val n = DefaultObjectSelectPlan(obj, dialect)
-        n.select = select
-        n.where = where
-        n.groupBy = groupBy
-        n.having = having
-        n.limit = limit
-        n.offset = offset
-
-        return n
-    }
-
     companion object {
         private const val serialVersionUID = 3835427608445193282L
 

@@ -5,22 +5,15 @@ import instep.orm.Expression
 import instep.orm.PlaceHolder
 import instep.orm.PlaceHolderRemainingException
 
-open class DefaultExpression private constructor(
-    val txt: String,
-    val rule: PlaceHolder.Rule,
-    private val params: AssocArray,
-    paramsInitRequired: Boolean
-) : Expression {
-    protected constructor(txt: String, paramsInitRequired: Boolean) : this(txt, PlaceHolder.rule.copy(), AssocArray(), paramsInitRequired)
-    constructor(txt: String) : this(txt, true)
+open class DefaultExpression(val txt: String) : Expression {
+    val rule = PlaceHolder.rule.copy()
+    private val params = AssocArray()
 
     init {
-        if (paramsInitRequired) {
-            rule.placeholder.findAll(txt).forEachIndexed { i, matchResult ->
-                val paramName = matchResult.groupValues[1]
+        rule.placeholder.findAll(txt).forEachIndexed { i, matchResult ->
+            val paramName = matchResult.groupValues[1]
 
-                params.add(PlaceHolder(i, paramName))
-            }
+            params.add(PlaceHolder(i, paramName))
         }
     }
 
@@ -93,10 +86,6 @@ open class DefaultExpression private constructor(
         params.add(*expressions)
 
         return this
-    }
-
-    override fun clone(): Expression {
-        return DefaultExpression(txt, rule, params, false)
     }
 
     companion object {

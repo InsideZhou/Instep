@@ -25,6 +25,4 @@ interface Plan<T : Plan<T>> : Serializable, Cloneable {
         runner()
         return this as T
     }
-
-    override fun clone(): T
 }
