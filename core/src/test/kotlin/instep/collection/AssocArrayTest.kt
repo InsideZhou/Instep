@@ -1,9 +1,8 @@
-package instep
+package instep.collection
 
-import instep.collection.AssocArray
 import org.testng.annotations.Test
 
-object InstepCollectionTest {
+object AssocArrayTest {
     @Test
     fun assocArrayStringKeyCase() {
         val caseInsensitiveArray = AssocArray(true)
