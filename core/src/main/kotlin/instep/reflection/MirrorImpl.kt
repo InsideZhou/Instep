@@ -14,7 +14,7 @@ class MirrorImpl<T : Any>(override val type: Class<T>) : Mirror<T> {
     override val parents: Set<Class<*>> by lazy {
         val superClasses = mutableSetOf<Class<*>>()
         var parent = type.superclass
-        while (null != parent) {
+        while (null != parent && parent != Any::class.java) {
             superClasses.add(parent)
             parent = parent.superclass
         }
