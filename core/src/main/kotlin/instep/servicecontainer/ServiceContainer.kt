@@ -18,6 +18,12 @@ interface ServiceContainer {
     fun <T : Any> bind(cls: Class<T>, obj: T, tag: String = "")
 
     /**
+     * Remove binding.
+     * @param tag binding tagged by.
+     */
+    fun <T : Any> remove(cls: Class<T>, tag: String = ""): T?
+
+    /**
      * Fire on service binding. If event handler return null, service binding would be canceled.
      */
     fun onBinding(eventHandler: ServiceBindingEventHandler)

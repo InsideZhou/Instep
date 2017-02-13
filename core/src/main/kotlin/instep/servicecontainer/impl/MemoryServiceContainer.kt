@@ -31,6 +31,11 @@ open class MemoryServiceContainer(protected val cache: Cache) : ServiceContainer
     }
 
     @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> remove(cls: Class<T>, tag: String): T? {
+        return cache.remove(getKey(cls, tag)) as? T
+    }
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> make(cls: Class<T>, tag: String): T {
         val key = getKey(cls, tag)
         val obj: T = try {
