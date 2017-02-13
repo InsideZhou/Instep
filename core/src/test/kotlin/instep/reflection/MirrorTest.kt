@@ -15,6 +15,6 @@ object MirrorTest {
     @Test
     fun parentsOfClass() {
         val parentsOfD = Instep.reflect(D::class.java).parents
-        assert(!parentsOfD.contains(Any::class.java))
+        assert(!parentsOfD.contains(Any::class.java), { "parents of class should not include 'Any'" })
     }
 }

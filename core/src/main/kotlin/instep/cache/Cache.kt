@@ -16,6 +16,11 @@ interface Cache : Map<String, Any> {
     fun touch(key: String, ttl: Int? = null)
     override fun get(key: String): Any
     fun getAlive(key: String): Any?
+
+    /**
+     * Remove key-value.
+     * @return null if key does not exist.
+     */
     fun remove(key: String): Any?
 
     /**
