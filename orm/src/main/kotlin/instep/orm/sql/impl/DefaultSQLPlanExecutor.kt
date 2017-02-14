@@ -79,11 +79,11 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
                 }
 
                 val mirror = Instep.reflect(cls)
-                val columnInfoList = Helper.generateColumnInfoSet(rs.metaData)
+                val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
 
                 try {
                     while (rs.next()) {
-                        result.add(dataRowToInstance(rs, mirror, columnInfoList))
+                        result.add(Helper.typeFirstRowToInstance(rs, mirror, columnInfoSet))
                     }
                 }
                 catch(e: Exception) {
@@ -96,10 +96,6 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
         }
 
         return result.toList()
-    }
-
-    open fun <T : Any> dataRowToInstance(rs: ResultSet, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
-        return Helper.typeFirstRowToInstance(rs, mirror, columnInfoSet)
     }
 
     companion object {
