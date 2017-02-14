@@ -6,15 +6,15 @@ import instep.reflection.Mirror
 import instep.reflection.MirrorImpl
 import instep.servicecontainer.ServiceContainer
 import instep.servicecontainer.impl.MemoryServiceContainer
+import instep.typeconvert.DefaultTypeConvert
 import instep.typeconvert.TypeConvert
 import instep.typeconvert.TypeConvertException
-import instep.typeconvert.DefaultTypeConvert
 
 object Instep {
     var serviceContainer: ServiceContainer
 
     init {
-        val container = MemoryServiceContainer(MemoryCache())
+        val container = MemoryServiceContainer()
         serviceContainer = container
 
         container.bind(Cache::class.java, MemoryCache())

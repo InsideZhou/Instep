@@ -1,49 +1,56 @@
 package instep.servicecontainer.impl
 
 import instep.Instep
-import instep.cache.Cache
-import instep.cache.CacheKeyNotExistsException
 import instep.servicecontainer.*
 
-open class MemoryServiceContainer(protected val cache: Cache) : ServiceContainer {
+open class MemoryServiceContainer : ServiceContainer {
+    protected val memory: MutableMap<String, Any> = mutableMapOf()
     protected var binding: ServiceBindingEventHandler? = null
     protected var bound: ServiceBoundEventHandler? = null
     protected var resolving: ServiceResolvingEventHandler? = null
     protected var resolved: ServiceResolvedEventHandler? = null
 
-    override fun <T : Any> bind(cls: Class<T>, obj: T, tag: String) {
-        if (!fireOnBinding(cls, obj, tag)) return
+    override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
+        if (!fireOnBinding(cls, instance, tag)) return
 
-        cache[getKey(cls, tag)] = obj
+        memory[getKey(cls, tag)] = instance
 
         if (!cls.isArray && !Collection::class.java.isAssignableFrom(cls)) {
             val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
 
             parents.forEach {
                 val key = getKey(it, tag)
-                if (!cache.containsKey(key)) {
-                    cache[key] = obj
+                if (!memory.containsKey(key)) {
+                    memory[key] = instance
                 }
             }
         }
 
-        fireOnBound(cls, obj)
+        fireOnBound(cls, instance)
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> remove(cls: Class<T>, tag: String): T? {
-        return cache.remove(getKey(cls, tag)) as? T
+        return memory.remove(getKey(cls, tag)) as? T
+    }
+
+    override fun removeAll(instance: Any) {
+        memory.filterValues { it == instance }.forEach { memory.remove(it.key) }
+    }
+
+    override fun clone(): Any {
+        return super.clone()
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> make(cls: Class<T>, tag: String): T {
         val key = getKey(cls, tag)
-        val obj: T = try {
-            fireOnResolving(cls) ?: cache[key] as T
+        var obj = fireOnResolving(cls)
+        if (null == obj) {
+            obj = memory[key] as? T
         }
-        catch(e: CacheKeyNotExistsException) {
-            throw ServiceNotFoundException(key)
-        }
+
+        if (null == obj) throw ServiceNotFoundException(key)
 
         fireOnResolved(cls, obj)
         return obj

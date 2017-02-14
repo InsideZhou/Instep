@@ -1,6 +1,7 @@
 package instep.servicecontainer
 
 import instep.Instep
+import org.testng.Assert
 import org.testng.annotations.Test
 
 interface ServiceTest
@@ -28,5 +29,32 @@ object ServiceContainerTest {
         assert(Instep.make(B::class.java) == d)
         assert(Instep.make(C::class.java) == d)
         Instep.serviceContainer.remove(D::class.java)
+    }
+
+    @Test(dependsOnMethods = arrayOf("bind"))
+    fun removeBinding() {
+        Instep.serviceContainer.remove(D::class.java)
+        assert(Instep.make(A::class.java) is D)
+        assert(Instep.make(B::class.java) is D)
+        assert(Instep.make(C::class.java) is D)
+
+        Assert.assertThrows(ServiceNotFoundException::class.java) {
+            Instep.make(D::class.java)
+        }
+
+        val a = Instep.make(A::class.java)
+        Instep.serviceContainer.removeAll(a)
+
+        Assert.assertThrows(ServiceNotFoundException::class.java) {
+            Instep.make(A::class.java)
+        }
+
+        Assert.assertThrows(ServiceNotFoundException::class.java) {
+            Instep.make(B::class.java)
+        }
+
+        Assert.assertThrows(ServiceNotFoundException::class.java) {
+            Instep.make(C::class.java)
+        }
     }
 }

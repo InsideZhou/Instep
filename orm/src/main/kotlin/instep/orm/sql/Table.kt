@@ -1,7 +1,7 @@
 package instep.orm.sql
 
 import instep.Instep
-import instep.UnexpectedCode
+import instep.UnexpectedCodeError
 import instep.orm.OrmException
 import instep.orm.Plan
 import instep.orm.sql.dialect.H2Dialect
@@ -181,7 +181,7 @@ abstract class Table(val tableName: String) {
                     return
                 }
             }
-            else -> throw UnexpectedCode()
+            else -> throw UnexpectedCodeError()
         }
 
         val plan = insert()
