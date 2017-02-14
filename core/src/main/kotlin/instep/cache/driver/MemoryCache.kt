@@ -82,8 +82,8 @@ open class MemoryCache : Cache {
         return map.filterValues { store -> storeAlive(store) }
     }
 
-    override fun toMap(): Map<String, CacheStore> {
-        return map.toSortedMap()
+    override fun toMap(): Map<String, Any> {
+        return map.mapValues { it.value.value }
     }
 
     protected fun storeAlive(store: CacheStore): Boolean {

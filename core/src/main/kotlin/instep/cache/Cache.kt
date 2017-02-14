@@ -1,7 +1,5 @@
 package instep.cache
 
-import instep.cache.driver.CacheStore
-
 /**
  * Cache with ttl(time to live, in millisecond) to every key-value pair.
  */
@@ -32,5 +30,5 @@ interface Cache : Map<String, Any> {
 
     fun getAlive(): Map<String, Any>
 
-    fun toMap(): Map<String, CacheStore>
+    fun toMap(): Map<String, Any>
 }
