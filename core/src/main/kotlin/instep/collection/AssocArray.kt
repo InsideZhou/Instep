@@ -8,17 +8,17 @@ import java.util.*
  */
 open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collection<Any?> {
     constructor(entries: Array<out Pair<Any, Any?>>, keyIgnoreCase: Boolean = false) : this(keyIgnoreCase) {
-        addPairs(*entries)
+        addPairs(entries)
     }
 
     constructor(values: Array<out Any?>, keyIgnoreCase: Boolean = false) : this(keyIgnoreCase) {
-        addValues(*values)
+        addValues(values)
     }
 
     private val map = LinkedHashMap<AAKey, Any?>()
     private var maxIntKey = -1
 
-    private fun addPairs(vararg entries: Pair<Any, Any?>) {
+    private fun addPairs(entries: Array<out Pair<Any, Any?>>) {
         entries.forEach { entry ->
             val aaKey = generateKey(entry.first)
             if (aaKey.usingInt) {
@@ -28,7 +28,7 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collec
         }
     }
 
-    private fun addValues(vararg values: Any?) {
+    private fun addValues(values: Array<out Any?>) {
         values.forEach { v ->
             val aaKey = generateKey(++maxIntKey)
             map[aaKey] = v
@@ -60,13 +60,12 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collec
         return map.isEmpty()
     }
 
-
     open fun add(vararg entries: Pair<Any, Any?>) {
-        addPairs(*entries)
+        addPairs(entries)
     }
 
     open fun add(vararg values: Any?) {
-        addValues(*values)
+        addValues(values)
     }
 
     open fun removeKey(key: Any): Any? {

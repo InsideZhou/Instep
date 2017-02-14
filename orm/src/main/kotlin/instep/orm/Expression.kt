@@ -12,9 +12,7 @@ interface Expression : Serializable, Cloneable {
     fun addParameter(placeholderName: String, parameter: Any?): Expression
 
     /**
-     * Cannot add positional parameter while named parameter with placeholder remaining.
-     *
-     * @throws PlaceHolderRemainingException
+     * @throws PlaceHolderRemainingException Cannot add positional parameter while named parameter with placeholder remaining.
      */
     @Throws(PlaceHolderRemainingException::class)
     fun addParameters(vararg parameters: Any?): Expression
@@ -22,9 +20,7 @@ interface Expression : Serializable, Cloneable {
     fun addExpression(placeHolderName: String, expression: Expression?): Expression
 
     /**
-     * Cannot add positional parameter while named parameter with placeholder remaining.
-     *
-     * @throws PlaceHolderRemainingException
+     * @throws PlaceHolderRemainingException Cannot add positional parameter while named parameter with placeholder remaining.
      */
     @Throws(PlaceHolderRemainingException::class)
     fun addExpressions(vararg expressions: Expression): Expression
