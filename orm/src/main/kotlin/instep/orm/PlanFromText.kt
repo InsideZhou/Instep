@@ -9,9 +9,13 @@ interface PlanFromText : Plan<PlanFromText>, Expression {
     override fun addExpressions(vararg expressions: Expression): PlanFromText
     override fun addExpression(placeHolderName: String, expression: Expression?): PlanFromText
 
-    companion object {
-        fun createInstance(txt: String): PlanFromText {
+    companion object : PlanFromTextFactory {
+        override fun createInstance(txt: String): PlanFromText {
             return DefaultPlanFromText(txt)
         }
     }
+}
+
+interface PlanFromTextFactory {
+    fun createInstance(txt: String): PlanFromText
 }
