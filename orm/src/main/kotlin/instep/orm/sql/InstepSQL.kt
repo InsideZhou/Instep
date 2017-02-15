@@ -1,6 +1,8 @@
 package instep.orm.sql
 
 import instep.Instep
+import instep.orm.Expression
+import instep.orm.ExpressionFactory
 import instep.orm.PlanFromText
 import instep.orm.PlanFromTextFactory
 import instep.orm.sql.impl.DefaultSQLPlanExecutor
@@ -17,6 +19,13 @@ object InstepSQL {
         }
         catch(e: ServiceNotFoundException) {
             Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
+        }
+
+        try {
+            Instep.make(ExpressionFactory::class.java)
+        }
+        catch(e: ServiceNotFoundException) {
+            Instep.bind(ExpressionFactory::class.java, Expression.Companion)
         }
 
         try {

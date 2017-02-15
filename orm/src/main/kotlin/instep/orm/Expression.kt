@@ -1,5 +1,6 @@
 package instep.orm
 
+import instep.orm.impl.DefaultExpression
 import java.io.Serializable
 
 interface Expression : Serializable, Cloneable {
@@ -20,10 +21,20 @@ interface Expression : Serializable, Cloneable {
     fun addExpression(placeHolderName: String, expression: Expression?): Expression
 
     /**
-     * @throws PlaceHolderRemainingException Cannot add positional parameter while named parameter with placeholder remaining.
+     * @throws PlaceHolderRemainingException Cannot add positional expression while named expression with placeholder remaining.
      */
     @Throws(PlaceHolderRemainingException::class)
     fun addExpressions(vararg expressions: Expression): Expression
+
+    companion object : ExpressionFactory {
+        override fun createInstance(txt: String): Expression {
+            return DefaultExpression(txt)
+        }
+    }
+}
+
+interface ExpressionFactory {
+    fun createInstance(txt: String): Expression
 }
 
 class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false) {

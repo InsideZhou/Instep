@@ -62,14 +62,17 @@ open class DefaultExpression(val txt: String) : Expression {
     }
 
     override fun addExpression(placeHolderName: String, expression: Expression?): Expression {
-        params.filter { item -> item is PlaceHolder && item.name == placeHolderName }
-            .mapIndexed { i, item -> i }
-            .forEach { i ->
+        params.mapIndexed { i, item -> Pair(i, item) }
+            .filter {
+                val p = it.second
+                return@filter p is PlaceHolder && p.name == placeHolderName
+            }
+            .forEach {
                 if (null == expression) {
-                    (params[i] as PlaceHolder).ignore = true
+                    (params[it.first] as PlaceHolder).ignore = true
                 }
                 else {
-                    params[i] = expression
+                    params[it.first] = expression
                 }
             }
 
