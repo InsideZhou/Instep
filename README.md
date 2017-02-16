@@ -1,2 +1,2 @@
-#instep
-> A set of tools and utilities some coders might like. Designed to make code easy to understand and elegant.
+#Instep
+> A set of tools and utilities designed to make coding more convenient.
