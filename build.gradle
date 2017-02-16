@@ -24,11 +24,15 @@ subprojects {
         testCompile group: 'org.testng', name: 'testng', version: '6.9.+'
     }
 
+    test {
+        useTestNG()
+    }
+
     publishing {
         publications {
             main(MavenPublication) {
                 from components.java
-                artifactId $project.name
+                artifactId project.name
                 artifact sourceJar
             }
         }
