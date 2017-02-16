@@ -1,3 +1,12 @@
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.+"
+    }
+}
+
 subprojects {
     group = 'me.insidezhou.instep'
     version = '0.1.0-SNAPSHOT'
@@ -5,6 +14,7 @@ subprojects {
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'maven-publish'
+    apply plugin: 'org.jetbrains.dokka'
 
     configurations {
         provided
@@ -24,20 +34,6 @@ subprojects {
         testCompile group: 'org.testng', name: 'testng', version: '6.9.+'
     }
 
-    test {
-        useTestNG()
-    }
-
-    publishing {
-        publications {
-            main(MavenPublication) {
-                from components.java
-                artifactId project.name
-                artifact sourceJar
-            }
-        }
-    }
-
     tasks.withType(JavaCompile) {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
@@ -49,5 +45,30 @@ subprojects {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
-}
 
+    dokka {
+        outputFormat = "javadoc"
+        outputDirectory = "$buildDir/javadoc"
+    }
+
+    task docJar(type: Jar, dependsOn: dokka) {
+        classifier = 'javadoc'
+        from dokka.outputDirectory
+    }
+
+    test {
+        useTestNG()
+    }
+
+    publishing {
+        publications {
+            source(MavenPublication) {
+                artifact sourceJar
+            }
+
+            doc(MavenPublication) {
+                artifact docJar
+            }
+        }
+    }
+}
