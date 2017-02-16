@@ -1,5 +1,5 @@
 subprojects {
-    group = 'instep'
+    group = 'me.insidezhou.instep'
     version = '0.1.0-SNAPSHOT'
 
     apply plugin: 'idea'
@@ -28,7 +28,7 @@ subprojects {
         publications {
             main(MavenPublication) {
                 from components.java
-                artifactId "instep-$project.name"
+                artifactId $project.name
                 artifact sourceJar
             }
         }

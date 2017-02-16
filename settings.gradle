@@ -1,2 +1,2 @@
 rootProject.name = 'instep'
-include 'core', 'orm'
+include 'core', 'dao'
