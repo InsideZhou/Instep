@@ -36,8 +36,8 @@ subprojects {
     }
 
     tasks.withType(JavaCompile) {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
 
         options.encoding = "UTF-8"
     }
@@ -84,7 +84,7 @@ subprojects {
 
                 pom.project {
                     name 'Instep'
-                    description 'A set of tools and utilities designed to make coding easier with reasonable.'
+                    description 'A set of tools and utilities that are designed to make coding easier and intuitive.'
                     url 'https://github.com/InsideZhou/Instep'
 
                     scm {
