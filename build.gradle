@@ -31,6 +31,11 @@ subprojects {
         main { compileClasspath += configurations.provided }
     }
 
+    repositories {
+        mavenLocal()
+        mavenCentral()
+    }
+
     dependencies {
         testCompile group: 'org.testng', name: 'testng', version: '6.9.+'
     }
