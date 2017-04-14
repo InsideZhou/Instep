@@ -2,6 +2,7 @@ package instep.dao.sql.dialect
 
 import instep.InstepLogger
 import instep.UnexpectedCodeError
+import instep.dao.DaoException
 import instep.dao.Plan
 import instep.dao.sql.*
 
@@ -40,7 +41,7 @@ open class H2Dialect : Dialect {
         return when (column.type) {
             StringColumnType.Char -> "CHAR(${column.length})"
             StringColumnType.Varchar -> "VARCHAR(${column.length})"
-            StringColumnType.Text -> "TEXT"
+            StringColumnType.Text -> if (column.length > 0) "TEXT(${column.length})" else "TEXT"
         }
     }
 
@@ -57,14 +58,14 @@ open class H2Dialect : Dialect {
             DateTimeColumnType.Date -> "DATE"
             DateTimeColumnType.Time -> "TIME"
             DateTimeColumnType.DateTime -> "TIMESTAMP"
-            DateTimeColumnType.OffsetDateTime -> "TIMESTAMP WITH TIMEZONE"
+            DateTimeColumnType.OffsetDateTime -> throw DaoException("DateTimeColumn.OffsetDateTime is not support")
         }
     }
 
     protected open fun definitionForBinaryColumn(column: BinaryColumn): String {
         return when (column.type) {
-            BinaryColumnType.Varying -> "BINARY(${column.length})"
-            BinaryColumnType.BLOB -> "BLOB"
+            BinaryColumnType.Varying -> if (column.length > 0) "BINARY(${column.length})" else "BINARY"
+            BinaryColumnType.BLOB -> if (column.length > 0) "BLOB(${column.length})" else "BLOB"
         }
     }
 

@@ -19,6 +19,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 
     testCompile 'com.h2database:h2:1.4.+'
+    testCompile 'org.hsqldb:hsqldb:2.4.+'
     testCompile 'com.alibaba:druid:1.0.+'
     testCompile 'net.moznion:random-string:1.1.+'
 }

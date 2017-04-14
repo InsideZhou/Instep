@@ -4,6 +4,8 @@ import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
 import instep.InstepLogger
 import instep.dao.sql.*
+import instep.dao.sql.dialect.H2Dialect
+import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
@@ -21,7 +23,7 @@ object InstepSQLTest {
     }
 
     init {
-        datasource.url = "jdbc:h2:mem:instep_orm;DB_CLOSE_DELAY=-1"
+        datasource.url = "jdbc:hsqldb:mem:instep_orm"
         datasource.initialSize = 1
         datasource.minIdle = 1
         datasource.maxActive = 2
@@ -29,7 +31,7 @@ object InstepSQLTest {
         datasource.minEvictableIdleTimeMillis = 300000
         datasource.isTestWhileIdle = true
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
-        datasource.validationQuery = "select current_timestamp"
+        datasource.validationQuery = "VALUES(current_timestamp)"
 
         Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
@@ -52,13 +54,16 @@ object InstepSQLTest {
             }
         })
 
-        TransactionTable.create().debug().execute()
+        TransactionTable.create().execute()
     }
 
     @Test
     fun executeScalar() {
-        val scalar = InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS.FF3')""")
-        LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss.SSS"""))
+        val scalar = when(Instep.make(Dialect::class.java)) {
+            is HSQLDialect -> InstepSQL.executeScalar("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""")
+            else -> InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""")
+        }
+        LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))
     }
 
     @Test
@@ -78,6 +83,6 @@ object InstepSQLTest {
         }
         assert(TransactionTable[2] == null)
 
-        assert(TransactionTable.select(TransactionTable.id.count()).distinct().debug().executeScalar().toInt() == 1)
+        assert(TransactionTable.select(TransactionTable.id.count()).distinct().executeScalar().toInt() == 1)
     }
 }

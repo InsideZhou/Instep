@@ -5,6 +5,7 @@ import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
 import instep.dao.sql.dialect.H2Dialect
+import instep.dao.sql.dialect.HSQLDialect
 import instep.servicecontainer.ServiceNotFoundException
 
 /**
@@ -23,8 +24,8 @@ abstract class Table(val tableName: String) {
         return StringColumn(name, StringColumnType.Varchar, length)
     }
 
-    fun text(name: String): StringColumn {
-        return StringColumn(name, StringColumnType.Text)
+    fun text(name: String, length: Int = 0): StringColumn {
+        return StringColumn(name, StringColumnType.Text, length)
     }
 
     fun tinyInt(name: String): IntegerColumn {
@@ -79,7 +80,7 @@ abstract class Table(val tableName: String) {
         return DateTimeColumn(name, DateTimeColumnType.DateTime)
     }
 
-    fun offsetDateTime(name: String): DateTimeColumn {
+    fun zonedDateTime(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
     }
 
@@ -87,8 +88,8 @@ abstract class Table(val tableName: String) {
         return BinaryColumn(name, BinaryColumnType.Varying, length)
     }
 
-    fun lob(name: String): BinaryColumn {
-        return BinaryColumn(name, BinaryColumnType.BLOB)
+    fun lob(name: String, length: Int = 0): BinaryColumn {
+        return BinaryColumn(name, BinaryColumnType.BLOB, length)
     }
 
     val columns: List<Column<*>>
@@ -202,7 +203,7 @@ abstract class Table(val tableName: String) {
                 Instep.make(Dialect::class.java)
             }
             catch(e: ServiceNotFoundException) {
-                Instep.bind(Dialect::class.java, H2Dialect())
+                Instep.bind(Dialect::class.java, HSQLDialect())
             }
 
             try {

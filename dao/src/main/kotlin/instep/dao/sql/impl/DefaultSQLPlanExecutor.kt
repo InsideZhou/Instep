@@ -11,6 +11,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.OffsetDateTime
+import java.time.ZonedDateTime
 
 open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : SQLPlanExecutor {
     constructor() : this(Instep.make(ConnectionProvider::class.java)) {
@@ -32,7 +33,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
         try {
             val rs = executeResultSet(conn, plan)
-            if (!rs.first() || rs.wasNull()) return ""
+            if (!rs.next() || rs.wasNull()) return ""
 
             return rs.getString(1)
         }

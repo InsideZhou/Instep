@@ -4,12 +4,8 @@ import instep.UnexpectedCodeError
 import instep.dao.sql.impl.Helper
 import java.io.InputStream
 import java.math.BigDecimal
-import java.sql.Blob
-import java.sql.ResultSet
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.OffsetDateTime
+import java.sql.*
+import java.time.*
 
 /**
  * A table row filled with data.
@@ -43,13 +39,26 @@ class TableRow {
         }
     }
 
-    operator fun get(column: DateTimeColumn): LocalDateTime {
+    operator fun get(column: DateTimeColumn): OffsetDateTime? {
+        val value = map[column]
+        return when (value) {
+            is LocalDateTime -> OffsetDateTime.of(value, ZonedDateTime.now().offset)
+            is LocalDate -> OffsetDateTime.of(value, LocalTime.MIDNIGHT, ZonedDateTime.now().offset)
+            is LocalTime -> OffsetDateTime.of(LocalDate.ofEpochDay(0), value, ZonedDateTime.now().offset)
+            is OffsetDateTime -> value
+            null -> null
+            else -> throw UnsupportedOperationException("Converting $value to OffsetDateTime is not supported.")
+        }
+    }
+
+    fun getLocalDateTime(column: DateTimeColumn): LocalDateTime? {
         val value = map[column]
         return when (value) {
             is LocalDateTime -> value
-            is LocalDate -> LocalDateTime.from(value)
-            is LocalTime -> LocalDateTime.from(value)
-            is OffsetDateTime -> LocalDateTime.from(value)
+            is LocalDate -> LocalDateTime.of(value, LocalTime.MIDNIGHT)
+            is LocalTime -> LocalDateTime.of(LocalDate.ofEpochDay(0), value)
+            is OffsetDateTime -> value.toLocalDateTime()
+            null -> null
             else -> throw UnsupportedOperationException("Converting $value to LocalDateTime is not supported.")
         }
     }
@@ -76,6 +85,8 @@ class TableRow {
                 val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) }
                 if (null == info) return@forEach
 
+                rs.wasNull()
+
                 row[col] = when (col) {
                     is BooleanColumn -> rs.getBoolean(info.index)
 
@@ -93,9 +104,9 @@ class TableRow {
                     }
 
                     is DateTimeColumn -> when (col.type) {
-                        DateTimeColumnType.Date -> rs.getDate(info.index).toLocalDate()
-                        DateTimeColumnType.Time -> rs.getTime(info.index).toLocalTime()
-                        DateTimeColumnType.DateTime -> rs.getTimestamp(info.index).toLocalDateTime()
+                        DateTimeColumnType.Date -> rs.getDate(info.index)?.let(Date::toLocalDate)
+                        DateTimeColumnType.Time -> rs.getTime(info.index)?.let(Time::toLocalTime)
+                        DateTimeColumnType.DateTime -> rs.getTimestamp(info.index)?.let(Timestamp::toLocalDateTime)
                         DateTimeColumnType.OffsetDateTime -> rs.getObject(info.index) as? OffsetDateTime
                     }
 

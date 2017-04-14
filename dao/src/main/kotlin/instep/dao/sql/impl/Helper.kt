@@ -8,14 +8,10 @@ import java.io.Reader
 import java.lang.reflect.Method
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.OffsetDateTime
+import java.sql.*
+import java.sql.Date
+import java.time.*
+import java.util.*
 
 object Helper {
     fun generateColumnInfoSet(meta: ResultSetMetaData): Set<ResultSetColumnInfo> {
@@ -56,6 +52,7 @@ object Helper {
 
     private fun <T : Any> evalInstance(paramType: Class<*>, instance: T, setter: Method, rs: ResultSet, col: ResultSetColumnInfo) {
         when (paramType) {
+            Boolean::class.java -> setter.invoke(instance, rs.getBoolean(col.index))
             Byte::class.java -> setter.invoke(instance, rs.getByte(col.index))
             Short::class.java -> setter.invoke(instance, rs.getShort(col.index))
             Int::class.java -> setter.invoke(instance, rs.getInt(col.index))
@@ -64,14 +61,15 @@ object Helper {
             BigDecimal::class.java -> setter.invoke(instance, rs.getBigDecimal(col.index))
             Float::class.java -> setter.invoke(instance, rs.getFloat(col.index))
             Double::class.java -> setter.invoke(instance, rs.getDouble(col.index))
-            LocalDate::class.java -> setter.invoke(instance, rs.getDate(col.index).toLocalDate())
-            LocalTime::class.java -> setter.invoke(instance, rs.getTime(col.index).toLocalTime())
-            LocalDateTime::class.java -> setter.invoke(instance, rs.getTimestamp(col.index).toLocalDateTime())
+            Instant::class.java -> setter.invoke(instance, rs.getTimestamp(col.index)?.let(Timestamp::toInstant))
+            LocalDate::class.java -> setter.invoke(instance, rs.getDate(col.index)?.let(Date::toLocalDate))
+            LocalTime::class.java -> setter.invoke(instance, rs.getTime(col.index)?.let(Time::toLocalTime))
+            LocalDateTime::class.java -> setter.invoke(instance, rs.getTimestamp(col.index)?.let(Timestamp::toLocalDateTime))
             OffsetDateTime::class.java -> setter.invoke(instance, rs.getObject(col.index, OffsetDateTime::class.java))
             InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
             ByteArray::class.java -> setter.invoke(instance, rs.getBytes(col.index))
             String::class.java -> setter.invoke(instance, rs.getString(col.index))
-            Char::class.java -> setter.invoke(instance, rs.getString(col.index).toCharArray().firstOrNull())
+            Char::class.java -> setter.invoke(instance, rs.getString(col.index)?.let { it.toCharArray().firstOrNull() })
             InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
             Reader::class.java -> setter.invoke(instance, rs.getCharacterStream(col.index))
             else -> setter.invoke(instance, rs.getObject(col.index, paramType))
@@ -98,10 +96,13 @@ object Helper {
                 is Float -> stmt.setFloat(paramIndex, value)
                 is Double -> stmt.setDouble(paramIndex, value)
                 is ByteArray -> stmt.setBytes(paramIndex, value)
+                is Instant -> stmt.setTimestamp(paramIndex, java.sql.Timestamp.from(value))
                 is LocalDate -> stmt.setDate(paramIndex, java.sql.Date.valueOf(value))
                 is LocalTime -> stmt.setTime(paramIndex, java.sql.Time.valueOf(value))
                 is LocalDateTime -> stmt.setTimestamp(paramIndex, java.sql.Timestamp.valueOf(value))
-                is OffsetDateTime -> stmt.setObject(paramIndex, value)
+                is OffsetDateTime -> value.toZonedDateTime().let {
+                    stmt.setTimestamp(paramIndex, java.sql.Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(it.zone)))
+                }
                 is InputStream -> stmt.setBinaryStream(paramIndex, value)
                 is Reader -> stmt.setCharacterStream(paramIndex, value)
                 else -> stmt.setObject(paramIndex, value)
