@@ -7,6 +7,14 @@ buildscript {
     }
 }
 
+apply plugin: 'idea'
+
+idea {
+    project {
+        jdkName = '1.8'
+    }
+}
+
 subprojects {
     group = 'me.insidezhou.instep'
     version = '0.1.0-SNAPSHOT'
