@@ -21,7 +21,7 @@ object TableTest {
         val createdAt = datetime("created_at").notnull()
         var birthDate = date("birth_date")
         var birthTime = time("birth_time")
-        var birthday = zonedDateTime("birthday")
+        var birthday = offsetDateTime("birthday")
         val avatar = lob("avatar")
     }
 

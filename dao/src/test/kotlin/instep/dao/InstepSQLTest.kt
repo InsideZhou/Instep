@@ -4,7 +4,6 @@ import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
 import instep.InstepLogger
 import instep.dao.sql.*
-import instep.dao.sql.dialect.H2Dialect
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
@@ -23,7 +22,7 @@ object InstepSQLTest {
     }
 
     init {
-        datasource.url = "jdbc:hsqldb:mem:instep_orm"
+        datasource.url = System.getProperty("instep.test.jdbc_url", "jdbc:hsqldb:mem:instep_orm")
         datasource.initialSize = 1
         datasource.minIdle = 1
         datasource.maxActive = 2
@@ -32,6 +31,8 @@ object InstepSQLTest {
         datasource.isTestWhileIdle = true
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
         datasource.validationQuery = "VALUES(current_timestamp)"
+
+        Table.setupDialect(datasource.url)
 
         Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
@@ -59,7 +60,7 @@ object InstepSQLTest {
 
     @Test
     fun executeScalar() {
-        val scalar = when(Instep.make(Dialect::class.java)) {
+        val scalar = when (Instep.make(Dialect::class.java)) {
             is HSQLDialect -> InstepSQL.executeScalar("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""")
             else -> InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""")
         }

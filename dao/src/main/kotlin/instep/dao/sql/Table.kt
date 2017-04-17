@@ -80,7 +80,7 @@ abstract class Table(val tableName: String) {
         return DateTimeColumn(name, DateTimeColumnType.DateTime)
     }
 
-    fun zonedDateTime(name: String): DateTimeColumn {
+    fun offsetDateTime(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
     }
 
@@ -200,13 +200,6 @@ abstract class Table(val tableName: String) {
     companion object {
         init {
             try {
-                Instep.make(Dialect::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                Instep.bind(Dialect::class.java, HSQLDialect())
-            }
-
-            try {
                 Instep.make(TableSelectPlanFactory::class.java)
             }
             catch(e: ServiceNotFoundException) {
@@ -232,6 +225,26 @@ abstract class Table(val tableName: String) {
             }
             catch(e: ServiceNotFoundException) {
                 Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlan.Companion)
+            }
+        }
+
+        /**
+         * Infer dialect from datasource url and set it up.
+         */
+        fun setupDialect(url: String) {
+            try {
+                Instep.make(Dialect::class.java)
+            }
+            catch(e: ServiceNotFoundException) {
+                if (url.contains("hsqldb", true)) {
+                    Instep.bind(Dialect::class.java, HSQLDialect())
+                }
+                else if (url.contains("h2", true)) {
+                    Instep.bind(Dialect::class.java, H2Dialect())
+                }
+                else {
+                    throw DaoException("cannot infer dialect for datasource $url")
+                }
             }
         }
     }
