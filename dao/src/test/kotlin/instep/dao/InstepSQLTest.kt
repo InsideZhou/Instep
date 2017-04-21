@@ -5,6 +5,7 @@ import instep.Instep
 import instep.InstepLogger
 import instep.dao.sql.*
 import instep.dao.sql.dialect.HSQLDialect
+import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
@@ -14,15 +15,17 @@ import java.time.format.DateTimeFormatter
 
 object InstepSQLTest {
     val stringGenerator = RandomStringGenerator()
+    val datasourceUrl: String = System.getProperty("instep.test.jdbc_url", "jdbc:hsqldb:mem:instep_orm")
+    val dialect = Dialect.of(datasourceUrl)
     val datasource = DruidDataSource()
 
-    object TransactionTable : Table("transaction_" + stringGenerator.generateByRegex("[a-z]{8}")) {
+    object TransactionTable : Table("transaction_" + stringGenerator.generateByRegex("[a-z]{8}"), dialect) {
         val id = autoIncrementLong("id").primary()
         val name = varchar("name", 256).notnull()
     }
 
     init {
-        datasource.url = System.getProperty("instep.test.jdbc_url", "jdbc:hsqldb:mem:instep_orm")
+        datasource.url = datasourceUrl
         datasource.initialSize = 1
         datasource.minIdle = 1
         datasource.maxActive = 2
@@ -32,9 +35,8 @@ object InstepSQLTest {
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
         datasource.validationQuery = "VALUES(current_timestamp)"
 
-        Table.setupDialect(datasource.url)
-
-        Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource))
+        Instep.bind(Dialect::class.java, dialect)
+        Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource, dialect))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
             override val enableDebug: Boolean = true
             override val enableInfo: Boolean = true
@@ -60,8 +62,9 @@ object InstepSQLTest {
 
     @Test
     fun executeScalar() {
-        val scalar = when (Instep.make(Dialect::class.java)) {
+        val scalar = when (dialect) {
             is HSQLDialect -> InstepSQL.executeScalar("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""")
+            is MySQLDialect -> InstepSQL.executeScalar("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""")
             else -> InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""")
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))

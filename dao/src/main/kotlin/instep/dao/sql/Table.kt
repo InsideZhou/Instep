@@ -4,14 +4,14 @@ import instep.Instep
 import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
-import instep.dao.sql.dialect.H2Dialect
-import instep.dao.sql.dialect.HSQLDialect
 import instep.servicecontainer.ServiceNotFoundException
 
 /**
  * Abstract DAO object.
  */
-abstract class Table(val tableName: String) {
+abstract class Table(val tableName: String, val dialect: Dialect) {
+    constructor(tableName: String) : this(tableName, Instep.make(Dialect::class.java))
+
     fun boolean(name: String): BooleanColumn {
         return BooleanColumn(name)
     }
@@ -104,18 +104,16 @@ abstract class Table(val tableName: String) {
         get() = columns.singleOrNull { it.primary }
 
     fun create(): Plan<*> {
-        val dialect = Instep.make(Dialect::class.java)
         return dialect.createTable(tableName, columns)
     }
 
     fun addColumn(column: Column<*>): Plan<*> {
-        val dialect = Instep.make(Dialect::class.java)
         return dialect.addColumn(tableName, column)
     }
 
     fun insert(): TableInsertPlan {
         val factory = Instep.make(TableInsertPlanFactory::class.java)
-        return factory.createInstance(this)
+        return factory.createInstance(this, dialect)
     }
 
     fun select(vararg columnOrAggregates: Any): TableSelectPlan {
@@ -198,6 +196,8 @@ abstract class Table(val tableName: String) {
     }
 
     companion object {
+        val DefaultInsertValue = object {}
+
         init {
             try {
                 Instep.make(TableSelectPlanFactory::class.java)
@@ -225,26 +225,6 @@ abstract class Table(val tableName: String) {
             }
             catch(e: ServiceNotFoundException) {
                 Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlan.Companion)
-            }
-        }
-
-        /**
-         * Infer dialect from datasource url and set it up.
-         */
-        fun setupDialect(url: String) {
-            try {
-                Instep.make(Dialect::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                if (url.contains("hsqldb", true)) {
-                    Instep.bind(Dialect::class.java, HSQLDialect())
-                }
-                else if (url.contains("h2", true)) {
-                    Instep.bind(Dialect::class.java, H2Dialect())
-                }
-                else {
-                    throw DaoException("cannot infer dialect for datasource $url")
-                }
             }
         }
     }

@@ -1,17 +1,20 @@
 package instep.dao.sql.impl
 
-import instep.dao.PlaceHolder
-import instep.dao.PlaceHolderRemainingException
+import instep.dao.sql.Dialect
+import instep.dao.sql.dialect.AbstractDialect
+import instep.dao.sql.dialect.HSQLDialect
+import instep.dao.sql.dialect.MySQLDialect
 import instep.reflection.Mirror
 import java.io.InputStream
 import java.io.Reader
 import java.lang.reflect.Method
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.sql.*
-import java.sql.Date
+import java.sql.Connection
+import java.sql.PreparedStatement
+import java.sql.ResultSet
+import java.sql.ResultSetMetaData
 import java.time.*
-import java.util.*
 
 object Helper {
     fun generateColumnInfoSet(meta: ResultSetMetaData): Set<ResultSetColumnInfo> {
@@ -20,14 +23,14 @@ object Helper {
         }.toSet()
     }
 
-    fun <T : Any> typeFirstRowToInstance(rs: ResultSet, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
+    fun <T : Any> rowToInstanceAsInstanceFirst(rs: ResultSet, dialect: Dialect, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
         val instance = mirror.type.newInstance()
         val setters = mirror.setters
 
         setters.forEach { setter ->
             columnInfoSet.forEach columnLoop@ { col ->
                 if (setter.name.contains(col.label, true)) {
-                    evalInstance(setter.parameterTypes[0], instance, setter, rs, col)
+                    evalInstance(setter.parameterTypes[0], instance, setter, getResultSetDelegate(dialect, rs), col)
 
                     return@columnLoop
                 }
@@ -37,20 +40,20 @@ object Helper {
         return instance
     }
 
-    fun <T : Any> resultFirstRowToInstance(rs: ResultSet, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
+    fun <T : Any> rowToInstanceAsRowFirst(rs: ResultSet, dialect: Dialect, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
         val instance = mirror.type.newInstance()
 
         columnInfoSet.forEach { col ->
             val setter = mirror.findSetter(col.label)
             if (null != setter) {
-                evalInstance(setter.parameterTypes[0], instance, setter, rs, col)
+                evalInstance(setter.parameterTypes[0], instance, setter, getResultSetDelegate(dialect, rs), col)
             }
         }
 
         return instance
     }
 
-    private fun <T : Any> evalInstance(paramType: Class<*>, instance: T, setter: Method, rs: ResultSet, col: ResultSetColumnInfo) {
+    fun <T : Any> evalInstance(paramType: Class<*>, instance: T, setter: Method, rs: AbstractDialect.ResultSet, col: ResultSetColumnInfo) {
         when (paramType) {
             Boolean::class.java -> setter.invoke(instance, rs.getBoolean(col.index))
             Byte::class.java -> setter.invoke(instance, rs.getByte(col.index))
@@ -61,54 +64,38 @@ object Helper {
             BigDecimal::class.java -> setter.invoke(instance, rs.getBigDecimal(col.index))
             Float::class.java -> setter.invoke(instance, rs.getFloat(col.index))
             Double::class.java -> setter.invoke(instance, rs.getDouble(col.index))
-            Instant::class.java -> setter.invoke(instance, rs.getTimestamp(col.index)?.let(Timestamp::toInstant))
-            LocalDate::class.java -> setter.invoke(instance, rs.getDate(col.index)?.let(Date::toLocalDate))
-            LocalTime::class.java -> setter.invoke(instance, rs.getTime(col.index)?.let(Time::toLocalTime))
-            LocalDateTime::class.java -> setter.invoke(instance, rs.getTimestamp(col.index)?.let(Timestamp::toLocalDateTime))
-            OffsetDateTime::class.java -> setter.invoke(instance, rs.getObject(col.index, OffsetDateTime::class.java))
+            Instant::class.java -> setter.invoke(instance, rs.getInstant(col.index))
+            LocalDate::class.java -> setter.invoke(instance, rs.getLocalDate(col.index))
+            LocalTime::class.java -> setter.invoke(instance, rs.getLocalTime(col.index))
+            LocalDateTime::class.java -> setter.invoke(instance, rs.getLocalDateTime(col.index))
+            OffsetDateTime::class.java -> setter.invoke(instance, rs.getOffsetDateTime(col.index))
             InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
             ByteArray::class.java -> setter.invoke(instance, rs.getBytes(col.index))
             String::class.java -> setter.invoke(instance, rs.getString(col.index))
-            Char::class.java -> setter.invoke(instance, rs.getString(col.index)?.let { it.toCharArray().firstOrNull() })
+            Char::class.java -> setter.invoke(instance, rs.getString(col.index)?.toCharArray()?.firstOrNull())
             InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
             Reader::class.java -> setter.invoke(instance, rs.getCharacterStream(col.index))
             else -> setter.invoke(instance, rs.getObject(col.index, paramType))
         }
     }
 
-    fun generateStatement(conn: Connection, plan: instep.dao.Plan<*>): PreparedStatement {
+    fun generateStatement(conn: Connection, dialect: Dialect, plan: instep.dao.Plan<*>): PreparedStatement {
         val stmt = conn.prepareStatement(plan.statement)
 
         plan.parameters.forEachIndexed { i, value ->
             val paramIndex = i + 1
 
-            when (value) {
-                is PlaceHolder -> throw PlaceHolderRemainingException(value)
-                is Boolean -> stmt.setBoolean(paramIndex, value)
-                is Char -> stmt.setString(paramIndex, value.toString())
-                is String -> stmt.setString(paramIndex, value)
-                is Byte -> stmt.setByte(paramIndex, value)
-                is Short -> stmt.setShort(paramIndex, value)
-                is Int -> stmt.setInt(paramIndex, value)
-                is Long -> stmt.setLong(paramIndex, value)
-                is BigInteger -> stmt.setLong(paramIndex, value.toLong())
-                is BigDecimal -> stmt.setBigDecimal(paramIndex, value)
-                is Float -> stmt.setFloat(paramIndex, value)
-                is Double -> stmt.setDouble(paramIndex, value)
-                is ByteArray -> stmt.setBytes(paramIndex, value)
-                is Instant -> stmt.setTimestamp(paramIndex, java.sql.Timestamp.from(value))
-                is LocalDate -> stmt.setDate(paramIndex, java.sql.Date.valueOf(value))
-                is LocalTime -> stmt.setTime(paramIndex, java.sql.Time.valueOf(value))
-                is LocalDateTime -> stmt.setTimestamp(paramIndex, java.sql.Timestamp.valueOf(value))
-                is OffsetDateTime -> value.toZonedDateTime().let {
-                    stmt.setTimestamp(paramIndex, java.sql.Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(it.zone)))
-                }
-                is InputStream -> stmt.setBinaryStream(paramIndex, value)
-                is Reader -> stmt.setCharacterStream(paramIndex, value)
-                else -> stmt.setObject(paramIndex, value)
-            }
+            dialect.setParameterForPreparedStatement(stmt, paramIndex, value)
         }
 
         return stmt
+    }
+
+    fun getResultSetDelegate(dialect: Dialect, rs: ResultSet): AbstractDialect.ResultSet {
+        return when (dialect) {
+            is HSQLDialect -> HSQLDialect.ResultSet(rs)
+            is MySQLDialect -> MySQLDialect.ResultSet(rs)
+            else -> AbstractDialect.ResultSet(rs)
+        }
     }
 }

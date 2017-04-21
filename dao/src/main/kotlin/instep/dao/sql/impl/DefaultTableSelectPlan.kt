@@ -1,15 +1,10 @@
 package instep.dao.sql.impl
 
-import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.DaoException
 import instep.dao.sql.*
-import instep.dao.sql.dialect.H2Dialect
-import instep.servicecontainer.ServiceNotFoundException
 
-class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : TableSelectPlan {
-    constructor(table: Table) : this(table, Instep.make(Dialect::class.java))
-
+class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan {
     override val statement: String
         get() {
             val selectClause = select.filterNotNull().map {
@@ -45,7 +40,7 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
                 sql += "\nORDER BY $orderByClause"
             }
 
-            return dialect.pagination.statement(sql, limit, offset)
+            return from.dialect.pagination.statement(sql, limit, offset)
         }
 
     override val parameters: List<Any?>
@@ -57,7 +52,7 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
                 params += havingParams
             }
 
-            return dialect.pagination.parameters(params, limit, offset)
+            return from.dialect.pagination.parameters(params, limit, offset)
         }
 
     override var select: AssocArray = AssocArray()
@@ -127,14 +122,5 @@ class DefaultTableSelectPlan(override val from: Table, val dialect: Dialect) : T
 
     companion object {
         private const val serialVersionUID = -3599950472910618651L
-
-        init {
-            try {
-                Instep.make(Dialect::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                Instep.bind(Dialect::class.java, H2Dialect())
-            }
-        }
     }
 }

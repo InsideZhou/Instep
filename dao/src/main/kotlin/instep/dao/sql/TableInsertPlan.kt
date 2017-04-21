@@ -12,12 +12,12 @@ interface TableInsertPlan : Plan<TableInsertPlan> {
     fun addValues(vararg values: Any?): TableInsertPlan
 
     companion object : TableInsertPlanFactory {
-        override fun createInstance(table: Table): TableInsertPlan {
+        override fun createInstance(table: Table, dialect: Dialect): TableInsertPlan {
             return DefaultTableInsertPlan(table)
         }
     }
 }
 
 interface TableInsertPlanFactory {
-    fun createInstance(table: Table): TableInsertPlan
+    fun createInstance(table: Table, dialect: Dialect): TableInsertPlan
 }

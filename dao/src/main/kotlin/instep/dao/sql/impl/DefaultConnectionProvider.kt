@@ -1,11 +1,15 @@
 package instep.dao.sql.impl
 
+import instep.Instep
 import instep.dao.sql.ConnectionProvider
+import instep.dao.sql.Dialect
 import instep.dao.sql.TransactionContext
 import java.sql.Connection
 import javax.sql.DataSource
 
-open class DefaultConnectionProvider(val ds: DataSource) : ConnectionProvider {
+open class DefaultConnectionProvider(val ds: DataSource, override val dialect: Dialect) : ConnectionProvider {
+    constructor(ds: DataSource) : this(ds, Instep.make(Dialect::class.java))
+
     open class ConnectionWithNestedTransaction(private val conn: Connection) : Connection by conn {
         override fun rollback() {
             TransactionContext.threadLocalTransactionContext.get()?.run {

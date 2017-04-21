@@ -1,6 +1,9 @@
 package instep.dao
 
+import instep.Instep
 import instep.dao.sql.*
+import instep.dao.sql.dialect.MySQLDialect
+import instep.dao.sql.dialect.PostgreSQLDialect
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
 import java.time.*
@@ -9,19 +12,29 @@ import java.util.*
 object TableTest {
     val stringGenerator = RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
+    val dialect = Instep.make(Dialect::class.java)
 
     val birthDate = LocalDate.of(1993, 6, 6)
     val birthTime = LocalTime.of(6, 6)
-    val birthday = OffsetDateTime.of(birthDate, birthTime, ZonedDateTime.now().offset)
+    val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
         val id = autoIncrementLong("id").primary()
         val name = varchar("name", 256).notnull()
-        val balance = numeric("balance", Int.MAX_VALUE, 2).notnull()
+        val balance = when (dialect) {
+            is MySQLDialect -> numeric("balance", 65, 2).notnull()
+            is PostgreSQLDialect -> numeric("balance", 1000, 2).notnull()
+            else -> numeric("balance", Int.MAX_VALUE, 2).notnull()
+        }
         val createdAt = datetime("created_at").notnull()
         var birthDate = date("birth_date")
         var birthTime = time("birth_time")
-        var birthday = offsetDateTime("birthday")
+        var birthday = if (dialect.isOffsetDateTimeSupported) {
+            offsetDateTime("birthday")
+        }
+        else {
+            datetime("birthday")
+        }
         val avatar = lob("avatar")
     }
 
@@ -42,16 +55,20 @@ object TableTest {
 
         for (index in 0..total) {
             val name = stringGenerator.generateByRegex("\\w{1,256}")
-            AccountTable.insert().addValues(
-                null,
-                name,
-                random.nextDouble(),
-                LocalDateTime.now(),
-                birthDate,
-                birthTime,
-                birthday,
-                null
-            ).execute()
+
+            AccountTable
+                .insert()
+                .addValues(
+                    Table.DefaultInsertValue,
+                    name,
+                    random.nextDouble(),
+                    LocalDateTime.now(),
+                    birthDate,
+                    birthTime,
+                    birthday,
+                    null
+                )
+                .execute()
         }
 
         for (index in 0..total) {
@@ -120,7 +137,13 @@ object TableTest {
 
         assert(account[AccountTable.birthDate] == OffsetDateTime.of(birthDate, LocalTime.MIDNIGHT, ZonedDateTime.now().offset))
         assert(account[AccountTable.birthTime] == OffsetDateTime.of(LocalDate.ofEpochDay(0), birthTime, ZonedDateTime.now().offset))
-        assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, ZonedDateTime.now().offset))
+
+        if (dialect.isOffsetDateTimeSupported) {
+            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
+        }
+        else {
+            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
+        }
 
         assert(account.getLocalDateTime(AccountTable.birthDate) == LocalDateTime.of(birthDate, LocalTime.MIDNIGHT))
         assert(account.getLocalDateTime(AccountTable.birthTime) == LocalDateTime.of(LocalDate.ofEpochDay(0), birthTime))

@@ -5,6 +5,7 @@ import instep.dao.DaoException
 import instep.dao.sql.Column
 import instep.dao.sql.Table
 import instep.dao.sql.TableInsertPlan
+import instep.dao.sql.dialect.PostgreSQLDialect
 
 open class DefaultTableInsertPlan(val table: Table, protected val params: AssocArray) : TableInsertPlan {
     constructor(table: Table) : this(table, AssocArray())
@@ -45,11 +46,20 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
                 txt += columns.map { it.first }.joinToString(",", "(", ")")
             }
 
-            txt += "\nVALUES (${columns.map { "?" }.joinToString(",")})"
+            txt += "\nVALUES (${columns.map {
+                if (it.second == Table.DefaultInsertValue) {
+                    return@map when (table.dialect) {
+                        is PostgreSQLDialect -> "DEFAULT"
+                        else -> "NULL"
+                    }
+                }
+
+                "?"
+            }.joinToString(",")})"
 
             return txt
         }
 
     override val parameters: List<Any?>
-        get() = params.toList()
+        get() = params.filterNot { it == Table.DefaultInsertValue }
 }

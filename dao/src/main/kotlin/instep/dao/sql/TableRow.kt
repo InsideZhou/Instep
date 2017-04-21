@@ -4,8 +4,12 @@ import instep.UnexpectedCodeError
 import instep.dao.sql.impl.Helper
 import java.io.InputStream
 import java.math.BigDecimal
-import java.sql.*
-import java.time.*
+import java.sql.Blob
+import java.sql.ResultSet
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.OffsetDateTime
 
 /**
  * A table row filled with data.
@@ -42,9 +46,9 @@ class TableRow {
     operator fun get(column: DateTimeColumn): OffsetDateTime? {
         val value = map[column]
         return when (value) {
-            is LocalDateTime -> OffsetDateTime.of(value, ZonedDateTime.now().offset)
-            is LocalDate -> OffsetDateTime.of(value, LocalTime.MIDNIGHT, ZonedDateTime.now().offset)
-            is LocalTime -> OffsetDateTime.of(LocalDate.ofEpochDay(0), value, ZonedDateTime.now().offset)
+            is LocalDateTime -> OffsetDateTime.of(value, OffsetDateTime.now().offset)
+            is LocalDate -> OffsetDateTime.of(value, LocalTime.MIDNIGHT, OffsetDateTime.now().offset)
+            is LocalTime -> OffsetDateTime.of(LocalDate.ofEpochDay(0), value, OffsetDateTime.now().offset)
             is OffsetDateTime -> value
             null -> null
             else -> throw UnsupportedOperationException("Converting $value to OffsetDateTime is not supported.")
@@ -77,8 +81,9 @@ class TableRow {
     }
 
     companion object : TableRowFactory {
-        override fun createInstance(table: Table, rs: ResultSet): TableRow {
+        override fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow {
             val row = TableRow()
+            val rs = Helper.getResultSetDelegate(dialect, resultSet)
 
             val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
             table.columns.forEach { col ->
@@ -104,10 +109,10 @@ class TableRow {
                     }
 
                     is DateTimeColumn -> when (col.type) {
-                        DateTimeColumnType.Date -> rs.getDate(info.index)?.let(Date::toLocalDate)
-                        DateTimeColumnType.Time -> rs.getTime(info.index)?.let(Time::toLocalTime)
-                        DateTimeColumnType.DateTime -> rs.getTimestamp(info.index)?.let(Timestamp::toLocalDateTime)
-                        DateTimeColumnType.OffsetDateTime -> rs.getObject(info.index) as? OffsetDateTime
+                        DateTimeColumnType.Date -> rs.getLocalDate(info.index)
+                        DateTimeColumnType.Time -> rs.getLocalTime(info.index)
+                        DateTimeColumnType.DateTime -> rs.getLocalDateTime(info.index)
+                        DateTimeColumnType.OffsetDateTime -> rs.getOffsetDateTime(info.index)
                     }
 
                     is BinaryColumn -> when (col.type) {
@@ -125,6 +130,6 @@ class TableRow {
 }
 
 interface TableRowFactory {
-    fun createInstance(table: Table, rs: ResultSet): TableRow
+    fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow
 }
 

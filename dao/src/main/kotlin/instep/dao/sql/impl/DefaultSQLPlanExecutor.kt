@@ -4,23 +4,20 @@ import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.sql.ConnectionProvider
 import instep.dao.sql.SQLPlanExecutor
-import instep.reflection.Mirror
 import instep.typeconvert.Converter
 import instep.typeconvert.TypeConvert
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.OffsetDateTime
-import java.time.ZonedDateTime
 
 open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : SQLPlanExecutor {
-    constructor() : this(Instep.make(ConnectionProvider::class.java)) {
-    }
+    constructor() : this(Instep.make(ConnectionProvider::class.java))
 
     override fun execute(plan: instep.dao.Plan<*>) {
         val conn = connectionProvider.getConnection()
         try {
-            val stmt = Helper.generateStatement(conn, plan)
+            val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
             stmt.execute()
         }
         finally {
@@ -44,7 +41,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
     override fun executeUpdate(plan: instep.dao.Plan<*>): Long {
         val conn = connectionProvider.getConnection()
-        val stmt = Helper.generateStatement(conn, plan)
+        val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
         try {
             return stmt.executeLargeUpdate()
         }
@@ -57,7 +54,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     }
 
     override fun executeResultSet(conn: Connection, plan: instep.dao.Plan<*>): ResultSet {
-        val stmt = Helper.generateStatement(conn, plan)
+        val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
         return stmt.executeQuery()
     }
 
@@ -84,7 +81,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
                 try {
                     while (rs.next()) {
-                        result.add(Helper.typeFirstRowToInstance(rs, mirror, columnInfoSet))
+                        result.add(Helper.rowToInstanceAsInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
                     }
                 }
                 catch(e: Exception) {

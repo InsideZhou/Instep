@@ -14,7 +14,6 @@ private val init = run {
     catch(e: ServiceNotFoundException) {
         Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
     }
-
 }
 
 /**
@@ -68,7 +67,7 @@ fun TableSelectPlan.execute(): List<TableRow> {
     try {
         val rs = planExec.executeResultSet(conn, this)
         while (rs.next()) {
-            result.add(rowFactory.createInstance(this.from, rs))
+            result.add(rowFactory.createInstance(this.from, connMan.dialect, rs))
         }
         return result
     }

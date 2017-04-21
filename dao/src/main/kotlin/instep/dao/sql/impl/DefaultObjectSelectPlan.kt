@@ -4,8 +4,6 @@ import instep.Instep
 import instep.dao.sql.Condition
 import instep.dao.sql.Dialect
 import instep.dao.sql.ObjectSelectPlan
-import instep.dao.sql.dialect.H2Dialect
-import instep.servicecontainer.ServiceNotFoundException
 
 class DefaultObjectSelectPlan(val obj: Any, val dialect: Dialect) : ObjectSelectPlan {
     constructor(obj: Any) : this(obj, Instep.make(Dialect::class.java))
@@ -95,14 +93,5 @@ class DefaultObjectSelectPlan(val obj: Any, val dialect: Dialect) : ObjectSelect
 
     companion object {
         private const val serialVersionUID = 3835427608445193282L
-
-        init {
-            try {
-                Instep.make(Dialect::class.java)
-            }
-            catch(e: ServiceNotFoundException) {
-                Instep.bind(Dialect::class.java, H2Dialect())
-            }
-        }
     }
 }
