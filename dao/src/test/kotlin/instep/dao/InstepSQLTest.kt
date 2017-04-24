@@ -6,7 +6,6 @@ import instep.InstepLogger
 import instep.dao.sql.*
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
-import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
 import java.sql.Connection
@@ -36,7 +35,7 @@ object InstepSQLTest {
         datasource.validationQuery = "VALUES(current_timestamp)"
 
         Instep.bind(Dialect::class.java, dialect)
-        Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource, dialect))
+        Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
             override val enableDebug: Boolean = true
             override val enableInfo: Boolean = true
@@ -72,14 +71,14 @@ object InstepSQLTest {
 
     @Test
     fun transaction() {
-        InstepSQL.transaction(Connection.TRANSACTION_SERIALIZABLE) {
+        TransactionContext.scope {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[1] = row
         }
         assert(TransactionTable[1] != null)
 
-        InstepSQL.transaction(Connection.TRANSACTION_SERIALIZABLE) {
+        TransactionContext.scope(Connection.TRANSACTION_SERIALIZABLE) {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[2] = row

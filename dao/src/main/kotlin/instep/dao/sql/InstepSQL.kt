@@ -11,8 +11,6 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 object InstepSQL {
-    var transactionLevel = Connection.TRANSACTION_READ_COMMITTED
-
     init {
         try {
             Instep.make(SQLPlanExecutor::class.java)
@@ -91,15 +89,5 @@ object InstepSQL {
     fun executeResultSet(txt: String, conn: Connection): ResultSet {
         val factory = Instep.make(PlanFromTextFactory::class.java)
         return factory.createInstance(txt).executeResultSet(conn)
-    }
-
-    fun <R : Any?> transaction(runner: TransactionContext.() -> R): R {
-        val transactionScope = Instep.make(TransactionScope::class.java)
-        return transactionScope.template(transactionLevel, runner)
-    }
-
-    fun <R : Any?> transaction(level: Int, runner: TransactionContext.() -> R): R {
-        val transactionScope = Instep.make(TransactionScope::class.java)
-        return transactionScope.template(level, runner)
     }
 }

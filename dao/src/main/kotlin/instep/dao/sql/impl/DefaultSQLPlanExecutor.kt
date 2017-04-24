@@ -7,6 +7,7 @@ import instep.dao.sql.SQLPlanExecutor
 import instep.typeconvert.Converter
 import instep.typeconvert.TypeConvert
 import java.sql.Connection
+import java.sql.PreparedStatement
 import java.sql.ResultSet
 import java.sql.Types
 import java.time.OffsetDateTime
@@ -40,12 +41,15 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     }
 
     override fun executeUpdate(plan: instep.dao.Plan<*>): Long {
+        var stmt: PreparedStatement? = null
         val conn = connectionProvider.getConnection()
-        val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
         try {
+            stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
             return stmt.executeLargeUpdate()
         }
         catch (e: UnsupportedOperationException) {
+            if (null == stmt) throw e
+
             return stmt.executeUpdate().toLong()
         }
         finally {
@@ -61,39 +65,37 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     override fun <T : Any> execute(plan: instep.dao.Plan<*>, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
-        connectionProvider.getConnection().let { conn ->
-            val typeconvert = Instep.make(TypeConvert::class.java)
+        val typeconvert = Instep.make(TypeConvert::class.java)
+        val conn = connectionProvider.getConnection()
+        try {
+            val rs = executeResultSet(conn, plan)
+
+            if (typeconvert.canConvert(ResultSet::class.java, cls)) {
+                while (rs.next()) {
+                    val instanceOfT = typeconvert.convert(rs, ResultSet::class.java, cls)
+                    result.add(instanceOfT)
+                }
+
+                return result
+            }
+
+            val mirror = Instep.reflect(cls)
+            val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
 
             try {
-                val rs = executeResultSet(conn, plan)
-
-                if (typeconvert.canConvert(ResultSet::class.java, cls)) {
-                    while (rs.next()) {
-                        val instanceOfT = typeconvert.convert(rs, ResultSet::class.java, cls)
-                        result.add(instanceOfT)
-                    }
-
-                    return@let
-                }
-
-                val mirror = Instep.reflect(cls)
-                val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
-
-                try {
-                    while (rs.next()) {
-                        result.add(Helper.rowToInstanceAsInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
-                    }
-                }
-                catch(e: Exception) {
-                    throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
+                while (rs.next()) {
+                    result.add(Helper.rowToInstanceAsInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
                 }
             }
-            finally {
-                conn.close()
+            catch(e: Exception) {
+                throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
             }
         }
+        finally {
+            conn.close()
+        }
 
-        return result.toList()
+        return result
     }
 
     companion object {
