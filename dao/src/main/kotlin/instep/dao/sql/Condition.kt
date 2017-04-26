@@ -1,9 +1,9 @@
 package instep.dao.sql
 
 import instep.dao.Expression
-import instep.dao.impl.DefaultExpression
+import instep.dao.impl.AbstractExpression
 
-open class Condition protected constructor(txt: String) : DefaultExpression(txt) {
+open class Condition protected constructor(txt: String) : AbstractExpression<Condition>(txt) {
     var conjunction: Conjunction? = null
         private set
 
@@ -429,7 +429,7 @@ open class Condition protected constructor(txt: String) : DefaultExpression(txt)
         return this
     }
 
-    open fun and(expression: Expression): Condition {
+    open fun and(expression: Expression<*>): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -448,7 +448,7 @@ open class Condition protected constructor(txt: String) : DefaultExpression(txt)
         return this
     }
 
-    open fun or(expression: Expression): Condition {
+    open fun or(expression: Expression<*>): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -467,7 +467,7 @@ open class Condition protected constructor(txt: String) : DefaultExpression(txt)
         return this
     }
 
-    open fun andGroup(expression: Expression): Condition {
+    open fun andGroup(expression: Expression<*>): Condition {
         val conj = conjunction
 
         if (null == conj) {
@@ -486,7 +486,7 @@ open class Condition protected constructor(txt: String) : DefaultExpression(txt)
         return this
     }
 
-    open fun orGroup(expression: Expression): Condition {
+    open fun orGroup(expression: Expression<*>): Condition {
         val conj = conjunction
 
         if (null == conj) {

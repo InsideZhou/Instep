@@ -5,6 +5,8 @@ import instep.dao.Plan
 import instep.dao.sql.impl.DefaultTableInsertPlan
 
 interface TableInsertPlan : Plan<TableInsertPlan> {
+    override public fun clone(): TableInsertPlan
+
     @Throws(DaoException::class)
     fun addValue(column: Column<*>, value: Any?): TableInsertPlan
 

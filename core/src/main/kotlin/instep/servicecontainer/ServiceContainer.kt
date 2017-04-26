@@ -3,7 +3,32 @@ package instep.servicecontainer
 /**
  * Register service and make service instance.
  */
-interface ServiceContainer : Cloneable {
+interface ServiceContainer {
+    /**
+     * Fire on service binding. If event handler return null, service binding would be canceled.
+     */
+    var binding: ServiceBindingEventHandler?
+
+    /**
+     * Fire on service bound.
+     */
+    var bound: ServiceBoundEventHandler?
+
+    /**
+     * Fire on service resolving.
+     */
+    var resolving: ServiceResolvingEventHandler?
+
+    /**
+     * Fire on service resolved.
+     */
+    var resolved: ServiceResolvedEventHandler?
+
+    /**
+     * Get all original bindings of service.
+     */
+    fun <T : Any> serviceBinds(): List<ServiceBinding<T>>
+
     /**
      * Make instance by class.
      * @param tag binding tagged by.
@@ -18,6 +43,11 @@ interface ServiceContainer : Cloneable {
     fun <T : Any> bind(cls: Class<T>, instance: T, tag: String = "")
 
     /**
+     * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
+     */
+    fun <T : Any> bind(binding: ServiceBinding<T>)
+
+    /**
      * Remove binding.
      * @param tag binding tagged by.
      */
@@ -29,22 +59,19 @@ interface ServiceContainer : Cloneable {
     fun removeAll(instance: Any)
 
     /**
-     * Fire on service binding. If event handler return null, service binding would be canceled.
+     * Clear all services in this container.
      */
-    fun onBinding(eventHandler: ServiceBindingEventHandler)
+    fun clear()
 
     /**
-     * Fire on service bound.
+     * Copy services only from other service container.
      */
-    fun onBound(eventHandler: ServiceBoundEventHandler)
+    fun copyServices(container: ServiceContainer)
 
     /**
-     * Fire on service resolving.
+     * Copy all from other service container.
      */
-    fun onResolving(eventHandler: ServiceResolvingEventHandler)
-
-    /**
-     * Fire on service resolved.
-     */
-    fun onResolved(eventHandler: ServiceResolvedEventHandler)
+    fun copy(container: ServiceContainer)
 }
+
+data class ServiceBinding<T : Any>(val cls: Class<T>, val instance: T, val tag: String = "")

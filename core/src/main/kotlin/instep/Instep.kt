@@ -11,14 +11,11 @@ import instep.typeconvert.TypeConvert
 import instep.typeconvert.TypeConvertException
 
 object Instep {
-    var serviceContainer: ServiceContainer
+    var serviceContainer: ServiceContainer = MemoryServiceContainer()
 
     init {
-        val container = MemoryServiceContainer()
-        serviceContainer = container
-
-        container.bind(Cache::class.java, MemoryCache())
-        container.bind(TypeConvert::class.java, DefaultTypeConvert())
+        serviceContainer.bind(Cache::class.java, MemoryCache())
+        serviceContainer.bind(TypeConvert::class.java, DefaultTypeConvert())
     }
 
     /**

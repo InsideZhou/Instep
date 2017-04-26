@@ -16,6 +16,7 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
     val limit: Int
     val offset: Int
 
+    override public fun clone(): TableSelectPlan
 
     fun select(vararg columnOrAggregates: Any): TableSelectPlan
     fun distinct(): TableSelectPlan

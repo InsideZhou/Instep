@@ -1,11 +1,12 @@
 package instep.dao.sql.impl
 
 import instep.Instep
+import instep.dao.impl.AbstractPlan
 import instep.dao.sql.Condition
 import instep.dao.sql.Dialect
 import instep.dao.sql.ObjectSelectPlan
 
-class DefaultObjectSelectPlan(val obj: Any, val dialect: Dialect) : ObjectSelectPlan {
+class DefaultObjectSelectPlan(val obj: Any, val dialect: Dialect) : AbstractPlan<ObjectSelectPlan>(), ObjectSelectPlan {
     constructor(obj: Any) : this(obj, Instep.make(Dialect::class.java))
 
     override val statement: String

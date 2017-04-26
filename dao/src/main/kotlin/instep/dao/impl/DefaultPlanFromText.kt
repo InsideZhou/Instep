@@ -3,32 +3,41 @@ package instep.dao.impl
 import instep.dao.Expression
 import instep.dao.PlanFromText
 
-open class DefaultPlanFromText(txt: String) : DefaultExpression(txt), PlanFromText {
+open class DefaultPlanFromText(txt: String) : AbstractPlan<PlanFromText>(), PlanFromText {
+    protected val superExpression = DefaultExpression(txt)
 
-    override fun addExpression(placeHolderName: String, expression: Expression?): PlanFromText {
-        super.addExpression(placeHolderName, expression)
-        return this
-    }
+    override val parameters: List<Any?>
+        get() = superExpression.parameters
 
-    override fun addExpressions(vararg expressions: Expression): PlanFromText {
-        super.addExpressions(*expressions)
-        return this
-    }
+    override val statement: String
+        get() {
+            return superExpression.expression
+        }
+
+    override val expression: String
+        get() {
+            return superExpression.expression
+        }
 
     override fun addParameter(placeholderName: String, parameter: Any?): PlanFromText {
-        super.addParameter(placeholderName, parameter)
+        superExpression.addParameter(placeholderName, parameter)
         return this
     }
 
     override fun addParameters(vararg parameters: Any?): PlanFromText {
-        super.addParameters(*parameters)
+        superExpression.addParameters(*parameters)
         return this
     }
 
-    override val statement: String
-        get() {
-            return super.expression
-        }
+    override fun addExpression(placeHolderName: String, expression: Expression<*>?): PlanFromText {
+        superExpression.addExpression(placeHolderName, expression)
+        return this
+    }
+
+    override fun addExpressions(vararg expressions: Expression<*>): PlanFromText {
+        superExpression.addExpressions(*expressions)
+        return this
+    }
 
     companion object {
         private const val serialVersionUID = -9202019814173830690L

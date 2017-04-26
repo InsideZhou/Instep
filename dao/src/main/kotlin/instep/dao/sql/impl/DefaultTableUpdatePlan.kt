@@ -1,12 +1,13 @@
 package instep.dao.sql.impl
 
 import instep.dao.DaoException
+import instep.dao.impl.AbstractPlan
 import instep.dao.sql.Column
 import instep.dao.sql.Condition
 import instep.dao.sql.Table
 import instep.dao.sql.TableUpdatePlan
 
-open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Column<*>, Any?> = mutableMapOf()) : TableUpdatePlan {
+open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Column<*>, Any?> = mutableMapOf()) : AbstractPlan<TableUpdatePlan>(), TableUpdatePlan {
     override var where: Condition? = null
 
     private var pkValue: Any? = null

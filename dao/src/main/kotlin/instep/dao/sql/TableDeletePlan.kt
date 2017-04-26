@@ -5,6 +5,8 @@ import instep.dao.Plan
 import instep.dao.sql.impl.DefaultTableDeletePlan
 
 interface TableDeletePlan : Plan<TableDeletePlan>, WhereClause<TableDeletePlan> {
+    override public fun clone(): TableDeletePlan
+
     @Throws(DaoException::class)
     fun where(value: Any): TableDeletePlan
 

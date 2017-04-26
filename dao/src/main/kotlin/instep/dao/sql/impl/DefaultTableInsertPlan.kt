@@ -2,12 +2,13 @@ package instep.dao.sql.impl
 
 import instep.collection.AssocArray
 import instep.dao.DaoException
+import instep.dao.impl.AbstractPlan
 import instep.dao.sql.Column
 import instep.dao.sql.Table
 import instep.dao.sql.TableInsertPlan
 import instep.dao.sql.dialect.PostgreSQLDialect
 
-open class DefaultTableInsertPlan(val table: Table, protected val params: AssocArray) : TableInsertPlan {
+open class DefaultTableInsertPlan(val table: Table, protected val params: AssocArray) : AbstractPlan<TableInsertPlan>(), TableInsertPlan {
     constructor(table: Table) : this(table, AssocArray())
 
     protected var usingColumn = false

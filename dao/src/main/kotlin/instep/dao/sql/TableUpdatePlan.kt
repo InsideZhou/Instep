@@ -5,6 +5,8 @@ import instep.dao.Plan
 import instep.dao.sql.impl.DefaultTableUpdatePlan
 
 interface TableUpdatePlan : Plan<TableUpdatePlan>, WhereClause<TableUpdatePlan> {
+    override public fun clone(): TableUpdatePlan
+
     @Throws(DaoException::class)
     fun set(column: Column<*>, value: Any?): TableUpdatePlan
 

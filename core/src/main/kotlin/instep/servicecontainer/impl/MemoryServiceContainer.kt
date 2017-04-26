@@ -1,19 +1,21 @@
 package instep.servicecontainer.impl
 
 import instep.Instep
-import instep.servicecontainer.*
+import instep.servicecontainer.ServiceBinding
+import instep.servicecontainer.ServiceContainer
+import instep.servicecontainer.ServiceNotFoundException
 
-open class MemoryServiceContainer : ServiceContainer {
-    protected val memory: MutableMap<String, Any> = mutableMapOf()
-    protected var binding: ServiceBindingEventHandler? = null
-    protected var bound: ServiceBoundEventHandler? = null
-    protected var resolving: ServiceResolvingEventHandler? = null
-    protected var resolved: ServiceResolvedEventHandler? = null
+open class MemoryServiceContainer : AbstractServiceContainer<MemoryServiceContainer>() {
+    protected val memory = mutableMapOf<String, Any>()
 
+    protected val serviceBindings = mutableListOf<ServiceBinding<Any>>()
+
+    @Suppress("unchecked_cast")
     override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
         if (!fireOnBinding(cls, instance, tag)) return
 
         memory[getKey(cls, tag)] = instance
+        serviceBindings.add(ServiceBinding(cls, instance, tag) as ServiceBinding<Any>)
 
         if (!cls.isArray && !Collection::class.java.isAssignableFrom(cls)) {
             val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
@@ -30,16 +32,21 @@ open class MemoryServiceContainer : ServiceContainer {
     }
 
     @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> serviceBinds(): List<ServiceBinding<T>> {
+        return serviceBindings.map { it as ServiceBinding<T> }
+    }
+
+    override fun <T : Any> bind(binding: ServiceBinding<T>) {
+        throw UnsupportedOperationException("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> remove(cls: Class<T>, tag: String): T? {
         return memory.remove(getKey(cls, tag)) as? T
     }
 
     override fun removeAll(instance: Any) {
         memory.filterValues { it == instance }.forEach { memory.remove(it.key) }
-    }
-
-    override fun clone(): Any {
-        return super.clone()
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -56,20 +63,27 @@ open class MemoryServiceContainer : ServiceContainer {
         return obj
     }
 
-    override fun onBinding(eventHandler: ServiceBindingEventHandler) {
-        binding = eventHandler
+    override fun copyServices(container: ServiceContainer) {
+        container.serviceBinds<Any>().forEach { bind(it) }
     }
 
-    override fun onBound(eventHandler: ServiceBoundEventHandler) {
-        bound = eventHandler
+    override fun copy(container: ServiceContainer) {
+        copyServices(container)
+
+        binding = container.binding
+        bound = container.bound
+        resolving = container.resolving
+        resolved = container.resolved
     }
 
-    override fun onResolving(eventHandler: ServiceResolvingEventHandler) {
-        resolving = eventHandler
-    }
+    override fun clear() {
+        memory.clear()
+        serviceBindings.clear()
 
-    override fun onResolved(eventHandler: ServiceResolvedEventHandler) {
-        resolved = eventHandler
+        binding = null
+        bound = null
+        resolving = null
+        resolved = null
     }
 
     protected fun <T> fireOnBinding(cls: Class<T>, obj: T, tag: String = ""): Boolean {
@@ -98,10 +112,6 @@ open class MemoryServiceContainer : ServiceContainer {
         if (null == handler) return
 
         return handler.handle(cls, obj, tag)
-    }
-
-    protected fun <T> getKey(cls: Class<T>, tag: String = ""): String {
-        return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
     }
 
     companion object {

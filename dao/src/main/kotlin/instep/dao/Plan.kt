@@ -16,7 +16,7 @@ interface Plan<T : Plan<T>> : Serializable, Cloneable {
     @Suppress("UNCHECKED_CAST")
     fun debug(): T {
         InstepLogger.debug({ statement }, this.javaClass.name)
-        InstepLogger.debug({ parameters.map { it.toString() }.joinToString("|") }, this.javaClass.name)
+        InstepLogger.debug({ parameters.map(Any?::toString).joinToString("|") }, this.javaClass.name)
         return this as T
     }
 

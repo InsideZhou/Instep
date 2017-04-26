@@ -3,38 +3,38 @@ package instep.dao
 import instep.dao.impl.DefaultExpression
 import java.io.Serializable
 
-interface Expression : Serializable, Cloneable {
+interface Expression<T : Expression<T>> : Serializable, Cloneable {
     val expression: String
     /**
      * Order of parameters need to be same as order of placeholders.
      */
     val parameters: List<Any?>
 
-    fun addParameter(placeholderName: String, parameter: Any?): Expression
+    fun addParameter(placeholderName: String, parameter: Any?): T
 
     /**
      * @throws PlaceHolderRemainingException Cannot add positional parameter while named parameter with placeholder remaining.
      */
     @Throws(PlaceHolderRemainingException::class)
-    fun addParameters(vararg parameters: Any?): Expression
+    fun addParameters(vararg parameters: Any?): T
 
-    fun addExpression(placeHolderName: String, expression: Expression?): Expression
+    fun addExpression(placeHolderName: String, expression: Expression<*>?): T
 
     /**
      * @throws PlaceHolderRemainingException Cannot add positional expression while named expression with placeholder remaining.
      */
     @Throws(PlaceHolderRemainingException::class)
-    fun addExpressions(vararg expressions: Expression): Expression
+    fun addExpressions(vararg expressions: Expression<*>): T
 
     companion object : ExpressionFactory {
-        override fun createInstance(txt: String): Expression {
+        override fun createInstance(txt: String): Expression<*> {
             return DefaultExpression(txt)
         }
     }
 }
 
 interface ExpressionFactory {
-    fun createInstance(txt: String): Expression
+    fun createInstance(txt: String): Expression<*>
 }
 
 class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false) {

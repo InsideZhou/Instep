@@ -1,6 +1,7 @@
 package instep.servicecontainer
 
 import instep.Instep
+import instep.servicecontainer.impl.CompositeServiceContainer
 import org.testng.Assert
 import org.testng.annotations.Test
 
@@ -14,6 +15,10 @@ open class C(override val name: String) : B(name)
 class D(override val name: String) : C(name)
 
 object ServiceContainerTest {
+    init {
+        Instep.serviceContainer = CompositeServiceContainer(Instep.serviceContainer)
+    }
+
     @Test
     fun bind() {
         Instep.bind(ServiceTest::class.java, ServiceTestImplA())

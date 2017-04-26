@@ -13,6 +13,8 @@ interface ObjectSelectPlan : Plan<ObjectSelectPlan> {
     val limit: Int
     val offset: Int
 
+    override public fun clone(): ObjectSelectPlan
+
     fun where(vararg conditions: Condition): ObjectSelectPlan
     fun groupBy(vararg columns: String): ObjectSelectPlan
     fun having(vararg conditions: Condition): ObjectSelectPlan
