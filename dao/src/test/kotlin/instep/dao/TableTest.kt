@@ -6,6 +6,7 @@ import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
+import java.math.BigDecimal
 import java.time.*
 import java.util.*
 
@@ -17,6 +18,16 @@ object TableTest {
     val birthDate = LocalDate.of(1993, 6, 6)
     val birthTime = LocalTime.of(6, 6)
     val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
+
+    class Account {
+        var id = 0L
+        var name = ""
+        var balance: BigDecimal = BigDecimal.ZERO
+        var createdAt: LocalDateTime? = null
+        var birthDate: LocalDate? = null
+        var birthTime: LocalTime? = null
+        var avatar = byteArrayOf()
+    }
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
         val id = autoIncrementLong("id").primary()
@@ -147,5 +158,17 @@ object TableTest {
 
         assert(account.getLocalDateTime(AccountTable.birthDate) == LocalDateTime.of(birthDate, LocalTime.MIDNIGHT))
         assert(account.getLocalDateTime(AccountTable.birthTime) == LocalDateTime.of(LocalDate.ofEpochDay(0), birthTime))
+    }
+
+    @Test(dependsOnMethods = arrayOf("insertAccounts"))
+    fun rowToInstance() {
+        val random = Random()
+        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
+        val id = random.ints(1, max).findAny().orElse(max)
+
+        val account = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).single()
+        assert(account.id == id.toLong())
+        assert(account.birthDate == birthDate)
+        assert(account.birthTime == birthTime)
     }
 }

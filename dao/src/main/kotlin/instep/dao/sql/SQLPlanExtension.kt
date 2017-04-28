@@ -1,9 +1,11 @@
 package instep.dao.sql
 
 import instep.Instep
+import instep.InstepLogger
 import instep.dao.Plan
 import instep.dao.sql.impl.DefaultSQLPlanExecutor
 import instep.servicecontainer.ServiceNotFoundException
+import instep.typeconvert.TypeConvert
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -73,5 +75,44 @@ fun TableSelectPlan.execute(): List<TableRow> {
     }
     finally {
         conn.close()
+    }
+}
+
+@Suppress("unchecked_cast")
+fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
+    val typeconvert = Instep.make(TypeConvert::class.java)
+    val planExec = Instep.make(SQLPlanExecutor::class.java)
+
+    if (typeconvert.canConvert(ResultSet::class.java, cls)) {
+        return planExec.execute(this, cls)
+    }
+
+    val rows = execute()
+
+    if (typeconvert.canConvert(TableRow::class.java, cls)) {
+        return rows.map { typeconvert.convert(it, cls) }
+    }
+
+    val targetMirror = Instep.reflect(cls)
+    val tableMirror = Instep.reflect(this.from)
+
+    return rows.map { row ->
+        val instance = targetMirror.type.newInstance()
+        targetMirror.fieldsWithSetter.forEach { field ->
+            val col = tableMirror.findGetter(field.name)?.invoke(this.from)
+            if (null == col) return@forEach
+
+            val value = row[col as Column<*>]
+            if (null != value) {
+                try {
+                    targetMirror.findSetter(field.name)?.invoke(instance, value)
+                }
+                catch(e: IllegalArgumentException) {
+                    InstepLogger.warning({ e.toString() })
+                }
+            }
+        }
+
+        return@map instance
     }
 }

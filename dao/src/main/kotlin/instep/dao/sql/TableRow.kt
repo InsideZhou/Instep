@@ -90,8 +90,6 @@ class TableRow {
                 val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) }
                 if (null == info) return@forEach
 
-                rs.wasNull()
-
                 row[col] = when (col) {
                     is BooleanColumn -> rs.getBoolean(info.index)
 
