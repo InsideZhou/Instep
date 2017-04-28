@@ -11,6 +11,8 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 object InstepSQL {
+    const val DefaultLogger = "instep.dao.sql"
+
     init {
         try {
             Instep.make(SQLPlanExecutor::class.java)
