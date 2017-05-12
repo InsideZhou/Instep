@@ -5,6 +5,7 @@ import instep.cache.driver.MemoryCache
 import instep.reflection.Mirror
 import instep.reflection.MirrorImpl
 import instep.servicecontainer.ServiceContainer
+import instep.servicecontainer.ServiceNotFoundException
 import instep.servicecontainer.impl.MemoryServiceContainer
 import instep.typeconvert.DefaultTypeConvert
 import instep.typeconvert.TypeConvert
@@ -28,6 +29,7 @@ object Instep {
     /**
      * @see ServiceContainer.make
      */
+    @Throws(ServiceNotFoundException::class)
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T {
         return serviceContainer.make(cls, tag)
     }

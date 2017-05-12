@@ -34,6 +34,7 @@ interface ServiceContainer {
      * @param tag binding tagged by.
      * @throws ServiceNotFoundException
      */
+    @Throws(ServiceNotFoundException::class)
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T
 
     /**

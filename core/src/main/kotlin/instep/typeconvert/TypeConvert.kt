@@ -14,7 +14,7 @@ interface TypeConvert : Serializable {
     /**
      * Get converter.
      */
-    fun <From, To> getConverter(from: Class<From>, to: Class<To>): Converter<From, To>
+    fun <From, To> getConverter(from: Class<From>, to: Class<To>): Converter<From, To>?
 
     /**
      * Remove type converter.

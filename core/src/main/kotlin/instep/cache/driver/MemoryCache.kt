@@ -41,10 +41,14 @@ open class MemoryCache : Cache {
     }
 
     override fun put(key: String, value: Any, ttl: Int) {
+        assertKeyIsValid(key)
+
         map.put(key, CacheStore(value, System.currentTimeMillis(), ttl))
     }
 
     override fun set(key: String, value: Any) {
+        assertKeyIsValid(key)
+
         var store = map[key]
         if (null == store) {
             map.put(key, CacheStore(value, System.currentTimeMillis()))

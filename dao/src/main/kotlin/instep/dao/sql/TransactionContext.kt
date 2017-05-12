@@ -13,7 +13,7 @@ class TransactionContext(val conn: JdbcConnection) {
         class Connection(private val conn: JdbcConnection) : JdbcConnection by conn {
             override fun rollback() {
                 TransactionContext.threadLocalTransactionContext.get()?.run {
-                    throw TransactionContext.AbortException()
+                    abort()
                 }
 
                 conn.rollback()
@@ -49,6 +49,7 @@ class TransactionContext(val conn: JdbcConnection) {
 
     var depth = 0
 
+    @Throws(TransactionContext.AbortException::class)
     fun abort() {
         throw AbortException()
     }

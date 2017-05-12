@@ -6,6 +6,13 @@ package instep.cache
  */
 interface GenericCache<T> : Map<String, T> {
     /**
+     * Subclass should assert cache key is valid before write it to underlying layer.
+     */
+    fun assertKeyIsValid(key: String) {
+        if (GenericCache.invalidPatterns.any { it.matches(key) }) throw InvalidCacheKeyException(key)
+    }
+
+    /**
      * Put cache with ttl, replace existing one.
      *
      * @param ttl if < 0, cache live permanently.
@@ -36,11 +43,14 @@ interface GenericCache<T> : Map<String, T> {
      * Touch a cache, refresh its createdTime and/or set new ttl time.
      *
      * @param ttl if null, won't touch ttl of cache.
+     * @throws CacheKeyNotExistsException
      */
+    @Throws(CacheKeyNotExistsException::class)
     fun touch(key: String, ttl: Int? = null)
 
     /**
      * Remove cache.
+     *
      * @return null if key does not exist.
      */
     fun remove(key: String): T?
@@ -51,4 +61,19 @@ interface GenericCache<T> : Map<String, T> {
      * @return Expired caches.
      */
     fun clearExpired(): Map<String, T>
+
+    companion object {
+        val invalidPatterns = listOf(Regex("""\W+"""))
+
+        /**
+         * Replace all invalid strings in key with '_'.
+         */
+        fun normalizeKey(key: String): String {
+            var result = key
+
+            invalidPatterns.forEach { result = result.replace(it, "_") }
+
+            return result
+        }
+    }
 }

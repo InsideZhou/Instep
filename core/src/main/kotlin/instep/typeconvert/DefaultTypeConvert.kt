@@ -25,11 +25,13 @@ open class DefaultTypeConvert : TypeConvert {
 
     override fun <From : Any, To, T : From> convert(instance: T, from: Class<From>, to: Class<To>): To {
         val converter = getConverter(from, to)
+        if (null == converter) throw ConverterNotExistsException(from, to)
+
         return converter.convert(instance)
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <From, To> getConverter(from: Class<From>, to: Class<To>): Converter<From, To> {
+    override fun <From, To> getConverter(from: Class<From>, to: Class<To>): Converter<From, To>? {
         val key = getKey(from, to)
         if (!cache.containsKey(key)) {
             val superOfFrom = from.superclass
@@ -37,7 +39,7 @@ open class DefaultTypeConvert : TypeConvert {
                 return getConverter(superOfFrom, to) as Converter<From, To>
             }
 
-            throw ConverterNotExistsException(from, to)
+            return null
         }
 
         return cache.get(key) as Converter<From, To>
