@@ -55,7 +55,7 @@ open class MemoryCache : Cache {
 
     override fun getAlive(key: String): Any? {
         val store = map[key]
-        if (null == store || !storeAlive(store)) return null
+        if (null == store || !isAlive(store)) return null
 
         return store.value
     }
@@ -68,26 +68,22 @@ open class MemoryCache : Cache {
         var store = map[key]
         if (null == store) throw CacheKeyNotExistsException(key)
 
-        store = store.copy(timestamp = System.currentTimeMillis(), ttl = ttl ?: store.ttl)
+        store = store.copy(createdTime = System.currentTimeMillis(), ttl = ttl ?: store.ttl)
         map.put(key, store)
     }
 
-    override fun cleanExpires(): Map<String, Any> {
-        val expired = map.filterValues { store -> !storeAlive(store) }
+    override fun cleanExpired(): Map<String, Any> {
+        val expired = map.filterValues { store -> !isAlive(store) }
         expired.forEach { pair -> map.remove(pair.key) }
         return expired.mapValues { store -> store.value.value }
     }
 
-    override fun getAlive(): Map<String, Any> {
-        return map.filterValues { store -> storeAlive(store) }
+    override fun getAllAlive(): Map<String, Any> {
+        return map.filterValues { store -> isAlive(store) }
     }
 
-    override fun toMap(): Map<String, Any> {
-        return map.mapValues { it.value.value }
-    }
-
-    protected fun storeAlive(store: CacheStore): Boolean {
-        return store.ttl < 0 || store.timestamp + store.ttl > System.currentTimeMillis()
+    protected fun isAlive(store: CacheStore): Boolean {
+        return store.ttl < 0 || store.createdTime + store.ttl > System.currentTimeMillis()
     }
 
     companion object {
@@ -95,4 +91,4 @@ open class MemoryCache : Cache {
     }
 }
 
-data class CacheStore(val value: Any, val timestamp: Long, val ttl: Int = -1)
+data class CacheStore(val value: Any, val createdTime: Long, val ttl: Int = -1)
