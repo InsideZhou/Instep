@@ -63,8 +63,8 @@ interface GenericCache<T> : Map<String, T> {
             if (invalidPatterns.any { it.matches(key) }) throw InvalidCacheKeyException(key)
         }
 
-        fun isKeyValid(key: String) {
-            invalidPatterns.all { !it.matches(key) }
+        fun isKeyValid(key: String): Boolean {
+            return !invalidPatterns.any { it.matches(key) }
         }
 
         /**
