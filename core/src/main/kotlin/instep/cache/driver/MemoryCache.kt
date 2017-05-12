@@ -2,6 +2,7 @@ package instep.cache.driver
 
 import instep.cache.Cache
 import instep.cache.CacheKeyNotExistsException
+import instep.cache.GenericCache.Companion.assertKeyIsValid
 import java.util.concurrent.ConcurrentHashMap
 
 open class MemoryCache : Cache {

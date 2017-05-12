@@ -3,15 +3,9 @@ package instep.cache
 
 /**
  * Cache(key-value pair) with ttl(time to live, in millisecond).
+ * Subclass should assert cache key is valid before write it to underlying layer.
  */
 interface GenericCache<T> : Map<String, T> {
-    /**
-     * Subclass should assert cache key is valid before write it to underlying layer.
-     */
-    fun assertKeyIsValid(key: String) {
-        if (GenericCache.invalidPatterns.any { it.matches(key) }) throw InvalidCacheKeyException(key)
-    }
-
     /**
      * Put cache with ttl, replace existing one.
      *
@@ -64,6 +58,14 @@ interface GenericCache<T> : Map<String, T> {
 
     companion object {
         val invalidPatterns = listOf(Regex("""\W+"""))
+
+        fun assertKeyIsValid(key: String) {
+            if (invalidPatterns.any { it.matches(key) }) throw InvalidCacheKeyException(key)
+        }
+
+        fun isKeyValid(key: String) {
+            invalidPatterns.all { !it.matches(key) }
+        }
 
         /**
          * Replace all invalid strings in key with '_'.
