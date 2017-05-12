@@ -10,6 +10,6 @@ interface Cache : GenericCache<Any> {
     override fun get(key: String): Any
     override fun getAlive(key: String): Any?
     override fun remove(key: String): Any?
-    override fun cleanExpired(): Map<String, Any>
+    override fun clearExpired(): Map<String, Any>
     override fun getAllAlive(): Map<String, Any>
 }

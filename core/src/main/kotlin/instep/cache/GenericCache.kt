@@ -30,11 +30,11 @@ interface GenericCache<T> : Map<String, T> {
     fun remove(key: String): T?
 
     /**
-     * Clean all expired caches.
+     * Clear all expired caches.
      *
      * @return Expired caches.
      */
-    fun cleanExpired(): Map<String, T>
+    fun clearExpired(): Map<String, T>
 
     /**
      * Get all alive caches.

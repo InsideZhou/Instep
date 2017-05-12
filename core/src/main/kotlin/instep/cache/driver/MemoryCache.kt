@@ -72,7 +72,7 @@ open class MemoryCache : Cache {
         map.put(key, store)
     }
 
-    override fun cleanExpired(): Map<String, Any> {
+    override fun clearExpired(): Map<String, Any> {
         val expired = map.filterValues { store -> !isAlive(store) }
         expired.forEach { pair -> map.remove(pair.key) }
         return expired.mapValues { store -> store.value.value }
