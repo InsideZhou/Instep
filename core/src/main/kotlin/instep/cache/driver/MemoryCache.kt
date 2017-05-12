@@ -40,28 +40,26 @@ open class MemoryCache : Cache {
         return map.remove(key)
     }
 
-    override fun get(key: String): Any {
-        val store = map[key]
-
-        return when (store) {
-            null -> throw CacheKeyNotExistsException(key)
-            else -> store.value
-        }
+    override fun put(key: String, value: Any, ttl: Int) {
+        map.put(key, CacheStore(value, System.currentTimeMillis(), ttl))
     }
 
     override fun set(key: String, value: Any) {
-        put(key, value, -1)
+        var store = map[key]
+        if (null == store) {
+            map.put(key, CacheStore(value, System.currentTimeMillis()))
+        }
+        else {
+            store = store.copy(value)
+            map.put(key, store)
+        }
     }
 
-    override fun getAlive(key: String): Any? {
+    override fun get(key: String): Any? {
         val store = map[key]
         if (null == store || !isAlive(store)) return null
 
         return store.value
-    }
-
-    override fun put(key: String, value: Any, ttl: Int) {
-        map.put(key, CacheStore(value, System.currentTimeMillis(), ttl))
     }
 
     override fun touch(key: String, ttl: Int?) {
@@ -72,22 +70,22 @@ open class MemoryCache : Cache {
         map.put(key, store)
     }
 
+    override fun getAlive(): Map<String, Any> {
+        return map.filterValues { store -> isAlive(store) }
+    }
+
+    override fun getExpired(): Map<String, Any> {
+        return map.filterValues { store -> !isAlive(store) }
+    }
+
     override fun clearExpired(): Map<String, Any> {
         val expired = map.filterValues { store -> !isAlive(store) }
         expired.forEach { pair -> map.remove(pair.key) }
         return expired.mapValues { store -> store.value.value }
     }
 
-    override fun getAllAlive(): Map<String, Any> {
-        return map.filterValues { store -> isAlive(store) }
-    }
-
     protected fun isAlive(store: CacheStore): Boolean {
         return store.ttl < 0 || store.createdTime + store.ttl > System.currentTimeMillis()
-    }
-
-    companion object {
-        private const val serialVersionUID = -3085179225103617058L
     }
 }
 
