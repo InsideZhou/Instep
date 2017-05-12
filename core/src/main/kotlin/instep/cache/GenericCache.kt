@@ -4,6 +4,9 @@ package instep.cache
  * Cache(key-value pair) with ttl(time to live, in millisecond).
  */
 interface GenericCache<T> : Map<String, T> {
+    /**
+     * Set permanent cache with ttl.
+     */
     fun put(key: String, value: T, ttl: Int)
 
     /**
