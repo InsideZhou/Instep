@@ -1,14 +1,10 @@
 buildscript {
-    ext.kotlin_version = '1.0.+'
-    repositories {
-        mavenLocal()
-        maven {
-            url "http://maven.aliyun.com/nexus/content/groups/public/"
-        }
-        mavenCentral()
+    buildscript { scriptHandler ->
+        apply from: '../buildscript.gradle', to: scriptHandler
     }
+
     dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.+"
     }
 }
 
@@ -16,7 +12,7 @@ apply plugin: 'kotlin'
 
 dependencies {
     compile project(':core')
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
     testCompile 'com.h2database:h2:1.4.+'
     testCompile 'org.hsqldb:hsqldb:2.4.+'
