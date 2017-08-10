@@ -19,6 +19,7 @@ interface TypeConvert : Serializable {
     /**
      * Remove type converter.
      */
+    @Throws(ConverterNotExistsException::class)
     fun <From, To> remove(from: Class<From>, to: Class<To>): Converter<From, To>?
 
     /**

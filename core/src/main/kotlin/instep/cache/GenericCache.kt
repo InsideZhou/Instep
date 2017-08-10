@@ -59,6 +59,7 @@ interface GenericCache<T> : Map<String, T> {
     companion object {
         val invalidPatterns = listOf(Regex("""\W+"""))
 
+        @Throws(InvalidCacheKeyException::class)
         fun assertKeyIsValid(key: String) {
             if (invalidPatterns.any { it.matches(key) }) throw InvalidCacheKeyException(key)
         }

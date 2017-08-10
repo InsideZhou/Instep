@@ -19,6 +19,7 @@ class IdGenerator(val workerId: Long = 0, val regionId: Long = 0) : Serializable
         }
     }
 
+    @Throws(Exception::class)
     fun generate(): Long {
         return nextId(false, 0)
     }
