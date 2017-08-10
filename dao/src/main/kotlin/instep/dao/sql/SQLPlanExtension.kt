@@ -108,7 +108,7 @@ fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
                     targetMirror.findSetter(field.name)?.invoke(instance, value)
                 }
                 catch(e: IllegalArgumentException) {
-                    InstepLogger.warning({ e.toString() }, InstepSQL.DefaultLogger)
+                    InstepLogger.warning({ e.toString() }, InstepSQL.LoggerName)
                 }
             }
         }

@@ -1,14 +1,12 @@
-package instep.dao
+package instep.dao.sql
 
 import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
 import instep.InstepLogger
-import instep.dao.sql.*
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.annotations.Test
-import java.sql.Connection
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -71,14 +69,14 @@ object InstepSQLTest {
 
     @Test
     fun transaction() {
-        TransactionContext.scope {
+        InstepSQL.committedTransaction {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[1] = row
         }
         assert(TransactionTable[1] != null)
 
-        TransactionContext.scope(Connection.TRANSACTION_SERIALIZABLE) {
+        InstepSQL.serializableTransaction {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[2] = row

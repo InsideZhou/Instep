@@ -49,7 +49,6 @@ class TransactionContext(val conn: JdbcConnection) {
 
     var depth = 0
 
-    @Throws(TransactionContext.AbortException::class)
     fun abort() {
         throw AbortException()
     }
@@ -65,17 +64,6 @@ class TransactionContext(val conn: JdbcConnection) {
         }
 
         val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
-        var transactionLevel = JdbcConnection.TRANSACTION_READ_COMMITTED
-
-        fun <R : Any?> scope(runner: TransactionContext.() -> R): R {
-            val transactionScope = Instep.make(TransactionScope::class.java)
-            return transactionScope.template(transactionLevel, runner)
-        }
-
-        fun <R : Any?> scope(level: Int, runner: TransactionContext.() -> R): R {
-            val transactionScope = Instep.make(TransactionScope::class.java)
-            return transactionScope.template(level, runner)
-        }
 
         override fun <R : Any?> template(level: Int, runner: TransactionContext.() -> R): R {
             var transactionContext = threadLocalTransactionContext.get()
@@ -130,4 +118,24 @@ class TransactionContext(val conn: JdbcConnection) {
 
 interface TransactionScope {
     fun <R : Any?> template(level: Int, runner: TransactionContext.() -> R): R
+
+    fun <R : Any?> none(runner: TransactionContext.() -> R): R {
+        return template(JdbcConnection.TRANSACTION_NONE, runner)
+    }
+
+    fun <R : Any?> uncommitted(runner: TransactionContext.() -> R): R {
+        return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
+    }
+
+    fun <R : Any?> committed(runner: TransactionContext.() -> R): R {
+        return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
+    }
+
+    fun <R : Any?> repeatable(runner: TransactionContext.() -> R): R {
+        return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
+    }
+
+    fun <R : Any?> serializable(runner: TransactionContext.() -> R): R {
+        return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
+    }
 }

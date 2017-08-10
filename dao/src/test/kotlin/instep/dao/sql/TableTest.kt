@@ -1,79 +1,71 @@
-package instep.dao
+package instep.dao.sql
 
-import instep.Instep
-import instep.dao.sql.*
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
-import net.moznion.random.string.RandomStringGenerator
-import org.testng.annotations.Test
-import java.math.BigDecimal
-import java.time.*
-import java.util.*
 
 object TableTest {
-    val stringGenerator = RandomStringGenerator()
+    val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
-    val dialect = Instep.make(Dialect::class.java)
+    val dialect = instep.Instep.make(Dialect::class.java)
 
-    val birthDate = LocalDate.of(1993, 6, 6)
-    val birthTime = LocalTime.of(6, 6)
-    val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
+    val birthDate = java.time.LocalDate.of(1993, 6, 6)
+    val birthTime = java.time.LocalTime.of(6, 6)
+    val birthday = java.time.OffsetDateTime.of(birthDate, birthTime, java.time.ZoneOffset.UTC)
 
     class Account {
         var id = 0L
         var name = ""
-        var balance: BigDecimal = BigDecimal.ZERO
-        var createdAt: LocalDateTime? = null
-        var birthDate: LocalDate? = null
-        var birthTime: LocalTime? = null
+        var balance: java.math.BigDecimal = java.math.BigDecimal.ZERO
+        var createdAt: java.time.LocalDateTime? = null
+        var birthDate: java.time.LocalDate? = null
+        var birthTime: java.time.LocalTime? = null
         var avatar = byteArrayOf()
     }
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
-        val id = autoIncrementLong("id").primary()
-        val name = varchar("name", 256).notnull()
-        val balance = when (dialect) {
-            is MySQLDialect -> numeric("balance", 65, 2).notnull()
-            is PostgreSQLDialect -> numeric("balance", 1000, 2).notnull()
-            else -> numeric("balance", Int.MAX_VALUE, 2).notnull()
+        val id = AccountTable.autoIncrementLong("id").primary()
+        val name = AccountTable.varchar("name", 256).notnull()
+        val balance = when (AccountTable.dialect) {
+            is MySQLDialect -> AccountTable.numeric("balance", 65, 2).notnull()
+            is PostgreSQLDialect -> AccountTable.numeric("balance", 1000, 2).notnull()
+            else -> AccountTable.numeric("balance", Int.MAX_VALUE, 2).notnull()
         }
-        val createdAt = datetime("created_at").notnull()
-        var birthDate = date("birth_date")
-        var birthTime = time("birth_time")
-        var birthday = if (dialect.isOffsetDateTimeSupported) {
-            offsetDateTime("birthday")
+        val createdAt = AccountTable.datetime("created_at").notnull()
+        var birthDate = AccountTable.date("birth_date")
+        var birthTime = AccountTable.time("birth_time")
+        var birthday = if (AccountTable.dialect.isOffsetDateTimeSupported) {
+            AccountTable.offsetDateTime("birthday")
         }
         else {
-            datetime("birthday")
+            AccountTable.datetime("birthday")
         }
-        val avatar = lob("avatar")
+        val avatar = AccountTable.lob("avatar")
     }
 
-    @Test
+    @org.testng.annotations.Test
     fun createAccountTable() {
         AccountTable.create().execute()
     }
 
-    @Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
     fun addColumn() {
         AccountTable.addColumn(AccountTable.boolean("verified").default("FALSE")).execute()
     }
 
-    @Test(dependsOnMethods = arrayOf("createAccountTable"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"))
     fun insertAccounts() {
-        val random = Random()
+        val random = java.util.Random()
         val total = random.ints(10, 100).findAny().orElse(100)
 
         for (index in 0..total) {
             val name = stringGenerator.generateByRegex("\\w{1,256}")
 
-            AccountTable
-                .insert()
+            AccountTable.insert()
                 .addValues(
-                    Table.DefaultInsertValue,
+                    Table.Companion.DefaultInsertValue,
                     name,
                     random.nextDouble(),
-                    LocalDateTime.now(),
+                    java.time.LocalDateTime.now(),
                     birthDate,
                     birthTime,
                     birthday,
@@ -87,7 +79,7 @@ object TableTest {
             AccountTable.insert()
                 .addValue(AccountTable.name, name)
                 .addValue(AccountTable.balance, random.nextDouble())
-                .addValue(AccountTable.createdAt, LocalDateTime.now())
+                .addValue(AccountTable.createdAt, java.time.LocalDateTime.now())
                 .addValue(AccountTable.birthDate, birthDate)
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
@@ -95,14 +87,14 @@ object TableTest {
         }
     }
 
-    @Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun maxAccountId() {
         AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
     }
 
-    @Test(dependsOnMethods = arrayOf("maxAccountId"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
     fun updateAccounts() {
-        val random = Random()
+        val random = java.util.Random()
         val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
         val id = random.ints(1, max).findAny().orElse(max)
 
@@ -128,9 +120,9 @@ object TableTest {
         assert(laozi[AccountTable.balance] == 6.66)
     }
 
-    @Test(dependsOnMethods = arrayOf("maxAccountId"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
     fun deleteAccounts() {
-        val random = Random()
+        val random = java.util.Random()
         val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
         val id = random.ints(1, max).findAny().orElse(max)
 
@@ -138,31 +130,31 @@ object TableTest {
         assert(null == AccountTable[id])
     }
 
-    @Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun datetime() {
-        val random = Random()
+        val random = java.util.Random()
         val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
         val id = random.ints(1, max).findAny().orElse(max)
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
 
-        assert(account[AccountTable.birthDate] == OffsetDateTime.of(birthDate, LocalTime.MIDNIGHT, ZonedDateTime.now().offset))
-        assert(account[AccountTable.birthTime] == OffsetDateTime.of(LocalDate.ofEpochDay(0), birthTime, ZonedDateTime.now().offset))
+        assert(account[AccountTable.birthDate] == java.time.OffsetDateTime.of(birthDate, java.time.LocalTime.MIDNIGHT, java.time.ZonedDateTime.now().offset))
+        assert(account[AccountTable.birthTime] == java.time.OffsetDateTime.of(java.time.LocalDate.ofEpochDay(0), birthTime, java.time.ZonedDateTime.now().offset))
 
         if (dialect.isOffsetDateTimeSupported) {
-            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
+            assert(account[AccountTable.birthday] == java.time.OffsetDateTime.of(birthDate, birthTime, java.time.ZoneOffset.UTC))
         }
         else {
-            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
+            assert(account[AccountTable.birthday] == java.time.OffsetDateTime.of(birthDate, birthTime, java.time.OffsetDateTime.now().offset))
         }
 
-        assert(account.getLocalDateTime(AccountTable.birthDate) == LocalDateTime.of(birthDate, LocalTime.MIDNIGHT))
-        assert(account.getLocalDateTime(AccountTable.birthTime) == LocalDateTime.of(LocalDate.ofEpochDay(0), birthTime))
+        assert(account.getLocalDateTime(AccountTable.birthDate) == java.time.LocalDateTime.of(birthDate, java.time.LocalTime.MIDNIGHT))
+        assert(account.getLocalDateTime(AccountTable.birthTime) == java.time.LocalDateTime.of(java.time.LocalDate.ofEpochDay(0), birthTime))
     }
 
-    @Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun rowToInstance() {
-        val random = Random()
+        val random = java.util.Random()
         val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
         val id = random.ints(1, max).findAny().orElse(max)
 

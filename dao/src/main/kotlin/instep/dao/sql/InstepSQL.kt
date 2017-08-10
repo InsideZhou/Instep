@@ -11,7 +11,7 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 object InstepSQL {
-    const val DefaultLogger = "instep.dao.sql"
+    const val LoggerName = "instep.dao.sql"
 
     init {
         try {
@@ -91,5 +91,25 @@ object InstepSQL {
     fun executeResultSet(txt: String, conn: Connection): ResultSet {
         val factory = Instep.make(PlanFromTextFactory::class.java)
         return factory.createInstance(txt).executeResultSet(conn)
+    }
+
+    fun <R : Any?> uncommittedTransaction(runner: TransactionContext.() -> R): R {
+        val scope = Instep.make(TransactionScope::class.java)
+        return scope.uncommitted(runner);
+    }
+
+    fun <R : Any?> committedTransaction(runner: TransactionContext.() -> R): R {
+        val scope = Instep.make(TransactionScope::class.java)
+        return scope.committed(runner);
+    }
+
+    fun <R : Any?> repeatableTransaction(runner: TransactionContext.() -> R): R {
+        val scope = Instep.make(TransactionScope::class.java)
+        return scope.repeatable(runner);
+    }
+
+    fun <R : Any?> serializableTransaction(runner: TransactionContext.() -> R): R {
+        val scope = Instep.make(TransactionScope::class.java)
+        return scope.serializable(runner);
     }
 }
