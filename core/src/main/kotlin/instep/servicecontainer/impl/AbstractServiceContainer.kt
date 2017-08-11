@@ -2,13 +2,13 @@ package instep.servicecontainer.impl
 
 import instep.servicecontainer.*
 
-abstract class AbstractServiceContainer<out T : ServiceContainer> : ServiceContainer {
+abstract class AbstractServiceContainer : ServiceContainer {
     override var binding: ServiceBindingEventHandler? = null
     override var bound: ServiceBoundEventHandler? = null
     override var resolving: ServiceResolvingEventHandler? = null
     override var resolved: ServiceResolvedEventHandler? = null
 
-    protected val serviceBindings = mutableListOf<ServiceBinding<Any>>()
+    protected val serviceBindings = mutableSetOf<ServiceBinding<Any>>()
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> serviceBinds(): List<ServiceBinding<T>> {

@@ -26,7 +26,7 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         get() {
             var index = 0
 
-            return rule.normalize(rule.placeholder.replace(txt, { matchResult ->
+            return rule.normalize(rule.placeholder.replace(txt, { _ ->
                 val param = params[index++]
                 when (param) {
                     is Expression<*> -> param.expression
@@ -48,7 +48,7 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
 
     override fun addParameter(placeholderName: String, parameter: Any?): T {
         params.filter { item -> item is PlaceHolder && item.name == placeholderName }
-            .mapIndexed { i, item -> i }
+            .mapIndexed { i, _ -> i }
             .forEach { i -> params[i] = parameter }
 
         return this as T

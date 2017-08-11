@@ -5,7 +5,7 @@ import instep.InstepLogger
 import instep.dao.Plan
 import instep.dao.sql.impl.DefaultSQLPlanExecutor
 import instep.servicecontainer.ServiceNotFoundException
-import instep.typeconvert.TypeConvert
+import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -80,7 +80,7 @@ fun TableSelectPlan.execute(): List<TableRow> {
 
 @Suppress("unchecked_cast")
 fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
-    val typeconvert = Instep.make(TypeConvert::class.java)
+    val typeconvert = Instep.make(TypeConversion::class.java)
     val planExec = Instep.make(SQLPlanExecutor::class.java)
 
     if (typeconvert.canConvert(ResultSet::class.java, cls)) {

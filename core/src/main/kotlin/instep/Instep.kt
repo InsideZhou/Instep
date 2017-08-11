@@ -7,23 +7,24 @@ import instep.reflection.MirrorImpl
 import instep.servicecontainer.ServiceContainer
 import instep.servicecontainer.ServiceNotFoundException
 import instep.servicecontainer.impl.MemoryServiceContainer
-import instep.typeconvert.DefaultTypeConvert
-import instep.typeconvert.TypeConvert
-import instep.typeconvert.TypeConvertException
+import instep.typeconversion.DefaultTypeConversion
+import instep.typeconversion.TypeConversion
+import instep.typeconversion.TypeConversionException
 
+@Suppress("unused")
 object Instep {
-    var serviceContainer: ServiceContainer = MemoryServiceContainer()
+    var serviceContainer: ServiceContainer = MemoryServiceContainer(MemoryCache())
 
     init {
         serviceContainer.bind(Cache::class.java, MemoryCache())
-        serviceContainer.bind(TypeConvert::class.java, DefaultTypeConvert())
+        serviceContainer.bind(TypeConversion::class.java, DefaultTypeConversion())
     }
 
     /**
      * @see ServiceContainer.bind
      */
     fun <T : Any> bind(cls: Class<T>, obj: T, tag: String = "") {
-        return serviceContainer.bind(cls, obj, tag)
+        serviceContainer.bind(cls, obj, tag)
     }
 
     /**
@@ -35,11 +36,11 @@ object Instep {
     }
 
     /**
-     * @see TypeConvert.convert
+     * @see TypeConversion.convert
      */
-    @Throws(TypeConvertException::class)
+    @Throws(TypeConversionException::class)
     fun <From : Any, To, T : From> convert(instance: T, from: Class<From>, to: Class<To>): To {
-        val typeConvert = Instep.make(TypeConvert::class.java)
+        val typeConvert = make(TypeConversion::class.java)
         return typeConvert.convert(instance, from, to)
     }
 
@@ -48,7 +49,7 @@ object Instep {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> reflect(cls: Class<T>): Mirror<T> {
-        val cache = Instep.make(Cache::class.java)
+        val cache = make(Cache::class.java)
         val mirror = if (cache.containsKey(cls.name)) {
             cache[cls.name] as Mirror<T>
         }
@@ -67,7 +68,7 @@ object Instep {
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> reflect(instance: T): Mirror<T> {
         val cls = instance.javaClass
-        val cache = Instep.make(Cache::class.java)
+        val cache = make(Cache::class.java)
         val mirror = if (cache.containsKey(cls.name)) {
             cache[cls.name] as Mirror<T>
         }

@@ -1,10 +1,10 @@
-package instep.typeconvert
+package instep.typeconversion
 
 import instep.Instep
-import instep.cache.Cache
+import instep.cache.driver.MemoryCache
 
-open class DefaultTypeConvert : TypeConvert {
-    protected val cache = Instep.make(Cache::class.java)
+open class DefaultTypeConversion : TypeConversion {
+    private val cache = Instep.make(MemoryCache::class.java)
 
     override fun <From, To> canConvert(from: Class<From>, to: Class<To>): Boolean {
         val result = cache.containsKey(getKey(from, to))
@@ -65,7 +65,7 @@ open class DefaultTypeConvert : TypeConvert {
     }
 
     protected fun <From, To> getKey(from: Class<From>, to: Class<To>): String {
-        return "instep.typeconvert.${from.name}_${to.name}"
+        return "instep.typeconversion.${from.name}_${to.name}"
     }
 
     companion object {

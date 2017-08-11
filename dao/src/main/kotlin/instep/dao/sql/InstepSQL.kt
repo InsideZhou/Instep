@@ -95,21 +95,21 @@ object InstepSQL {
 
     fun <R : Any?> uncommittedTransaction(runner: TransactionContext.() -> R): R {
         val scope = Instep.make(TransactionScope::class.java)
-        return scope.uncommitted(runner);
+        return scope.uncommitted(runner)
     }
 
     fun <R : Any?> committedTransaction(runner: TransactionContext.() -> R): R {
         val scope = Instep.make(TransactionScope::class.java)
-        return scope.committed(runner);
+        return scope.committed(runner)
     }
 
     fun <R : Any?> repeatableTransaction(runner: TransactionContext.() -> R): R {
         val scope = Instep.make(TransactionScope::class.java)
-        return scope.repeatable(runner);
+        return scope.repeatable(runner)
     }
 
     fun <R : Any?> serializableTransaction(runner: TransactionContext.() -> R): R {
         val scope = Instep.make(TransactionScope::class.java)
-        return scope.serializable(runner);
+        return scope.serializable(runner)
     }
 }

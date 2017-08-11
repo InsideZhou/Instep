@@ -4,8 +4,8 @@ import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.sql.ConnectionProvider
 import instep.dao.sql.SQLPlanExecutor
-import instep.typeconvert.Converter
-import instep.typeconvert.TypeConvert
+import instep.typeconversion.Converter
+import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.PreparedStatement
 import java.sql.ResultSet
@@ -65,7 +65,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     override fun <T : Any> execute(plan: instep.dao.Plan<*>, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
-        val typeconvert = Instep.make(TypeConvert::class.java)
+        val typeconvert = Instep.make(TypeConversion::class.java)
         val conn = connectionProvider.getConnection()
         try {
             val rs = executeResultSet(conn, plan)
@@ -100,7 +100,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
     companion object {
         init {
-            val typeconvert = Instep.make(TypeConvert::class.java)
+            val typeconvert = Instep.make(TypeConversion::class.java)
 
             if (!typeconvert.canConvert(ResultSet::class.java, AssocArray::class.java)) {
                 typeconvert.register(object : Converter<ResultSet, AssocArray> {

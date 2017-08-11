@@ -7,7 +7,7 @@ import instep.servicecontainer.ServiceNotFoundException
 /**
  * Combine services in multi containers.
  */
-open class CompositeServiceContainer(val primary: ServiceContainer, vararg val secondary: ServiceContainer) : AbstractServiceContainer<CompositeServiceContainer>() {
+open class CompositeServiceContainer(val primary: ServiceContainer, vararg val secondary: ServiceContainer) : AbstractServiceContainer() {
     private val containers = listOf(primary) + secondary
 
     override fun <T : Any> serviceBinds(): List<ServiceBinding<T>> {

@@ -89,7 +89,7 @@ open class MemoryCache : Cache {
         return expired.mapValues { store -> store.value.value }
     }
 
-    protected fun isAlive(store: CacheStore): Boolean {
+    open protected fun isAlive(store: CacheStore): Boolean {
         return store.ttl < 0 || store.createdTime + store.ttl > System.currentTimeMillis()
     }
 }

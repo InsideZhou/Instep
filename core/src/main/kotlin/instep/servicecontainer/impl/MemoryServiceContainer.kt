@@ -1,11 +1,12 @@
 package instep.servicecontainer.impl
 
 import instep.Instep
+import instep.cache.driver.MemoryCache
 import instep.servicecontainer.ServiceBinding
 import instep.servicecontainer.ServiceNotFoundException
 
-open class MemoryServiceContainer : AbstractServiceContainer<MemoryServiceContainer>() {
-    protected val memory = mutableMapOf<String, Any>()
+open class MemoryServiceContainer(memoryCache: MemoryCache) : AbstractServiceContainer() {
+    private val memory = memoryCache
 
     @Suppress("unchecked_cast")
     override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
@@ -53,10 +54,6 @@ open class MemoryServiceContainer : AbstractServiceContainer<MemoryServiceContai
 
     override fun clear() {
         super.clear()
-        memory.clear()
-    }
-
-    companion object {
-        private const val serialVersionUID = 1650446412812766180L
+        memory.keys.forEach { memory.remove(it) }
     }
 }

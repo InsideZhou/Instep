@@ -1,4 +1,4 @@
-package instep.typeconvert
+package instep.typeconversion
 
 import java.io.Serializable
 
