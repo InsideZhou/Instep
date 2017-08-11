@@ -10,6 +10,7 @@ import instep.servicecontainer.ServiceNotFoundException
 import java.sql.Connection
 import java.sql.ResultSet
 
+@Suppress("unused")
 object InstepSQL {
     const val LoggerName = "instep.dao.sql"
 
@@ -94,22 +95,18 @@ object InstepSQL {
     }
 
     fun <R : Any?> uncommittedTransaction(runner: TransactionContext.() -> R): R {
-        val scope = Instep.make(TransactionScope::class.java)
-        return scope.uncommitted(runner)
+        return TransactionTemplate.uncommitted(runner)
     }
 
     fun <R : Any?> committedTransaction(runner: TransactionContext.() -> R): R {
-        val scope = Instep.make(TransactionScope::class.java)
-        return scope.committed(runner)
+        return TransactionTemplate.committed(runner)
     }
 
     fun <R : Any?> repeatableTransaction(runner: TransactionContext.() -> R): R {
-        val scope = Instep.make(TransactionScope::class.java)
-        return scope.repeatable(runner)
+        return TransactionTemplate.repeatable(runner)
     }
 
     fun <R : Any?> serializableTransaction(runner: TransactionContext.() -> R): R {
-        val scope = Instep.make(TransactionScope::class.java)
-        return scope.serializable(runner)
+        return TransactionTemplate.serializable(runner)
     }
 }

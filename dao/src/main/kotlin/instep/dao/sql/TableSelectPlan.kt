@@ -26,7 +26,7 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
     fun limit(limit: Int): TableSelectPlan
     fun offset(offset: Int): TableSelectPlan
 
-    companion object : TableSelectPlanFactory {
+    companion object : TableSelectPlanFactory<TableSelectPlan> {
         init {
             try {
                 Instep.make(TableRowFactory::class.java)
@@ -42,7 +42,7 @@ interface TableSelectPlan : Plan<TableSelectPlan>, WhereClause<TableSelectPlan> 
     }
 }
 
-interface TableSelectPlanFactory {
-    fun createInstance(table: Table): TableSelectPlan
+interface TableSelectPlanFactory<out T : TableSelectPlan> {
+    fun createInstance(table: Table): T
 }
 

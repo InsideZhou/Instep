@@ -9,6 +9,7 @@ import instep.servicecontainer.ServiceNotFoundException
 /**
  * Abstract DAO object.
  */
+@Suppress("unused", "FoldInitializerAndIfToElvis")
 abstract class Table(val tableName: String, val dialect: Dialect) {
     constructor(tableName: String) : this(tableName, Instep.make(Dialect::class.java))
 

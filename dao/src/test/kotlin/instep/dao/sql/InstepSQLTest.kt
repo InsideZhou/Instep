@@ -32,14 +32,11 @@ object InstepSQLTest {
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
         datasource.validationQuery = "VALUES(current_timestamp)"
 
-        Instep.bind(Dialect::class.java, dialect)
         Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
             override val enableDebug: Boolean = true
             override val enableInfo: Boolean = true
             override val enableWarning: Boolean = true
-
-            override val defaultLogger: String = this.javaClass.name
 
             override fun debug(log: String, logger: String) {
                 println(log)

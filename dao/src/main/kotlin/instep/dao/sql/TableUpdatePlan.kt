@@ -13,13 +13,13 @@ interface TableUpdatePlan : Plan<TableUpdatePlan>, WhereClause<TableUpdatePlan> 
     @Throws(DaoException::class)
     fun where(value: Any): TableUpdatePlan
 
-    companion object : TableUpdatePlanFactory {
+    companion object : TableUpdatePlanFactory<TableUpdatePlan> {
         override fun createInstance(table: Table): TableUpdatePlan {
             return DefaultTableUpdatePlan(table)
         }
     }
 }
 
-interface TableUpdatePlanFactory {
-    fun createInstance(table: Table): TableUpdatePlan
+interface TableUpdatePlanFactory<out T : TableUpdatePlan> {
+    fun createInstance(table: Table): T
 }

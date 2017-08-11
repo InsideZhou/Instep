@@ -1,6 +1,7 @@
 package instep.springboot;
 
 import instep.Instep;
+import instep.InstepLogger;
 import instep.cache.Cache;
 import instep.servicecontainer.ServiceContainer;
 import instep.typeconversion.TypeConversion;
@@ -23,6 +24,9 @@ public class CoreAutoConfiguration {
     @Autowired(required = false)
     private TypeConversion typeConversion;
 
+    @Autowired(required = false)
+    private InstepLogger instepLogger;
+
     @Bean
     public Instep instep() {
         if (null != serviceContainer) {
@@ -35,6 +39,11 @@ public class CoreAutoConfiguration {
 
         if (null != typeConversion) {
             Instep.INSTANCE.bind(TypeConversion.class, typeConversion, "");
+        }
+
+        if (null != instepLogger) {
+            Instep.INSTANCE.bind(InstepLogger.class, instepLogger, "");
+            InstepLogger.Companion.setRootLogger(instepLogger);
         }
 
         return Instep.INSTANCE;

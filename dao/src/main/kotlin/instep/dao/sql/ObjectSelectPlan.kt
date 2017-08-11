@@ -22,13 +22,13 @@ interface ObjectSelectPlan : Plan<ObjectSelectPlan> {
     fun limit(limit: Int): ObjectSelectPlan
     fun offset(offset: Int): ObjectSelectPlan
 
-    companion object : ObjectSelectPlanFactory {
+    companion object : ObjectSelectPlanFactory<ObjectSelectPlan> {
         override fun createInstance(obj: Any): ObjectSelectPlan {
             return DefaultObjectSelectPlan(obj)
         }
     }
 }
 
-interface ObjectSelectPlanFactory {
-    fun createInstance(obj: Any): ObjectSelectPlan
+interface ObjectSelectPlanFactory<out T : ObjectSelectPlan> {
+    fun createInstance(obj: Any): T
 }

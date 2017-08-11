@@ -5,9 +5,8 @@ import instep.servicecontainer.ServiceNotFoundException
 /**
  * Instep log everything through this logger, if there is a corresponding service bound in [Instep.ServiceContainer], none by default.
  */
+@Suppress("unused")
 interface InstepLogger {
-    val defaultLogger: String
-
     val enableDebug: Boolean
     val enableInfo: Boolean
     val enableWarning: Boolean
@@ -17,7 +16,7 @@ interface InstepLogger {
     fun warning(log: String, logger: String = "")
 
     companion object {
-        var root = try {
+        var rootLogger = try {
             Instep.make(InstepLogger::class.java)
         }
         catch (e: ServiceNotFoundException) {
@@ -25,7 +24,7 @@ interface InstepLogger {
         }
 
         fun debug(lazy: () -> String, logger: String = "") {
-            root?.let {
+            rootLogger?.let {
                 if (it.enableDebug) {
                     it.debug(lazy(), logger)
                 }
@@ -33,7 +32,7 @@ interface InstepLogger {
         }
 
         fun info(lazy: () -> String, logger: String = "") {
-            root?.let {
+            rootLogger?.let {
                 if (it.enableInfo) {
                     it.info(lazy(), logger)
                 }
@@ -41,7 +40,7 @@ interface InstepLogger {
         }
 
         fun warning(lazy: () -> String, logger: String = "") {
-            root?.let {
+            rootLogger?.let {
                 if (it.enableWarning) {
                     it.warning(lazy(), logger)
                 }

@@ -80,6 +80,7 @@ class TableRow {
         map[column] = value
     }
 
+    @Suppress("FoldInitializerAndIfToElvis")
     companion object : TableRowFactory {
         override fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow {
             val row = TableRow()

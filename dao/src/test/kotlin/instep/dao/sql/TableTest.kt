@@ -1,24 +1,26 @@
 package instep.dao.sql
 
+import instep.Instep
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
+import java.time.*
 
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
-    val dialect = instep.Instep.make(Dialect::class.java)
+    val dialect = Instep.make(Dialect::class.java)
 
-    val birthDate = java.time.LocalDate.of(1993, 6, 6)
-    val birthTime = java.time.LocalTime.of(6, 6)
-    val birthday = java.time.OffsetDateTime.of(birthDate, birthTime, java.time.ZoneOffset.UTC)
+    val birthDate = LocalDate.of(1993, 6, 6)
+    val birthTime = LocalTime.of(6, 6)
+    val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
 
     class Account {
         var id = 0L
         var name = ""
         var balance: java.math.BigDecimal = java.math.BigDecimal.ZERO
-        var createdAt: java.time.LocalDateTime? = null
-        var birthDate: java.time.LocalDate? = null
-        var birthTime: java.time.LocalTime? = null
+        var createdAt: LocalDateTime? = null
+        var birthDate: LocalDate? = null
+        var birthTime: LocalTime? = null
         var avatar = byteArrayOf()
     }
 
@@ -65,7 +67,7 @@ object TableTest {
                     Table.Companion.DefaultInsertValue,
                     name,
                     random.nextDouble(),
-                    java.time.LocalDateTime.now(),
+                    LocalDateTime.now(),
                     birthDate,
                     birthTime,
                     birthday,
@@ -79,7 +81,7 @@ object TableTest {
             AccountTable.insert()
                 .addValue(AccountTable.name, name)
                 .addValue(AccountTable.balance, random.nextDouble())
-                .addValue(AccountTable.createdAt, java.time.LocalDateTime.now())
+                .addValue(AccountTable.createdAt, LocalDateTime.now())
                 .addValue(AccountTable.birthDate, birthDate)
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
@@ -138,18 +140,18 @@ object TableTest {
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
 
-        assert(account[AccountTable.birthDate] == java.time.OffsetDateTime.of(birthDate, java.time.LocalTime.MIDNIGHT, java.time.ZonedDateTime.now().offset))
-        assert(account[AccountTable.birthTime] == java.time.OffsetDateTime.of(java.time.LocalDate.ofEpochDay(0), birthTime, java.time.ZonedDateTime.now().offset))
+        assert(account[AccountTable.birthDate] == OffsetDateTime.of(birthDate, LocalTime.MIDNIGHT, ZonedDateTime.now().offset))
+        assert(account[AccountTable.birthTime] == OffsetDateTime.of(LocalDate.ofEpochDay(0), birthTime, ZonedDateTime.now().offset))
 
         if (dialect.isOffsetDateTimeSupported) {
-            assert(account[AccountTable.birthday] == java.time.OffsetDateTime.of(birthDate, birthTime, java.time.ZoneOffset.UTC))
+            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
         }
         else {
-            assert(account[AccountTable.birthday] == java.time.OffsetDateTime.of(birthDate, birthTime, java.time.OffsetDateTime.now().offset))
+            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
         }
 
-        assert(account.getLocalDateTime(AccountTable.birthDate) == java.time.LocalDateTime.of(birthDate, java.time.LocalTime.MIDNIGHT))
-        assert(account.getLocalDateTime(AccountTable.birthTime) == java.time.LocalDateTime.of(java.time.LocalDate.ofEpochDay(0), birthTime))
+        assert(account.getLocalDateTime(AccountTable.birthDate) == LocalDateTime.of(birthDate, LocalTime.MIDNIGHT))
+        assert(account.getLocalDateTime(AccountTable.birthTime) == LocalDateTime.of(LocalDate.ofEpochDay(0), birthTime))
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))

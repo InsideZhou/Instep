@@ -10,12 +10,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * auto configuration for instep.dao module.
+ * auto configuration for instep.dao.sql module.
  */
 @SuppressWarnings({"SpringJavaAutowiringInspection", "SpringFacetCodeInspection"})
 @Configuration
-@ConditionalOnBean(Instep.class)
-public class DaoAutoConfiguration {
+@ConditionalOnBean({Instep.class, ConnectionProvider.class})
+public class SQLAutoConfiguration {
     @Autowired(required = false)
     SQLPlanExecutor sqlPlanExecutor;
 
@@ -44,7 +44,9 @@ public class DaoAutoConfiguration {
     TableRowFactory tableRowFactory;
 
     @Bean
-    public InstepSQL instepSQL() {
+    public InstepSQL instepSQL(ConnectionProvider connectionProvider) {
+        Instep.INSTANCE.bind(ConnectionProvider.class, connectionProvider, "");
+
         if (null != sqlPlanExecutor) {
             Instep.INSTANCE.bind(SQLPlanExecutor.class, sqlPlanExecutor, "");
         }
