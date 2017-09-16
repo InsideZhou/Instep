@@ -19,7 +19,7 @@ open class CompositeServiceContainer(val primary: ServiceContainer, vararg val s
             try {
                 return it.make(cls, tag)
             }
-            catch(e: ServiceNotFoundException) {
+            catch (e: ServiceNotFoundException) {
                 //pass
             }
         }
@@ -33,6 +33,14 @@ open class CompositeServiceContainer(val primary: ServiceContainer, vararg val s
 
     override fun <T : Any> bind(binding: ServiceBinding<T>) {
         primary.bind(binding)
+    }
+
+    override fun <T : Any> bindInstance(key: String, instance: T) {
+        throw UnsupportedOperationException("composite service container don't actually need this.")
+    }
+
+    override fun hasKey(key: String): Boolean {
+        throw UnsupportedOperationException("composite service container don't actually need this.")
     }
 
     override fun <T : Any> remove(cls: Class<T>, tag: String): T? {

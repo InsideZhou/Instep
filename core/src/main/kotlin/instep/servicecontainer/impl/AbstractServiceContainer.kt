@@ -1,7 +1,11 @@
+@file:Suppress("FoldInitializerAndIfToElvis")
+
 package instep.servicecontainer.impl
 
+import instep.Instep
 import instep.servicecontainer.*
 
+@Suppress("MemberVisibilityCanPrivate")
 abstract class AbstractServiceContainer : ServiceContainer {
     override var binding: ServiceBindingEventHandler? = null
     override var bound: ServiceBoundEventHandler? = null
@@ -40,6 +44,31 @@ abstract class AbstractServiceContainer : ServiceContainer {
     override fun <T : Any> bind(binding: ServiceBinding<T>) {
         bind(binding.cls, binding.instance, binding.tag)
     }
+
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
+        if (!fireOnBinding(cls, instance, tag)) return
+
+        bindInstance(getKey(cls, tag), instance)
+        serviceBindings.add(ServiceBinding(cls, instance, tag) as ServiceBinding<Any>)
+
+        if (!cls.isArray && !Collection::class.java.isAssignableFrom(cls)) {
+            val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
+
+            parents.forEach {
+                val key = getKey(it, tag)
+                if (!hasKey(key)) {
+                    bindInstance(key, instance)
+                }
+            }
+        }
+
+        fireOnBound(cls, instance)
+    }
+
+    abstract protected fun <T : Any> bindInstance(key: String, instance: T)
+
+    abstract protected fun hasKey(key: String): Boolean
 
     protected fun <T> getKey(cls: Class<T>, tag: String = ""): String {
         return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
