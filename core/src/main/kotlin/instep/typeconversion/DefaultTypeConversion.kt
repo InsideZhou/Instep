@@ -1,10 +1,9 @@
 package instep.typeconversion
 
-import instep.Instep
 import instep.cache.driver.MemoryCache
 
 open class DefaultTypeConversion : TypeConversion {
-    private val cache = Instep.make(MemoryCache::class.java)
+    private val cache = MemoryCache()
 
     override fun <From, To> canConvert(from: Class<From>, to: Class<To>): Boolean {
         val result = cache.containsKey(getKey(from, to))

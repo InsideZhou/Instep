@@ -7,5 +7,6 @@ gradle-app.setting
 
 /build/*
 */build/*
+*/out/*
 
 *.iml
