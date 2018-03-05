@@ -41,7 +41,11 @@ interface ServiceContainer {
      * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
      * @param tag binding tagged by.
      */
-    fun <T : Any> bind(cls: Class<T>, instance: T, tag: String = "")
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> bind(cls: Class<T>, instance: T, tag: String = "") {
+        val binding = ServiceBinding(cls, instance, tag) as ServiceBinding<Any>
+        bind(binding)
+    }
 
     /**
      * Bind instance to class. Instance which is not serializable will lose in (de)serialization.

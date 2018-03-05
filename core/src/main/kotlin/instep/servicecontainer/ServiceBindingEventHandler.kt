@@ -6,5 +6,5 @@ interface ServiceBindingEventHandler {
 
      * @return If false, service binding will be canceled.
      */
-    fun <T> handle(cls: Class<T>, obj: T, tag: String = ""): Boolean
+    fun <T : Any> handle(binding: ServiceBinding<T>): Boolean
 }

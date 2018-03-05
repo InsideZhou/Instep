@@ -41,16 +41,17 @@ abstract class AbstractServiceContainer : ServiceContainer {
         resolved = null
     }
 
-    override fun <T : Any> bind(binding: ServiceBinding<T>) {
-        bind(binding.cls, binding.instance, binding.tag)
-    }
-
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
-        if (!fireOnBinding(cls, instance, tag)) return
+    override fun <T : Any> bind(binding: ServiceBinding<T>) {
+        if (!fireOnBinding(binding)) return
+        if (serviceBindings.contains(binding as ServiceBinding<Any>)) return
+
+        val cls = binding.cls
+        val instance = binding.instance
+        val tag = binding.tag
 
         bindInstance(getKey(cls, tag), instance)
-        serviceBindings.add(ServiceBinding(cls, instance, tag) as ServiceBinding<Any>)
+        serviceBindings.add(binding)
 
         if (!cls.isArray && !Collection::class.java.isAssignableFrom(cls)) {
             val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
@@ -63,7 +64,7 @@ abstract class AbstractServiceContainer : ServiceContainer {
             }
         }
 
-        fireOnBound(cls, instance)
+        fireOnBound(binding)
     }
 
     abstract protected fun <T : Any> bindInstance(key: String, instance: T)
@@ -74,31 +75,19 @@ abstract class AbstractServiceContainer : ServiceContainer {
         return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
     }
 
-    protected fun <T> fireOnBinding(cls: Class<T>, obj: T, tag: String = ""): Boolean {
-        val handler = binding
-        if (null == handler) return true
-
-        return handler.handle(cls, obj, tag)
+    protected fun <T : Any> fireOnBinding(binding: ServiceBinding<T>): Boolean {
+        return this.binding?.handle(binding) ?: true
     }
 
-    protected fun <T> fireOnBound(cls: Class<T>, obj: T, tag: String = "") {
-        val handler = bound
-        if (null == handler) return
-
-        return handler.handle(cls, obj, tag)
+    protected fun <T : Any> fireOnBound(binding: ServiceBinding<T>) {
+        bound?.handle(binding)
     }
 
     protected fun <T> fireOnResolving(cls: Class<T>, tag: String = ""): T? {
-        val handler = resolving
-        if (null == handler) return null
-
-        return handler.handle(cls, tag)
+        return resolving?.handle(cls, tag)
     }
 
     protected fun <T> fireOnResolved(cls: Class<T>, obj: T, tag: String = "") {
-        val handler = resolved
-        if (null == handler) return
-
-        return handler.handle(cls, obj, tag)
+        resolved?.handle(cls, obj, tag)
     }
 }
