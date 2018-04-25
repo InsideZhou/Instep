@@ -7,4 +7,5 @@ repositories {
 
 dependencies {
     classpath 'io.spring.gradle:propdeps-plugin:0.0.9.RELEASE'
+    classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.2.+"
 }

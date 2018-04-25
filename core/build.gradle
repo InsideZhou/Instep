@@ -2,10 +2,6 @@ buildscript {
     buildscript { scriptHandler ->
         apply from: '../buildscript.gradle', to: scriptHandler
     }
-
-    dependencies {
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.1.+"
-    }
 }
 
 apply plugin: 'kotlin'
