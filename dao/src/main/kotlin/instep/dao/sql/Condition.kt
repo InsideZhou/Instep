@@ -3,6 +3,7 @@ package instep.dao.sql
 import instep.dao.Expression
 import instep.dao.impl.AbstractExpression
 
+@Suppress("unused")
 open class Condition protected constructor(txt: String) : AbstractExpression<Condition>(txt) {
     var conjunction: Conjunction? = null
         private set
@@ -27,9 +28,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = eq(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, eq(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left = ?")
@@ -46,9 +45,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = notEQ(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, notEQ(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left <> ?")
@@ -65,9 +62,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = gt(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, gt(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left > ?")
@@ -84,9 +79,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = gte(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, gte(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left >= ?")
@@ -103,9 +96,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = lt(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, lt(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left < ?")
@@ -122,9 +113,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = lte(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, lte(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left <= ?")
@@ -173,9 +162,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = contains(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, contains(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ? || '%'")
@@ -192,9 +179,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = startsWith(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, startsWith(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE ? || '%'")
@@ -211,9 +196,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = endsWith(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(AND, condition)
+            conjunction = Conjunction(AND, endsWith(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ?")
@@ -226,13 +209,30 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         return this
     }
 
+    open fun andInArray(left: String, right: Array<*>): Condition {
+        val conj = conjunction
+
+        val inArrayCondition = inArray(left, right)
+
+        if (null == conj) {
+            conjunction = Conjunction(AND, inArrayCondition)
+        }
+        else {
+            val condition = Condition("${conj.condition.expression} $AND ${inArrayCondition.expression}")
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*right)
+
+            conj.condition = condition
+        }
+
+        return this
+    }
+
     open fun orEQ(left: String, right: Any): Condition {
         val conj = conjunction
 
         if (null == conj) {
-            val condition = eq(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, eq(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left = ?")
@@ -249,9 +249,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = notEQ(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, notEQ(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left <> ?")
@@ -268,9 +266,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = gt(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, gt(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left > ?")
@@ -287,9 +283,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = gte(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, gte(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left >= ?")
@@ -306,9 +300,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = lt(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, lt(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left < ?")
@@ -325,9 +317,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = lte(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, lte(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left <= ?")
@@ -376,9 +366,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = contains(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, contains(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ? || '%'")
@@ -395,9 +383,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = startsWith(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, startsWith(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE ? || '%'")
@@ -414,14 +400,31 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         val conj = conjunction
 
         if (null == conj) {
-            val condition = endsWith(left, right)
-            condition.addParameters(right)
-            conjunction = Conjunction(OR, condition)
+            conjunction = Conjunction(OR, endsWith(left, right))
         }
         else {
             val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
             condition.addParameters(right)
+
+            conj.condition = condition
+        }
+
+        return this
+    }
+
+    open fun orInArray(left: String, right: Array<*>): Condition {
+        val conj = conjunction
+
+        val inArrayCondition = inArray(left, right)
+
+        if (null == conj) {
+            conjunction = Conjunction(OR, inArrayCondition)
+        }
+        else {
+            val condition = Condition("${conj.condition.expression} $OR ${inArrayCondition.expression}")
+            condition.addParameters(*conj.condition.parameters.toTypedArray())
+            condition.addParameters(*right)
 
             conj.condition = condition
         }
@@ -570,6 +573,21 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         fun endsWith(left: String, right: Any): Condition {
             val condition = Condition("$left LIKE '%' || ?")
             condition.addParameters(right)
+            return condition
+        }
+
+        fun inArray(left: String, right: Array<*>): Condition {
+            val builder = StringBuilder("$left IN (")
+
+            right.forEach {
+                builder.append("?,")
+            }
+
+            builder.deleteCharAt(builder.length - 1)
+            builder.append(")")
+
+            val condition = Condition(builder.toString())
+            condition.addParameters(*right)
             return condition
         }
     }

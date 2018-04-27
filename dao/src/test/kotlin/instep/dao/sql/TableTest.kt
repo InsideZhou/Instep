@@ -165,4 +165,18 @@ object TableTest {
         assert(account.birthDate == birthDate)
         assert(account.birthTime == birthTime)
     }
+
+    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
+    fun randomRow() {
+        val random = java.util.Random()
+        val idArray = setOf(
+            random.ints(10, 100).findAny().orElse(100),
+            random.ints(10, 100).findAny().orElse(100),
+            random.ints(10, 100).findAny().orElse(100)
+        ).toTypedArray()
+
+        val plan = AccountTable.select(AccountTable.id.count()).where(AccountTable.id inArray idArray)
+
+        assert(plan.executeScalar() == idArray.size.toString())
+    }
 }

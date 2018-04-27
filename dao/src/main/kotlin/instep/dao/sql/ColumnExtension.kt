@@ -14,6 +14,8 @@ infix fun StringColumn.endsWith(value: String): Condition = Condition.endsWith(n
 
 infix fun StringColumn.contains(value: String): Condition = Condition.contains(name, value)
 
+infix fun StringColumn.inArray(value: Array<String>): Condition = Condition.inArray(name, value)
+
 
 infix fun <T : Number> NumberColumn<*>.eq(value: T): Condition = Condition.eq(name, value)
 
@@ -24,6 +26,8 @@ infix fun <T : Number> NumberColumn<*>.gte(value: T): Condition = Condition.gte(
 infix fun <T : Number> NumberColumn<*>.lt(value: T): Condition = Condition.lt(name, value)
 
 infix fun <T : Number> NumberColumn<*>.lte(value: T): Condition = Condition.lte(name, value)
+
+infix fun <T : Number> NumberColumn<*>.inArray(value: Array<T>): Condition = Condition.inArray(name, value)
 
 
 infix fun <T : Temporal> DateTimeColumn.eq(value: T): Condition = Condition.eq(name, value)
