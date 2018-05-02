@@ -98,7 +98,7 @@ subprojects {
 
                 pom.project {
                     name 'Instep'
-                    description 'A set of tools and utilities that are designed to make coding easier and intuitive.'
+                    description 'Tools are designed to make coding easier.'
                     url 'https://github.com/InsideZhou/Instep'
 
                     scm {
@@ -123,6 +123,16 @@ subprojects {
                     }
                 }
             }
+        }
+    }
+
+    def installer = install.repositories.mavenInstaller
+    def deployer = uploadArchives.repositories.mavenDeployer
+
+    [installer, deployer]*.pom*.whenConfigured { pom ->
+        def localDep = pom.dependencies.find { dep -> dep.groupId == project.group }
+        if (localDep) {
+            localDep.artifactId = "$rootProject.name-$localDep.artifactId"
         }
     }
 }
