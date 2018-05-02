@@ -180,7 +180,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
 
                     when (obj) {
                         is TableRow -> {
-                            columns.forEach {
+                            columns.filterNot { it == pk }.forEach {
                                 plan.set(it, obj[it])
                             }
                             plan.where(pk as NumberColumn eq key).execute()
@@ -198,7 +198,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
 
                     when (obj) {
                         is TableRow -> {
-                            columns.forEach {
+                            columns.filterNot { it == pk }.forEach {
                                 plan.set(it, obj[it])
                             }
                             plan.where(pk as StringColumn eq key).execute()
