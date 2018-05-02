@@ -566,20 +566,20 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         }
 
         fun contains(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE '%' || ? || '%'")
-            condition.addParameters(right)
+            val condition = Condition("$left LIKE ?")
+            condition.addParameters("%$right%")
             return condition
         }
 
         fun startsWith(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE ? || '%'")
-            condition.addParameters(right)
+            val condition = Condition("$left LIKE ?")
+            condition.addParameters("$right%")
             return condition
         }
 
         fun endsWith(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE '%' || ?")
-            condition.addParameters(right)
+            val condition = Condition("$left LIKE ?")
+            condition.addParameters("%$right")
             return condition
         }
 

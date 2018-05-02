@@ -126,10 +126,7 @@ subprojects {
         }
     }
 
-    def installer = install.repositories.mavenInstaller
-    def deployer = uploadArchives.repositories.mavenDeployer
-
-    [installer, deployer]*.pom*.whenConfigured { pom ->
+    [install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured { pom ->
         def localDep = pom.dependencies.find { dep -> dep.groupId == project.group }
         if (localDep) {
             localDep.artifactId = "$rootProject.name-$localDep.artifactId"
