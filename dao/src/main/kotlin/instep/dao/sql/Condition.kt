@@ -168,9 +168,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(AND, contains(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ? || '%'")
+            val condition = Condition("${conj.condition.expression} $AND $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("%$right%")
 
             conj.condition = condition
         }
@@ -185,9 +185,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(AND, startsWith(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $AND $left LIKE ? || '%'")
+            val condition = Condition("${conj.condition.expression} $AND $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("$right%")
 
             conj.condition = condition
         }
@@ -202,9 +202,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(AND, endsWith(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $AND $left LIKE '%' || ?")
+            val condition = Condition("${conj.condition.expression} $AND $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("%$right")
 
             conj.condition = condition
         }
@@ -372,9 +372,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(OR, contains(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ? || '%'")
+            val condition = Condition("${conj.condition.expression} $OR $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("%$right%")
 
             conj.condition = condition
         }
@@ -389,9 +389,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(OR, startsWith(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $OR $left LIKE ? || '%'")
+            val condition = Condition("${conj.condition.expression} $OR $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("$right%")
 
             conj.condition = condition
         }
@@ -406,9 +406,9 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             conjunction = Conjunction(OR, endsWith(left, right))
         }
         else {
-            val condition = Condition("${conj.condition.expression} $OR $left LIKE '%' || ?")
+            val condition = Condition("${conj.condition.expression} $OR $left LIKE ?")
             condition.addParameters(*conj.condition.parameters.toTypedArray())
-            condition.addParameters(right)
+            condition.addParameters("%$right")
 
             conj.condition = condition
         }
