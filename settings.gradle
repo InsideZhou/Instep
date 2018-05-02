@@ -1,2 +1,2 @@
 rootProject.name = 'instep'
-include 'core', 'dao', 'instep-spring-boot-starter'
+include 'core', 'dao', 'spring-boot-starter'

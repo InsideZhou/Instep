@@ -26,7 +26,6 @@ dependencies {
 
 jar {
     enabled = true
-    baseName = project.name
 }
 
 bootJar {

@@ -45,15 +45,15 @@ subprojects {
         testImplementation group: 'org.testng', name: 'testng', version: '6.9.+'
     }
 
+    jar {
+        baseName "$rootProject.name-$project.name"
+    }
+
     tasks.withType(JavaCompile) {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
 
         options.encoding = "UTF-8"
-    }
-
-    jar {
-        baseName = "$rootProject.name-$project.name"
     }
 
     task sourceJar(type: Jar) {
