@@ -216,9 +216,11 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
 
         when (obj) {
             is TableRow -> {
-                columns.forEach {
+                columns.filterNot { it == pk }.forEach {
                     plan.addValue(it, obj[it])
                 }
+
+                plan.addValue(pk, key)
 
                 plan.execute()
             }

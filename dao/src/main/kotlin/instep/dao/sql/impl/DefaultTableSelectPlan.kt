@@ -20,7 +20,7 @@ class DefaultTableSelectPlan(override val from: Table) : AbstractPlan<TableSelec
 
             var sql = if (selectClause.isBlank()) "$selectTxt * FROM ${from.tableName}" else "$selectTxt $selectClause FROM ${from.tableName}"
 
-            where?.expression!!.let {
+            where?.expression?.let {
                 if (it.isNotBlank()) {
                     sql += "\nWHERE $it"
                 }
