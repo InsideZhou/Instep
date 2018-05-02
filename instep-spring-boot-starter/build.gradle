@@ -18,14 +18,15 @@ repositories {
 }
 
 dependencies {
-    compile project(':core')
-    compile project(':dao')
+    api project(':core')
+    api project(':dao')
 
-    compile "org.springframework.boot:spring-boot-starter"
+    implementation "org.springframework.boot:spring-boot-starter"
 }
 
 jar {
     enabled = true
+    baseName = project.name
 }
 
 bootJar {

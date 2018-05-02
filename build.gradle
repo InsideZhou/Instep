@@ -42,7 +42,7 @@ subprojects {
     }
 
     dependencies {
-        testCompile group: 'org.testng', name: 'testng', version: '6.9.+'
+        testImplementation group: 'org.testng', name: 'testng', version: '6.9.+'
     }
 
     tasks.withType(JavaCompile) {
@@ -50,6 +50,10 @@ subprojects {
         targetCompatibility = JavaVersion.VERSION_1_8
 
         options.encoding = "UTF-8"
+    }
+
+    jar {
+        baseName = "$rootProject.name-$project.name"
     }
 
     task sourceJar(type: Jar) {
