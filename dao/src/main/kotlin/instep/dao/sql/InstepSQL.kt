@@ -18,40 +18,28 @@ object InstepSQL {
         try {
             Instep.make(SQLPlanExecutor::class.java)
         }
-        catch(e: ServiceNotFoundException) {
+        catch (e: ServiceNotFoundException) {
             Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
         }
 
         try {
             Instep.make(ExpressionFactory::class.java)
         }
-        catch(e: ServiceNotFoundException) {
+        catch (e: ServiceNotFoundException) {
             Instep.bind(ExpressionFactory::class.java, Expression.Companion)
         }
 
         try {
             Instep.make(PlanFromTextFactory::class.java)
         }
-        catch(e: ServiceNotFoundException) {
+        catch (e: ServiceNotFoundException) {
             Instep.bind(PlanFromTextFactory::class.java, PlanFromText.Companion)
-        }
-
-        try {
-            Instep.make(ObjectSelectPlanFactory::class.java)
-        }
-        catch(e: ServiceNotFoundException) {
-            Instep.bind(ObjectSelectPlanFactory::class.java, ObjectSelectPlan.Companion)
         }
     }
 
     fun plan(txt: String): PlanFromText {
         val factory = Instep.make(PlanFromTextFactory::class.java)
         return factory.createInstance(txt)
-    }
-
-    fun select(obj: Any): ObjectSelectPlan {
-        val factory = Instep.make(ObjectSelectPlanFactory::class.java)
-        return factory.createInstance(obj)
     }
 
     /**

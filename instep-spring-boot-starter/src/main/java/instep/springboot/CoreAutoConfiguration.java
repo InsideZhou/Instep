@@ -38,7 +38,7 @@ public class CoreAutoConfiguration {
 
         if (null != instepLogger) {
             Instep.INSTANCE.bind(InstepLogger.class, instepLogger, "");
-            InstepLogger.Companion.setRootLogger(instepLogger);
+            InstepLogger.Companion.setLogger(instepLogger);
         }
 
         return Instep.INSTANCE;

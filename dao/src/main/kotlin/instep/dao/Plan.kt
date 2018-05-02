@@ -21,8 +21,8 @@ interface Plan<T : Plan<T>> : Serializable, Cloneable {
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun log(runner: () -> Unit): T {
-        runner()
-        return this as T
+    fun log(runner: (T) -> Unit): T {
+        runner(this as T)
+        return this
     }
 }

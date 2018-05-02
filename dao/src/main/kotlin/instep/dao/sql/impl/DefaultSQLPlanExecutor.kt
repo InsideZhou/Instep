@@ -4,6 +4,7 @@ import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.sql.ConnectionProvider
 import instep.dao.sql.SQLPlanExecutor
+import instep.dao.sql.TableInsertPlan
 import instep.typeconversion.Converter
 import instep.typeconversion.TypeConversion
 import java.sql.Connection
@@ -59,7 +60,14 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
     override fun executeResultSet(conn: Connection, plan: instep.dao.Plan<*>): ResultSet {
         val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
-        return stmt.executeQuery()
+
+        return when (plan) {
+            is TableInsertPlan -> {
+                stmt.executeUpdate()
+                stmt.generatedKeys
+            }
+            else -> stmt.executeQuery()
+        }
     }
 
     override fun <T : Any> execute(plan: instep.dao.Plan<*>, cls: Class<T>): List<T> {
@@ -87,7 +95,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
                     result.add(Helper.rowToInstanceAsInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
                 }
             }
-            catch(e: Exception) {
+            catch (e: Exception) {
                 throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
             }
         }

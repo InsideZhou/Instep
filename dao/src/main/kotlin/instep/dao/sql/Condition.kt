@@ -11,7 +11,10 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
     override val expression: String
         get() {
             val conj = conjunction
-            if (null == conj) return super.expression
+            val baseExpression = super.expression
+
+            if (null == conj) return baseExpression
+            if (baseExpression.isBlank()) return conj.condition.expression
 
             return "${super.expression} ${conj.conjunction} ${conj.condition.expression}"
         }
@@ -511,8 +514,12 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
     companion object {
         private const val serialVersionUID = -1016375911659982537L
 
-        var AND = "AND"
-        var OR = "OR"
+        const val AND = "AND"
+        const val OR = "OR"
+
+        fun empty(): Condition {
+            return Condition("")
+        }
 
         fun eq(left: String, right: Any): Condition {
             val condition = Condition("$left = ?")

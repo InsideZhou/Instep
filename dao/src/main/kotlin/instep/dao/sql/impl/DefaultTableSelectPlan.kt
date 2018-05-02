@@ -20,9 +20,10 @@ class DefaultTableSelectPlan(override val from: Table) : AbstractPlan<TableSelec
 
             var sql = if (selectClause.isBlank()) "$selectTxt * FROM ${from.tableName}" else "$selectTxt $selectClause FROM ${from.tableName}"
 
-            val whereClause = where?.expression
-            if (null != whereClause) {
-                sql += "\nWHERE $whereClause"
+            where?.expression!!.let {
+                if (it.isNotBlank()) {
+                    sql += "\nWHERE $it"
+                }
             }
 
             val groupByClause = groupBy.map { it.name }.joinToString(",")

@@ -1,5 +1,6 @@
 package instep.dao.sql.impl
 
+import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.DaoException
 import instep.dao.impl.AbstractPlan
@@ -34,6 +35,22 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
         }
 
         params.add(*values)
+
+        return this
+    }
+
+    override fun set(obj: Any): TableInsertPlan {
+        if (usingPositional) throw DaoException("Cannot use column and positional value together.")
+        if (!usingColumn) {
+            usingColumn = true
+        }
+
+        val mirror = Instep.reflect(obj)
+        mirror.fieldsWithGetter.forEach { field ->
+            table.columns.find { it.name == field.name }?.apply {
+                params.add(this.name to mirror.findGetter(field.name)!!.invoke(obj))
+            }
+        }
 
         return this
     }

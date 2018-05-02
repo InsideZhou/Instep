@@ -24,7 +24,6 @@ public class SQLAutoConfiguration {
         @Autowired(required = false) SQLPlanExecutor sqlPlanExecutor,
         @Autowired(required = false) ExpressionFactory expressionFactory,
         @Autowired(required = false) PlanFromTextFactory planFromTextFactory,
-        @Autowired(required = false) ObjectSelectPlanFactory objectSelectPlanFactory,
         @Autowired(required = false) TableSelectPlanFactory tableSelectPlanFactory,
         @Autowired(required = false) TableInsertPlanFactory tableInsertPlanFactory,
         @Autowired(required = false) TableUpdatePlanFactory tableUpdatePlanFactory,
@@ -43,10 +42,6 @@ public class SQLAutoConfiguration {
 
         if (null != planFromTextFactory) {
             instep.bind(PlanFromTextFactory.class, planFromTextFactory, "");
-        }
-
-        if (null != objectSelectPlanFactory) {
-            instep.bind(ObjectSelectPlanFactory.class, objectSelectPlanFactory, "");
         }
 
         if (null != tableSelectPlanFactory) {

@@ -9,6 +9,7 @@ import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.ResultSet
 
+@Suppress("unused")
 private val init = run {
     try {
         Instep.make(SQLPlanExecutor::class.java)

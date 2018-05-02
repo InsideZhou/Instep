@@ -8,7 +8,7 @@ interface TableDeletePlan : Plan<TableDeletePlan>, WhereClause<TableDeletePlan> 
     override public fun clone(): TableDeletePlan
 
     @Throws(DaoException::class)
-    fun where(value: Any): TableDeletePlan
+    fun where(key: Any): TableDeletePlan
 
     companion object : TableDeletePlanFactory<TableDeletePlan> {
         override fun createInstance(table: Table): TableDeletePlan {

@@ -1,6 +1,7 @@
 package instep.dao.sql.impl
 
 import instep.dao.sql.Dialect
+import instep.dao.sql.TableInsertPlan
 import instep.dao.sql.dialect.AbstractDialect
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
@@ -10,10 +11,7 @@ import java.io.Reader
 import java.lang.reflect.Method
 import java.math.BigDecimal
 import java.math.BigInteger
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.ResultSetMetaData
+import java.sql.*
 import java.time.*
 
 object Helper {
@@ -80,7 +78,10 @@ object Helper {
     }
 
     fun generateStatement(conn: Connection, dialect: Dialect, plan: instep.dao.Plan<*>): PreparedStatement {
-        val stmt = conn.prepareStatement(plan.statement)
+        val stmt = when (plan) {
+            is TableInsertPlan -> conn.prepareStatement(plan.statement, Statement.RETURN_GENERATED_KEYS)
+            else -> conn.prepareStatement(plan.statement)
+        }
 
         plan.parameters.forEachIndexed { i, value ->
             val paramIndex = i + 1

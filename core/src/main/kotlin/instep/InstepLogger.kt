@@ -16,7 +16,7 @@ interface InstepLogger {
     fun warning(log: String, logger: String = "")
 
     companion object {
-        var rootLogger = try {
+        var logger = try {
             Instep.make(InstepLogger::class.java)
         }
         catch (e: ServiceNotFoundException) {
@@ -24,7 +24,7 @@ interface InstepLogger {
         }
 
         fun debug(lazy: () -> String, logger: String = "") {
-            rootLogger?.let {
+            this.logger?.let {
                 if (it.enableDebug) {
                     it.debug(lazy(), logger)
                 }
@@ -32,7 +32,7 @@ interface InstepLogger {
         }
 
         fun info(lazy: () -> String, logger: String = "") {
-            rootLogger?.let {
+            this.logger?.let {
                 if (it.enableInfo) {
                     it.info(lazy(), logger)
                 }
@@ -40,7 +40,7 @@ interface InstepLogger {
         }
 
         fun warning(lazy: () -> String, logger: String = "") {
-            rootLogger?.let {
+            this.logger?.let {
                 if (it.enableWarning) {
                     it.warning(lazy(), logger)
                 }

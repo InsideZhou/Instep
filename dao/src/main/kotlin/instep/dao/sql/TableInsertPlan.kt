@@ -13,6 +13,8 @@ interface TableInsertPlan : Plan<TableInsertPlan> {
     @Throws(DaoException::class)
     fun addValues(vararg values: Any?): TableInsertPlan
 
+    fun set(obj: Any): TableInsertPlan
+
     companion object : TableInsertPlanFactory<TableInsertPlan> {
         override fun createInstance(table: Table, dialect: Dialect): TableInsertPlan {
             return DefaultTableInsertPlan(table)

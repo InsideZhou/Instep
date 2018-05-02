@@ -132,6 +132,20 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return factory.createInstance(this)
     }
 
+    fun <T : Any> get(key: Number, cls: Class<T>): T? {
+        if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
+
+        val pk = primaryKey as IntegerColumn
+        return select().where(pk eq key).execute(cls).singleOrNull()
+    }
+
+    fun <T : Any> get(key: String, cls: Class<T>): T? {
+        if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
+
+        val pk = primaryKey as StringColumn
+        return select().where(pk eq key).execute(cls).singleOrNull()
+    }
+
     operator fun get(key: Number): TableRow? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
@@ -146,15 +160,15 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return select().where(pk eq key).execute().singleOrNull()
     }
 
-    operator fun set(key: Number, row: TableRow) {
-        insertOrUpdate(key, row)
+    operator fun set(key: Number, obj: Any) {
+        insertOrUpdate(key, obj)
     }
 
-    operator fun set(key: String, row: TableRow) {
-        insertOrUpdate(key, row)
+    operator fun set(key: String, obj: Any) {
+        insertOrUpdate(key, obj)
     }
 
-    private fun insertOrUpdate(key: Any, row: TableRow) {
+    private fun insertOrUpdate(key: Any, obj: Any) {
         val pk = primaryKey
         if (null == pk) throw DaoException("Table $tableName should has primary key")
 
@@ -163,10 +177,17 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
                 val existsRow = this[key]
                 if (null != existsRow) {
                     val plan = update()
-                    columns.forEach {
-                        plan.set(it, row[it])
+
+                    when (obj) {
+                        is TableRow -> {
+                            columns.forEach {
+                                plan.set(it, obj[it])
+                            }
+                            plan.where(pk as NumberColumn eq key).execute()
+                        }
+                        else -> plan.set(obj).where(key).execute()
                     }
-                    plan.where(pk as NumberColumn eq key).execute()
+
                     return
                 }
             }
@@ -174,10 +195,17 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
                 val existsRow = this[key]
                 if (null != existsRow) {
                     val plan = update()
-                    columns.forEach {
-                        plan.set(it, row[it])
+
+                    when (obj) {
+                        is TableRow -> {
+                            columns.forEach {
+                                plan.set(it, obj[it])
+                            }
+                            plan.where(pk as StringColumn eq key).execute()
+                        }
+                        else -> plan.set(obj).where(key).execute()
                     }
-                    plan.where(pk as StringColumn eq key).execute()
+
                     return
                 }
             }
@@ -185,15 +213,17 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         }
 
         val plan = insert()
-        columns.forEach {
-            plan.addValue(it, row[it])
-        }
 
-        if (null == row[pk]) {
-            plan.addValue(pk, key)
-        }
+        when (obj) {
+            is TableRow -> {
+                columns.forEach {
+                    plan.addValue(it, obj[it])
+                }
 
-        plan.execute()
+                plan.execute()
+            }
+            else -> plan.set(obj).execute()
+        }
     }
 
     companion object {
@@ -203,28 +233,28 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
             try {
                 Instep.make(TableSelectPlanFactory::class.java)
             }
-            catch(e: ServiceNotFoundException) {
+            catch (e: ServiceNotFoundException) {
                 Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlan.Companion)
             }
 
             try {
                 Instep.make(TableInsertPlanFactory::class.java)
             }
-            catch(e: ServiceNotFoundException) {
+            catch (e: ServiceNotFoundException) {
                 Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlan.Companion)
             }
 
             try {
                 Instep.make(TableUpdatePlanFactory::class.java)
             }
-            catch(e: ServiceNotFoundException) {
+            catch (e: ServiceNotFoundException) {
                 Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlan.Companion)
             }
 
             try {
                 Instep.make(TableDeletePlanFactory::class.java)
             }
-            catch(e: ServiceNotFoundException) {
+            catch (e: ServiceNotFoundException) {
                 Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlan.Companion)
             }
         }

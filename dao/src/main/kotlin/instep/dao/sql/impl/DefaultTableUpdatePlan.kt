@@ -1,5 +1,6 @@
 package instep.dao.sql.impl
 
+import instep.Instep
 import instep.dao.DaoException
 import instep.dao.impl.AbstractPlan
 import instep.dao.sql.Column
@@ -20,22 +21,21 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
         return this
     }
 
-    override fun where(vararg conditions: Condition): TableUpdatePlan {
-        if (null == where) {
-            where = conditions.reduce(Condition::and)
-        }
-        else {
-            val cond = where
-            cond?.andGroup(conditions.reduce(Condition::and))
+    override fun set(obj: Any): TableUpdatePlan {
+        val mirror = Instep.reflect(obj)
+        mirror.fieldsWithGetter.forEach { field ->
+            table.columns.find { it.name == field.name }?.apply {
+                params.put(this, mirror.findGetter(field.name)!!.invoke(obj))
+            }
         }
 
         return this
     }
 
-    override fun where(value: Any): TableUpdatePlan {
+    override fun where(key: Any): TableUpdatePlan {
         if (null == table.primaryKey) throw DaoException("Table ${table.tableName} should has primary key")
 
-        pkValue = value
+        pkValue = key
         return this
     }
 
@@ -52,8 +52,11 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
                 return txt
             }
 
-            txt += "WHERE "
-            where!!.let { txt += it.expression }
+            where!!.expression.let {
+                if (it.isNotBlank()) {
+                    txt += "WHERE $it"
+                }
+            }
 
             pkValue?.apply {
                 txt += " AND ${table.primaryKey!!.name}=?"

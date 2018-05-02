@@ -10,8 +10,10 @@ interface TableUpdatePlan : Plan<TableUpdatePlan>, WhereClause<TableUpdatePlan> 
     @Throws(DaoException::class)
     fun set(column: Column<*>, value: Any?): TableUpdatePlan
 
+    fun set(obj: Any): TableUpdatePlan
+
     @Throws(DaoException::class)
-    fun where(value: Any): TableUpdatePlan
+    fun where(key: Any): TableUpdatePlan
 
     companion object : TableUpdatePlanFactory<TableUpdatePlan> {
         override fun createInstance(table: Table): TableUpdatePlan {
