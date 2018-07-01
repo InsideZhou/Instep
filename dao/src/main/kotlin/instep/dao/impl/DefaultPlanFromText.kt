@@ -24,18 +24,8 @@ open class DefaultPlanFromText(txt: String) : AbstractPlan<PlanFromText>(), Plan
         return this
     }
 
-    override fun addParameters(vararg parameters: Any?): PlanFromText {
-        superExpression.addParameters(*parameters)
-        return this
-    }
-
     override fun addExpression(placeHolderName: String, expression: Expression<*>?): PlanFromText {
         superExpression.addExpression(placeHolderName, expression)
-        return this
-    }
-
-    override fun addExpressions(vararg expressions: Expression<*>): PlanFromText {
-        superExpression.addExpressions(*expressions)
         return this
     }
 

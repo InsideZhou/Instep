@@ -1,54 +1,30 @@
 package instep.dao.sql.impl
 
 import instep.Instep
-import instep.collection.AssocArray
 import instep.dao.DaoException
 import instep.dao.impl.AbstractPlan
-import instep.dao.sql.Column
-import instep.dao.sql.Table
-import instep.dao.sql.TableInsertPlan
-import instep.dao.sql.dialect.PostgreSQLDialect
+import instep.dao.sql.*
+import instep.typeconversion.JsonType
+import instep.typeconversion.TypeConversion
 
-open class DefaultTableInsertPlan(val table: Table, protected val params: AssocArray) : AbstractPlan<TableInsertPlan>(), TableInsertPlan {
-    constructor(table: Table) : this(table, AssocArray())
+open class DefaultTableInsertPlan(val table: Table) : AbstractPlan<TableInsertPlan>(), TableInsertPlan {
+    protected val params = mutableMapOf<Column<*>, Any?>()
 
-    protected var usingColumn = false
-    protected var usingPositional = false
+    private val typeConversion = Instep.make(TypeConversion::class.java)
 
     override fun addValue(column: Column<*>, value: Any?): TableInsertPlan {
-        if (usingPositional) throw DaoException("Cannot use column and positional value together.")
-        if (!usingColumn) {
-            usingColumn = true
-        }
-
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
 
-        params.add(column.name to value)
-
-        return this
-    }
-
-    override fun addValues(vararg values: Any?): TableInsertPlan {
-        if (usingColumn) throw DaoException("Cannot use column and positional value together.")
-        if (!usingPositional) {
-            usingPositional = true
-        }
-
-        params.add(*values)
+        params[column] = value
 
         return this
     }
 
     override fun set(obj: Any): TableInsertPlan {
-        if (usingPositional) throw DaoException("Cannot use column and positional value together.")
-        if (!usingColumn) {
-            usingColumn = true
-        }
-
         val mirror = Instep.reflect(obj)
         mirror.fieldsWithGetter.forEach { field ->
             table.columns.find { it.name == field.name }?.apply {
-                params.add(this.name to mirror.findGetter(field.name)!!.invoke(obj))
+                params[this] = mirror.findGetter(field.name)!!.invoke(obj)
             }
         }
 
@@ -60,15 +36,20 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
             var txt = "INSERT INTO ${table.tableName} "
             val columns = params.entries
 
-            if (usingColumn) {
-                txt += columns.map { it.first }.joinToString(",", "(", ")")
-            }
+            txt += columns.map { it.key.name }.joinToString(",", "(", ")")
 
             txt += "\nVALUES (${columns.map {
-                if (it.second == Table.DefaultInsertValue) {
-                    return@map when (table.dialect) {
-                        is PostgreSQLDialect -> "DEFAULT"
-                        else -> "NULL"
+                val col = it.key
+
+                if (it.value == Table.DefaultInsertValue) {
+                    return@map table.dialect.defaultInsertValue
+                }
+                else if (col is StringColumn) {
+                    if (col.type == StringColumnType.UUID) {
+                        return@map table.dialect.placeholderForUUIDType
+                    }
+                    else if (col.type == StringColumnType.JSON) {
+                        return@map table.dialect.placeholderForJSONType
                     }
                 }
 
@@ -79,5 +60,24 @@ open class DefaultTableInsertPlan(val table: Table, protected val params: AssocA
         }
 
     override val parameters: List<Any?>
-        get() = params.filterNot { it == Table.DefaultInsertValue }
+        get() = params.filterNot { it.value == Table.DefaultInsertValue }.map {
+            val column = it.key
+            val value = it.value
+
+            if (column is StringColumn &&
+                column.type == StringColumnType.JSON &&
+                null != value &&
+                value !is String) {
+
+                if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
+                    typeConversion.convert(value, JsonType::class.java).value
+                }
+                else {
+                    value.toString()
+                }
+            }
+            else {
+                value
+            }
+        }
 }

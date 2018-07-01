@@ -14,7 +14,7 @@ private val init = run {
     try {
         Instep.make(SQLPlanExecutor::class.java)
     }
-    catch(e: ServiceNotFoundException) {
+    catch (e: ServiceNotFoundException) {
         Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
     }
 }
@@ -41,6 +41,14 @@ fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
 fun Plan<*>.executeScalar(): String {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeScalar(this)
+}
+
+/**
+ * @see [SQLPlanExecutor.executeScalar]
+ */
+fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
+    val planExec = Instep.make(SQLPlanExecutor::class.java)
+    return planExec.executeScalar(this, cls)
 }
 
 /**
@@ -108,7 +116,7 @@ fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
                 try {
                     targetMirror.findSetter(field.name)?.invoke(instance, value)
                 }
-                catch(e: IllegalArgumentException) {
+                catch (e: IllegalArgumentException) {
                     InstepLogger.warning({ e.toString() }, InstepSQL.LoggerName)
                 }
             }

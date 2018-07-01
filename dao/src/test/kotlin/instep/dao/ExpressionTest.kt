@@ -1,6 +1,7 @@
 package instep.dao
 
 import instep.Instep
+import instep.dao.impl.AbstractExpression
 import instep.dao.sql.Condition
 import instep.servicecontainer.ServiceNotFoundException
 import org.testng.Assert
@@ -11,7 +12,7 @@ object ExpressionTest {
         try {
             Instep.make(ExpressionFactory::class.java)
         }
-        catch(e: ServiceNotFoundException) {
+        catch (e: ServiceNotFoundException) {
             Instep.bind(ExpressionFactory::class.java, Expression.Companion)
         }
     }
@@ -23,7 +24,10 @@ object ExpressionTest {
         assert(expression.parameters.all { it is PlaceHolder })
 
         expression.addParameter("name", "ZhangFei")
-        Assert.assertThrows(PlaceHolderRemainingException::class.java, { expression.addParameters(18) })
+
+        if (expression is AbstractExpression) {
+            Assert.assertThrows(PlaceHolderRemainingException::class.java, { expression.addParameters(18) })
+        }
 
         val condition = Condition.isNotNull("army").and(Condition.gte("elite", 100))
         expression.addExpression("condition", condition)

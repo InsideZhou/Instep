@@ -57,6 +57,10 @@ abstract class AbstractDialect : Dialect {
         }
     }
 
+    override val defaultInsertValue: String = "NULL"
+    override val placeholderForJSONType: String = "?"
+    override val placeholderForUUIDType: String = "?"
+
     override val pagination: Pagination = StandardPagination()
     override val isOffsetDateTimeSupported: Boolean = true
 
@@ -72,7 +76,7 @@ abstract class AbstractDialect : Dialect {
 
     override fun addColumn(tableName: String, column: Column<*>): Plan<*> {
         val columnDefinition = definitionForColumns(column)
-        return InstepSQL.plan("ALTER TABLE $tableName ADD COLUMN$columnDefinition")
+        return InstepSQL.plan("ALTER TABLE $tableName ADD COLUMN $columnDefinition")
     }
 
     override fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?) {
@@ -107,6 +111,14 @@ abstract class AbstractDialect : Dialect {
 
     abstract protected fun definitionForAutoIncrementColumn(column: IntegerColumn): String
 
+    protected open fun definitionForJSONColumn(column: StringColumn): String {
+        throw NotImplementedError("JSON Column is not supported by ${this.javaClass.simpleName}")
+    }
+
+    protected open fun definitionForUUIDColumn(column: StringColumn): String {
+        throw NotImplementedError("UUID Column is not supported by ${this.javaClass.simpleName}")
+    }
+
     protected open fun definitionForIntegerColumn(column: IntegerColumn): String {
         return when (column.type) {
             IntegerColumnType.Tiny -> "TINYINT"
@@ -121,6 +133,8 @@ abstract class AbstractDialect : Dialect {
             StringColumnType.Char -> "CHAR(${column.length})"
             StringColumnType.Varchar -> "VARCHAR(${column.length})"
             StringColumnType.Text -> if (column.length > 0) "TEXT(${column.length})" else "TEXT"
+            StringColumnType.JSON -> definitionForJSONColumn(column)
+            StringColumnType.UUID -> definitionForUUIDColumn(column)
         }
     }
 

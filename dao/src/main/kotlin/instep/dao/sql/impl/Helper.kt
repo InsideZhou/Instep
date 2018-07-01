@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package instep.dao.sql.impl
 
 import instep.dao.sql.Dialect
@@ -8,7 +10,6 @@ import instep.dao.sql.dialect.MySQLDialect
 import instep.reflection.Mirror
 import java.io.InputStream
 import java.io.Reader
-import java.lang.reflect.Method
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.*
@@ -23,14 +24,13 @@ object Helper {
 
     fun <T : Any> rowToInstanceAsInstanceFirst(rs: ResultSet, dialect: Dialect, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
         val instance = mirror.type.newInstance()
+        val resultSetDelegate = getResultSetDelegate(dialect, rs)
         val setters = mirror.setters
 
         setters.forEach { setter ->
-            columnInfoSet.forEach columnLoop@ { col ->
+            columnInfoSet.forEach columnLoop@{ col ->
                 if (setter.name.contains(col.label, true)) {
-                    evalInstance(setter.parameterTypes[0], instance, setter, getResultSetDelegate(dialect, rs), col)
-
-                    return@columnLoop
+                    setter.invoke(instance, extractColumnValue(setter.parameterTypes[0], resultSetDelegate, col.index))
                 }
             }
         }
@@ -40,40 +40,40 @@ object Helper {
 
     fun <T : Any> rowToInstanceAsRowFirst(rs: ResultSet, dialect: Dialect, mirror: Mirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
         val instance = mirror.type.newInstance()
+        val resultSetDelegate = getResultSetDelegate(dialect, rs)
 
         columnInfoSet.forEach { col ->
             val setter = mirror.findSetter(col.label)
-            if (null != setter) {
-                evalInstance(setter.parameterTypes[0], instance, setter, getResultSetDelegate(dialect, rs), col)
-            }
+
+            setter?.invoke(instance, extractColumnValue(setter.parameterTypes[0], resultSetDelegate, col.index))
         }
 
         return instance
     }
 
-    fun <T : Any> evalInstance(paramType: Class<*>, instance: T, setter: Method, rs: AbstractDialect.ResultSet, col: ResultSetColumnInfo) {
-        when (paramType) {
-            Boolean::class.java -> setter.invoke(instance, rs.getBoolean(col.index))
-            Byte::class.java -> setter.invoke(instance, rs.getByte(col.index))
-            Short::class.java -> setter.invoke(instance, rs.getShort(col.index))
-            Int::class.java -> setter.invoke(instance, rs.getInt(col.index))
-            Long::class.java -> setter.invoke(instance, rs.getLong(col.index))
-            BigInteger::class.java -> setter.invoke(instance, rs.getLong(col.index))
-            BigDecimal::class.java -> setter.invoke(instance, rs.getBigDecimal(col.index))
-            Float::class.java -> setter.invoke(instance, rs.getFloat(col.index))
-            Double::class.java -> setter.invoke(instance, rs.getDouble(col.index))
-            Instant::class.java -> setter.invoke(instance, rs.getInstant(col.index))
-            LocalDate::class.java -> setter.invoke(instance, rs.getLocalDate(col.index))
-            LocalTime::class.java -> setter.invoke(instance, rs.getLocalTime(col.index))
-            LocalDateTime::class.java -> setter.invoke(instance, rs.getLocalDateTime(col.index))
-            OffsetDateTime::class.java -> setter.invoke(instance, rs.getOffsetDateTime(col.index))
-            InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
-            ByteArray::class.java -> setter.invoke(instance, rs.getBytes(col.index))
-            String::class.java -> setter.invoke(instance, rs.getString(col.index))
-            Char::class.java -> setter.invoke(instance, rs.getString(col.index)?.toCharArray()?.firstOrNull())
-            InputStream::class.java -> setter.invoke(instance, rs.getBinaryStream(col.index))
-            Reader::class.java -> setter.invoke(instance, rs.getCharacterStream(col.index))
-            else -> setter.invoke(instance, rs.getObject(col.index, paramType))
+    fun extractColumnValue(paramType: Class<*>, rs: AbstractDialect.ResultSet, colIndex: Int): Any? {
+        return when (paramType) {
+            Boolean::class.java -> rs.getBoolean(colIndex)
+            Byte::class.java -> rs.getByte(colIndex)
+            Short::class.java -> rs.getShort(colIndex)
+            Int::class.java -> rs.getInt(colIndex)
+            Long::class.java -> rs.getLong(colIndex)
+            BigInteger::class.java -> rs.getLong(colIndex)
+            BigDecimal::class.java -> rs.getBigDecimal(colIndex)
+            Float::class.java -> rs.getFloat(colIndex)
+            Double::class.java -> rs.getDouble(colIndex)
+            Instant::class.java -> rs.getInstant(colIndex)
+            LocalDate::class.java -> rs.getLocalDate(colIndex)
+            LocalTime::class.java -> rs.getLocalTime(colIndex)
+            LocalDateTime::class.java -> rs.getLocalDateTime(colIndex)
+            OffsetDateTime::class.java -> rs.getOffsetDateTime(colIndex)
+            InputStream::class.java -> rs.getBinaryStream(colIndex)
+            ByteArray::class.java -> rs.getBytes(colIndex)
+            String::class.java -> rs.getString(colIndex)
+            Char::class.java -> rs.getString(colIndex)?.toCharArray()?.firstOrNull()
+            InputStream::class.java -> rs.getBinaryStream(colIndex)
+            Reader::class.java -> rs.getCharacterStream(colIndex)
+            else -> rs.getObject(colIndex, paramType)
         }
     }
 

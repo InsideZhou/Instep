@@ -3,15 +3,17 @@ package instep.dao.sql.impl
 import instep.Instep
 import instep.dao.DaoException
 import instep.dao.impl.AbstractPlan
-import instep.dao.sql.Column
-import instep.dao.sql.Condition
-import instep.dao.sql.Table
-import instep.dao.sql.TableUpdatePlan
+import instep.dao.sql.*
+import instep.typeconversion.JsonType
+import instep.typeconversion.TypeConversion
 
-open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Column<*>, Any?> = mutableMapOf()) : AbstractPlan<TableUpdatePlan>(), TableUpdatePlan {
+open class DefaultTableUpdatePlan(val table: Table) : AbstractPlan<TableUpdatePlan>(), TableUpdatePlan {
+    protected val params = mutableMapOf<Column<*>, Any?>()
+
     override var where: Condition? = null
 
     private var pkValue: Any? = null
+    private val typeConversion = Instep.make(TypeConversion::class.java)
 
     override fun set(column: Column<*>, value: Any?): TableUpdatePlan {
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
@@ -42,11 +44,32 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
     override val statement: String
         get() {
             val columns = params.entries
-            var txt = "UPDATE ${table.tableName} SET ${columns.map { "${it.key.name}=?" }.joinToString(",")} "
+
+            var txt = "UPDATE ${table.tableName} SET ${columns.map {
+                val column = it.key
+
+                if (column is StringColumn) {
+                    if (column.type == StringColumnType.UUID) {
+                        return@map "${it.key.name}=${table.dialect.placeholderForUUIDType}"
+                    }
+                    else if (column.type == StringColumnType.JSON) {
+                        return@map "${it.key.name}=${table.dialect.placeholderForJSONType}"
+                    }
+                }
+
+                "${it.key.name}=?"
+            }.joinToString(",")} "
 
             if (null == where) {
                 pkValue?.apply {
-                    txt += "WHERE ${table.primaryKey!!.name}=?"
+                    val column = table.primaryKey
+
+                    if (column is StringColumn && column.type == StringColumnType.UUID) {
+                        txt += "WHERE ${table.primaryKey!!.name}=${table.dialect.placeholderForUUIDType}"
+                    }
+                    else {
+                        txt += "WHERE ${table.primaryKey!!.name}=?"
+                    }
                 }
 
                 return txt
@@ -59,7 +82,14 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
             }
 
             pkValue?.apply {
-                txt += " AND ${table.primaryKey!!.name}=?"
+                val column = table.primaryKey
+
+                if (column is StringColumn && column.type == StringColumnType.UUID) {
+                    txt += " AND ${table.primaryKey!!.name}=${table.dialect.placeholderForUUIDType}"
+                }
+                else {
+                    txt += " AND ${table.primaryKey!!.name}=?"
+                }
             }
 
             return txt
@@ -67,7 +97,26 @@ open class DefaultTableUpdatePlan(val table: Table, val params: MutableMap<Colum
 
     override val parameters: List<Any?>
         get() {
-            var result = params.values.toList()
+            var result = params.map {
+                val column = it.key
+                val value = it.value
+
+                if (column is StringColumn &&
+                    column.type == StringColumnType.JSON &&
+                    null != value &&
+                    value !is String) {
+
+                    if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
+                        typeConversion.convert(value, JsonType::class.java).value
+                    }
+                    else {
+                        value.toString()
+                    }
+                }
+                else {
+                    value
+                }
+            }.toList()
 
             where?.let { result += it.parameters }
             pkValue?.let { result += it }

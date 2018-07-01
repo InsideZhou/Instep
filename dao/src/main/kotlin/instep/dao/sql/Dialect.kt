@@ -18,6 +18,10 @@ interface Dialect : Serializable {
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 
+    val defaultInsertValue: String
+    val placeholderForUUIDType: String
+    val placeholderForJSONType: String
+
     val pagination: Pagination
     val isOffsetDateTimeSupported: Boolean
 

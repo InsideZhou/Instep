@@ -26,14 +26,14 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         get() {
             var index = 0
 
-            return rule.normalize(rule.placeholder.replace(txt, { _ ->
+            return rule.normalize(rule.placeholder.replace(txt) { _ ->
                 val param = params[index++]
                 when (param) {
                     is Expression<*> -> param.expression
                     is PlaceHolder -> if (param.ignore) "" else "?"
                     else -> "?"
                 }
-            }))
+            })
         }
 
     override val parameters: List<Any?>
@@ -54,7 +54,7 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         return this as T
     }
 
-    override fun addParameters(vararg parameters: Any?): T {
+    fun addParameters(vararg parameters: Any?): T {
         val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
 
         if (remainingPlaceHolderCount > 0) {
@@ -83,17 +83,4 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
 
         return this as T
     }
-
-    override fun addExpressions(vararg expressions: Expression<*>): T {
-        val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
-
-        if (remainingPlaceHolderCount > 0) {
-            throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional expressions.")
-        }
-
-        params.add(*expressions)
-
-        return this as T
-    }
-
 }

@@ -41,6 +41,21 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
+    override fun <T : Any> executeScalar(plan: instep.dao.Plan<*>, cls: Class<T>): T? {
+        val conn = connectionProvider.getConnection()
+
+        try {
+            val rs = executeResultSet(conn, plan)
+            if (!rs.next() || rs.wasNull()) return null
+
+            return Helper.extractColumnValue(cls, Helper.getResultSetDelegate(connectionProvider.dialect, rs), 1) as T
+        }
+        finally {
+            conn.close()
+        }
+    }
+
     override fun executeUpdate(plan: instep.dao.Plan<*>): Long {
         var stmt: PreparedStatement? = null
         val conn = connectionProvider.getConnection()

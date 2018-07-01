@@ -1,20 +1,45 @@
+@file:Suppress("unused")
+
 package instep.dao.sql
 
+import instep.Instep
 import java.time.temporal.Temporal
+
+val dialect = Instep.make(Dialect::class.java)
 
 
 infix fun BooleanColumn.eq(value: Boolean): Condition = Condition.eq(name, value)
 
 
-infix fun StringColumn.eq(value: String): Condition = Condition.eq(name, value)
+infix fun StringColumn.eq(value: String): Condition = when (this.type) {
+    StringColumnType.UUID -> Condition.eq(name, value, dialect.placeholderForUUIDType)
+    StringColumnType.JSON -> Condition.eq(name, value, dialect.placeholderForJSONType)
+    else -> Condition.eq(name, value)
+}
 
-infix fun StringColumn.startsWith(value: String): Condition = Condition.startsWith(name, value)
+infix fun StringColumn.startsWith(value: String): Condition = when (this.type) {
+    StringColumnType.UUID -> Condition.startsWith(name, value, dialect.placeholderForUUIDType)
+    StringColumnType.JSON -> Condition.startsWith(name, value, dialect.placeholderForJSONType)
+    else -> Condition.startsWith(name, value)
+}
 
-infix fun StringColumn.endsWith(value: String): Condition = Condition.endsWith(name, value)
+infix fun StringColumn.endsWith(value: String): Condition = when (this.type) {
+    StringColumnType.UUID -> Condition.endsWith(name, value, dialect.placeholderForUUIDType)
+    StringColumnType.JSON -> Condition.endsWith(name, value, dialect.placeholderForJSONType)
+    else -> Condition.endsWith(name, value)
+}
 
-infix fun StringColumn.contains(value: String): Condition = Condition.contains(name, value)
+infix fun StringColumn.contains(value: String): Condition = when (this.type) {
+    StringColumnType.UUID -> Condition.contains(name, value, dialect.placeholderForUUIDType)
+    StringColumnType.JSON -> Condition.contains(name, value, dialect.placeholderForJSONType)
+    else -> Condition.contains(name, value)
+}
 
-infix fun StringColumn.inArray(value: Array<String>): Condition = Condition.inArray(name, value)
+infix fun StringColumn.inArray(value: Array<String>): Condition = when (this.type) {
+    StringColumnType.UUID -> Condition.inArray(name, value, dialect.placeholderForUUIDType)
+    StringColumnType.JSON -> Condition.inArray(name, value, dialect.placeholderForJSONType)
+    else -> Condition.inArray(name, value)
+}
 
 
 infix fun <T : Number> NumberColumn<*>.eq(value: T): Condition = Condition.eq(name, value)

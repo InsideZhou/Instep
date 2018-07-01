@@ -29,6 +29,14 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return StringColumn(name, StringColumnType.Text, length)
     }
 
+    fun uuid(name: String): StringColumn {
+        return StringColumn(name, StringColumnType.UUID)
+    }
+
+    fun json(name: String): StringColumn {
+        return StringColumn(name, StringColumnType.JSON)
+    }
+
     fun tinyInt(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Tiny)
     }

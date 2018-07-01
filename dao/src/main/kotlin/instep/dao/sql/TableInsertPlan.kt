@@ -10,9 +10,6 @@ interface TableInsertPlan : Plan<TableInsertPlan> {
     @Throws(DaoException::class)
     fun addValue(column: Column<*>, value: Any?): TableInsertPlan
 
-    @Throws(DaoException::class)
-    fun addValues(vararg values: Any?): TableInsertPlan
-
     fun set(obj: Any): TableInsertPlan
 
     companion object : TableInsertPlanFactory<TableInsertPlan> {

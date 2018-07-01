@@ -3,6 +3,7 @@ package instep.dao.sql.dialect
 import instep.dao.sql.BinaryColumn
 import instep.dao.sql.IntegerColumn
 import instep.dao.sql.IntegerColumnType
+import instep.dao.sql.StringColumn
 
 
 open class PostgreSQLDialect : AbstractDialect() {
@@ -12,6 +13,16 @@ open class PostgreSQLDialect : AbstractDialect() {
         IntegerColumnType.Long -> "BIGSERIAL"
         else -> "SERIAL"
     }
+
+    override val placeholderForJSONType: String = "?::JSONB"
+
+    override val placeholderForUUIDType: String = "?::UUID"
+
+    override val defaultInsertValue = "DEFAULT"
+
+    override fun definitionForUUIDColumn(column: StringColumn): String = "UUID"
+
+    override fun definitionForJSONColumn(column: StringColumn): String = "JSONB"
 
     override fun definitionForBinaryColumn(column: BinaryColumn): String = "BYTEA"
 }

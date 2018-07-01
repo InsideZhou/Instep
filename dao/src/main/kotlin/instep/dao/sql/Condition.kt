@@ -28,38 +28,38 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             return super.parameters + conj.condition.parameters
         }
 
-    open fun andEQ(left: String, right: Any): Condition {
-        val condition = eq(left, right)
+    open fun andEQ(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = eq(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andNotEQ(left: String, right: Any): Condition {
-        val condition = notEQ(left, right)
+    open fun andNotEQ(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = notEQ(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andGT(left: String, right: Any): Condition {
-        val condition = gt(left, right)
+    open fun andGT(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = gt(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andGTE(left: String, right: Any): Condition {
-        val condition = gte(left, right)
+    open fun andGTE(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = gte(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andLT(left: String, right: Any): Condition {
-        val condition = lt(left, right)
+    open fun andLT(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = lt(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andLTE(left: String, right: Any): Condition {
-        val condition = lte(left, right)
+    open fun andLTE(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = lte(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
@@ -76,62 +76,62 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         return this
     }
 
-    open fun andContains(left: String, right: Any): Condition {
-        val condition = contains(left, right)
+    open fun andContains(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = contains(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andStartsWith(left: String, right: Any): Condition {
-        val condition = startsWith(left, right)
+    open fun andStartsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = startsWith(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andEndsWith(left: String, right: Any): Condition {
-        val condition = endsWith(left, right)
+    open fun andEndsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = endsWith(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun andInArray(left: String, right: Array<*>): Condition {
-        val condition = inArray(left, right)
+    open fun andInArray(left: String, right: Array<*>, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = inArray(left, right, valueFormat)
         joinCondition(condition, AND)
         return this
     }
 
-    open fun orEQ(left: String, right: Any): Condition {
-        val condition = eq(left, right)
+    open fun orEQ(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = eq(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orNotEQ(left: String, right: Any): Condition {
-        val condition = notEQ(left, right)
+    open fun orNotEQ(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = notEQ(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orGT(left: String, right: Any): Condition {
-        val condition = gt(left, right)
+    open fun orGT(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = gt(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orGTE(left: String, right: Any): Condition {
+    open fun orGTE(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
         val condition = gte(left, right)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orLT(left: String, right: Any): Condition {
-        val condition = lt(left, right)
+    open fun orLT(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = lt(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orLTE(left: String, right: Any): Condition {
-        val condition = lte(left, right)
+    open fun orLTE(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = lte(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
@@ -148,26 +148,26 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         return this
     }
 
-    open fun orContains(left: String, right: Any): Condition {
-        val condition = contains(left, right)
+    open fun orContains(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = contains(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orStartsWith(left: String, right: Any): Condition {
-        val condition = startsWith(left, right)
+    open fun orStartsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = startsWith(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orEndsWith(left: String, right: Any): Condition {
-        val condition = endsWith(left, right)
+    open fun orEndsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = endsWith(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
 
-    open fun orInArray(left: String, right: Array<*>): Condition {
-        val condition = inArray(left, right)
+    open fun orInArray(left: String, right: Array<*>, valueFormat: String = VALUE_FORMAT): Condition {
+        val condition = inArray(left, right, valueFormat)
         joinCondition(condition, OR)
         return this
     }
@@ -268,43 +268,44 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
 
         const val AND = "AND"
         const val OR = "OR"
+        const val VALUE_FORMAT = "?"
 
         fun empty(): Condition {
             return Condition("")
         }
 
-        fun eq(left: String, right: Any): Condition {
-            val condition = Condition("$left = ?")
+        fun eq(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left = $valueFormat")
             condition.addParameters(right)
             return condition
         }
 
-        fun notEQ(left: String, right: Any): Condition {
-            val condition = Condition("$left <> ?")
+        fun notEQ(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left <> $valueFormat")
             condition.addParameters(right)
             return condition
         }
 
-        fun gt(left: String, right: Any): Condition {
-            val condition = Condition("$left > ?")
+        fun gt(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left > $valueFormat")
             condition.addParameters(right)
             return condition
         }
 
-        fun gte(left: String, right: Any): Condition {
-            val condition = Condition("$left >= ?")
+        fun gte(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left >= $valueFormat")
             condition.addParameters(right)
             return condition
         }
 
-        fun lt(left: String, right: Any): Condition {
-            val condition = Condition("$left < ?")
+        fun lt(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left < $valueFormat")
             condition.addParameters(right)
             return condition
         }
 
-        fun lte(left: String, right: Any): Condition {
-            val condition = Condition("$left <= ?")
+        fun lte(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left <= $valueFormat")
             condition.addParameters(right)
             return condition
         }
@@ -317,29 +318,29 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             return Condition("$left IS NOT NULL")
         }
 
-        fun contains(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE ?")
+        fun contains(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left LIKE $valueFormat")
             condition.addParameters("%$right%")
             return condition
         }
 
-        fun startsWith(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE ?")
+        fun startsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left LIKE $valueFormat")
             condition.addParameters("$right%")
             return condition
         }
 
-        fun endsWith(left: String, right: Any): Condition {
-            val condition = Condition("$left LIKE ?")
+        fun endsWith(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
+            val condition = Condition("$left LIKE $valueFormat")
             condition.addParameters("%$right")
             return condition
         }
 
-        fun inArray(left: String, right: Array<*>): Condition {
+        fun inArray(left: String, right: Array<*>, valueFormat: String = VALUE_FORMAT): Condition {
             val builder = StringBuilder("$left IN (")
 
             right.forEach {
-                builder.append("?,")
+                builder.append("$valueFormat,")
             }
 
             builder.deleteCharAt(builder.length - 1)

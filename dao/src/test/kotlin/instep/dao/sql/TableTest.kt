@@ -4,7 +4,9 @@ import instep.Instep
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
 import java.time.*
+import java.util.*
 
+@Suppress("unused")
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
@@ -15,17 +17,18 @@ object TableTest {
     val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
 
     class Account {
-        var id = 0L
+        var id = UUID.randomUUID().toString()
         var name = ""
         var balance: java.math.BigDecimal = java.math.BigDecimal.ZERO
-        var createdAt: LocalDateTime? = null
+        var createdAt: Instant = Instant.now()
         var birthDate: LocalDate? = null
         var birthTime: LocalTime? = null
         var avatar = byteArrayOf()
+        var preferences = emptyMap<String, Any?>()
     }
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
-        val id = AccountTable.autoIncrementLong("id").primary()
+        val id = AccountTable.uuid("id").primary()
         val name = AccountTable.varchar("name", 256).notnull()
         val balance = when (AccountTable.dialect) {
             is MySQLDialect -> AccountTable.numeric("balance", 65, 2).notnull()
@@ -42,6 +45,7 @@ object TableTest {
             AccountTable.datetime("birthday")
         }
         val avatar = AccountTable.lob("avatar")
+        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
     }
 
     @org.testng.annotations.Test
@@ -61,49 +65,36 @@ object TableTest {
 
         for (index in 0..total) {
             val name = stringGenerator.generateByRegex("\\w{1,256}")
-
             AccountTable.insert()
-                .addValues(
-                    Table.Companion.DefaultInsertValue,
-                    name,
-                    random.nextDouble(),
-                    LocalDateTime.now(),
-                    birthDate,
-                    birthTime,
-                    birthday,
-                    null
-                )
-                .execute()
-        }
-
-        for (index in 0..total) {
-            val name = stringGenerator.generateByRegex("\\w{1,256}")
-            AccountTable.insert()
+                .addValue(AccountTable.id, UUID.randomUUID().toString())
                 .addValue(AccountTable.name, name)
                 .addValue(AccountTable.balance, random.nextDouble())
-                .addValue(AccountTable.createdAt, LocalDateTime.now())
+                .addValue(AccountTable.createdAt, Instant.now())
                 .addValue(AccountTable.birthDate, birthDate)
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
+                .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
+                .debug()
                 .execute()
         }
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun maxAccountId() {
-        AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
     fun updateAccounts() {
-        val random = java.util.Random()
-        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
-        val id = random.ints(1, max).findAny().orElse(max)
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         AccountTable.update()
             .set(AccountTable.name, "laozi")
             .set(AccountTable.balance, 3.33)
             .where(id)
+            .debug()
             .executeUpdate()
 
         var laozi = AccountTable[id]!!
@@ -124,9 +115,8 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
     fun deleteAccounts() {
-        val random = java.util.Random()
-        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
-        val id = random.ints(1, max).findAny().orElse(max)
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         AccountTable.delete().where(AccountTable.id eq id).executeUpdate()
         assert(null == AccountTable[id])
@@ -134,9 +124,8 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun datetime() {
-        val random = java.util.Random()
-        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
-        val id = random.ints(1, max).findAny().orElse(max)
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
 
@@ -156,24 +145,24 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun rowToInstance() {
-        val random = java.util.Random()
-        val max = AccountTable.select(AccountTable.id.max()).executeScalar().toInt()
-        val id = random.ints(1, max).findAny().orElse(max)
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).single()
-        assert(account.id == id.toLong())
+        assert(account.id == id)
         assert(account.birthDate == birthDate)
         assert(account.birthTime == birthTime)
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
     fun randomRow() {
-        val random = java.util.Random()
-        val idArray = setOf(
-            random.ints(10, 100).findAny().orElse(100),
-            random.ints(10, 100).findAny().orElse(100),
-            random.ints(10, 100).findAny().orElse(100)
-        ).toTypedArray()
+        val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val idMax = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+
+        val oldest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
+        val idMin = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq oldest!!).executeScalar()
+
+        val idArray = setOf(idMax, idMin).toTypedArray()
 
         val plan = AccountTable.select(AccountTable.id.count()).where(AccountTable.id inArray idArray)
 

@@ -29,6 +29,7 @@ abstract class NumberColumn<T : Column<T>>(name: String) : Column<T>(name)
 class IntegerColumn(name: String, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name) {
     var autoIncrement = false
 
+    @Suppress("unused")
     fun autoIncrement(): IntegerColumn {
         autoIncrement = true
         return this
@@ -51,7 +52,7 @@ class DateTimeColumn(name: String, val type: DateTimeColumnType) : Column<DateTi
 class BinaryColumn(name: String, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(name)
 
 enum class StringColumnType {
-    Char, Varchar, Text
+    Char, Varchar, Text, JSON, UUID
 }
 
 enum class IntegerColumnType {
