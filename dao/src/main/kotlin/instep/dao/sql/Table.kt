@@ -13,6 +13,10 @@ import instep.servicecontainer.ServiceNotFoundException
 abstract class Table(val tableName: String, val dialect: Dialect) {
     constructor(tableName: String) : this(tableName, Instep.make(Dialect::class.java))
 
+    fun bool(name: String): BooleanColumn {
+        return boolean(name)
+    }
+
     fun boolean(name: String): BooleanColumn {
         return BooleanColumn(name)
     }
@@ -21,10 +25,15 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return StringColumn(name, StringColumnType.Char, length)
     }
 
+    fun charColumn(name: String, length: Int): StringColumn {
+        return char(name, length)
+    }
+
     fun varchar(name: String, length: Int): StringColumn {
         return StringColumn(name, StringColumnType.Varchar, length)
     }
 
+    @JvmOverloads
     fun text(name: String, length: Int = 0): StringColumn {
         return StringColumn(name, StringColumnType.Text, length)
     }
@@ -49,8 +58,16 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return IntegerColumn(name, IntegerColumnType.Int)
     }
 
+    fun integer(name: String): IntegerColumn {
+        return int(name)
+    }
+
     fun long(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Long)
+    }
+
+    fun longColumn(name: String): IntegerColumn {
+        return long(name)
     }
 
     fun autoIncrement(name: String): IntegerColumn {
@@ -69,8 +86,16 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return FloatingColumn(name, FloatingColumnType.Float)
     }
 
+    fun floatColumn(name: String): FloatingColumn {
+        return float(name)
+    }
+
     fun double(name: String): FloatingColumn {
         return FloatingColumn(name, FloatingColumnType.Double)
+    }
+
+    fun doubleColumn(name: String): FloatingColumn {
+        return double(name)
     }
 
     fun numeric(name: String, precision: Int, scale: Int): FloatingColumn {
@@ -97,6 +122,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return BinaryColumn(name, BinaryColumnType.Varying, length)
     }
 
+    @JvmOverloads
     fun lob(name: String, length: Int = 0): BinaryColumn {
         return BinaryColumn(name, BinaryColumnType.BLOB, length)
     }

@@ -18,7 +18,6 @@ repositories {
 }
 
 dependencies {
-    api project(':core')
     api project(':dao')
 
     implementation "org.springframework.boot:spring-boot-starter"
