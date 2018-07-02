@@ -10,11 +10,11 @@ dependencies {
     api project(':core')
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
 
-    testImplementation 'com.alibaba:druid:1.0.+'
-    testImplementation 'net.moznion:random-string:1.1.+'
+    testImplementation 'com.alibaba:druid:1.0.31'
+    testImplementation 'net.moznion:random-string:1.1.0'
 
-    testImplementation 'com.h2database:h2:1.4.+'
-    testImplementation 'org.hsqldb:hsqldb:2.4.+'
-    testImplementation 'org.postgresql:postgresql:42.2.+'
-    testImplementation 'mysql:mysql-connector-java:6.0.+'
+    testImplementation 'com.h2database:h2:1.4.197'
+    testImplementation 'org.hsqldb:hsqldb:2.4.1'
+    testImplementation 'org.postgresql:postgresql:42.2.2'
+    testImplementation 'mysql:mysql-connector-java:6.0.6'
 }

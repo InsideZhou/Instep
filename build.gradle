@@ -20,9 +20,9 @@ idea {
 
 subprojects {
     group = 'me.insidezhou.instep'
-    version = '0.1.0-SNAPSHOT'
+    version = '0.1.0'
 
-    ext.kotlinVersion = '1.2.+'
+    ext.kotlinVersion = '1.2.50'
 
     apply plugin: 'idea'
     apply plugin: 'java'
@@ -42,7 +42,7 @@ subprojects {
     }
 
     dependencies {
-        testImplementation group: 'org.testng', name: 'testng', version: '6.9.+'
+        testImplementation group: 'org.testng', name: 'testng', version: '6.9.13'
     }
 
     jar {

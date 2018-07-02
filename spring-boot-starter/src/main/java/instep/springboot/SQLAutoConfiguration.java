@@ -16,11 +16,11 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 @ConditionalOnBean({ConnectionProvider.class})
 public class SQLAutoConfiguration {
-    @SuppressWarnings("SpringJavaAutowiringInspection")
+    @SuppressWarnings({"SpringJavaAutowiringInspection", "SpringJavaInjectionPointsAutowiringInspection"})
     @Bean
     public InstepSQL instepSQL(
-        @SuppressWarnings("SpringJavaAutowiringInspection") ConnectionProvider connectionProvider,
-        @SuppressWarnings("SpringJavaAutowiringInspection") Instep instep,
+        ConnectionProvider connectionProvider,
+        Instep instep,
         @Autowired(required = false) SQLPlanExecutor sqlPlanExecutor,
         @Autowired(required = false) ExpressionFactory expressionFactory,
         @Autowired(required = false) PlanFromTextFactory planFromTextFactory,

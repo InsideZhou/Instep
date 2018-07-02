@@ -67,6 +67,14 @@ object InstepSQL {
     }
 
     /**
+     * @see [SQLPlanExecutor.executeScalar]
+     */
+    fun <T : Any> executeScalar(txt: String, cls: Class<T>): T? {
+        val factory = Instep.make(PlanFromTextFactory::class.java)
+        return factory.createInstance(txt).executeScalar(cls)
+    }
+
+    /**
      * @see [SQLPlanExecutor.executeUpdate]
      */
     fun executeUpdate(txt: String): Long {
