@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * auto configuration for instep.core module.
  */
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Configuration
 @ConditionalOnMissingBean(Instep.class)
 public class CoreAutoConfiguration {
