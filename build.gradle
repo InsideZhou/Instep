@@ -20,7 +20,7 @@ idea {
 
 subprojects {
     group = 'me.insidezhou.instep'
-    version = '0.1.1-SNAPSHOT'
+    version = '1.0.0-SNAPSHOT'
 
     ext.kotlinVersion = '1.2.50'
 
