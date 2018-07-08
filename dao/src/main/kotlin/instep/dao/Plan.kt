@@ -14,6 +14,11 @@ interface Plan<T : Plan<T>> : Serializable, Cloneable {
     val parameters: List<Any?>
 
     @Suppress("UNCHECKED_CAST")
+    public override fun clone(): T {
+        return super.clone() as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
     fun debug(): T {
         InstepLogger.debug({ statement }, this.javaClass.name)
         InstepLogger.debug({ parameters.map(Any?::toString).joinToString("|") }, this.javaClass.name)

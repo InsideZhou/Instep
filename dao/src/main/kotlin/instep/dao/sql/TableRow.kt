@@ -29,6 +29,11 @@ class TableRow {
         return map[column] as Int
     }
 
+    @Suppress("unused")
+    fun getLong(column: IntegerColumn): Long {
+        return map[column] as Long
+    }
+
     operator fun get(column: StringColumn): String {
         return map[column] as String
     }
@@ -79,6 +84,10 @@ class TableRow {
     operator fun set(column: Column<*>, value: Any?) {
         map[column] = value
     }
+}
+
+interface TableRowFactory {
+    fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow
 
     @Suppress("FoldInitializerAndIfToElvis")
     companion object : TableRowFactory {
@@ -126,9 +135,5 @@ class TableRow {
             return row
         }
     }
-}
-
-interface TableRowFactory {
-    fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow
 }
 

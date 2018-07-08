@@ -1,13 +1,12 @@
 package instep.dao.sql.impl
 
 import instep.dao.DaoException
-import instep.dao.impl.AbstractPlan
 import instep.dao.sql.Column
 import instep.dao.sql.Condition
 import instep.dao.sql.Table
 import instep.dao.sql.TableDeletePlan
 
-open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Column<*>, Any?> = mutableMapOf()) : AbstractPlan<TableDeletePlan>(), TableDeletePlan {
+open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Column<*>, Any?> = mutableMapOf()) : TableDeletePlan {
     override var where: Condition? = null
 
     private var pkValue: Any? = null

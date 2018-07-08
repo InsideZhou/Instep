@@ -5,6 +5,7 @@ import instep.InstepLogger;
 import instep.cache.Cache;
 import instep.servicecontainer.ServiceContainer;
 import instep.typeconversion.TypeConversion;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -43,5 +44,57 @@ public class CoreAutoConfiguration {
         }
 
         return Instep.INSTANCE;
+    }
+
+    @SuppressWarnings("NullableProblems")
+    @Bean
+    @ConditionalOnMissingBean
+    public InstepLogger instepLogger() {
+        return new InstepLogger() {
+            @Override
+            public boolean getEnableDebug() {
+                return true;
+            }
+
+            @Override
+            public boolean getEnableInfo() {
+                return true;
+            }
+
+            @Override
+            public boolean getEnableWarning() {
+                return true;
+            }
+
+            @Override
+            public void debug(String s, String s1) {
+                LogFactory.getLog(s1).debug(s);
+            }
+
+            @Override
+            public void info(String s, String s1) {
+                LogFactory.getLog(s1).info(s);
+            }
+
+            @Override
+            public void warning(String s, String s1) {
+                LogFactory.getLog(s1).warn(s);
+            }
+
+            @Override
+            public void debug(String s, Class<?> aClass) {
+                debug(s, aClass.getName());
+            }
+
+            @Override
+            public void info(String s, Class<?> aClass) {
+                info(s, aClass.getName());
+            }
+
+            @Override
+            public void warning(String s, Class<?> aClass) {
+                warning(s, aClass.getName());
+            }
+        };
     }
 }

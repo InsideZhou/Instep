@@ -9,16 +9,16 @@ interface Expression<T : Expression<T>> : Serializable, Cloneable {
 
     fun addParameter(placeholderName: String, parameter: Any?): T
     fun addExpression(placeHolderName: String, expression: Expression<*>?): T
+}
+
+interface ExpressionFactory {
+    fun createInstance(txt: String): Expression<*>
 
     companion object : ExpressionFactory {
         override fun createInstance(txt: String): Expression<*> {
             return DefaultExpression(txt)
         }
     }
-}
-
-interface ExpressionFactory {
-    fun createInstance(txt: String): Expression<*>
 }
 
 class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false) {

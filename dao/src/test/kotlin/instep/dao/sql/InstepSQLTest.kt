@@ -57,23 +57,23 @@ object InstepSQLTest {
     @Test
     fun executeScalar() {
         val scalar = when (dialect) {
-            is HSQLDialect -> InstepSQL.executeScalar("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""")
-            is MySQLDialect -> InstepSQL.executeScalar("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""")
-            else -> InstepSQL.executeScalar("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""")
+            is HSQLDialect -> InstepSQL.plan("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""").executeScalar()
+            is MySQLDialect -> InstepSQL.plan("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""").executeScalar()
+            else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""").executeScalar()
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))
     }
 
     @Test
     fun transaction() {
-        InstepSQL.committedTransaction {
+        InstepSQL.transaction().committed {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[1] = row
         }
         assert(TransactionTable[1] != null)
 
-        InstepSQL.serializableTransaction {
+        InstepSQL.transaction().serializable {
             val row = TableRow()
             row[TransactionTable.name] = stringGenerator.generateByRegex("\\w{8,64}")
             TransactionTable[2] = row

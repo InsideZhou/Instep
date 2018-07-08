@@ -8,15 +8,6 @@ import org.testng.Assert
 import org.testng.annotations.Test
 
 object ExpressionTest {
-    init {
-        try {
-            Instep.make(ExpressionFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
-            Instep.bind(ExpressionFactory::class.java, Expression.Companion)
-        }
-    }
-
     @Test
     fun placeholder() {
         val factory = Instep.make(ExpressionFactory::class.java)

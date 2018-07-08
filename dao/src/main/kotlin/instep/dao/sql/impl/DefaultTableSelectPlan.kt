@@ -2,10 +2,9 @@ package instep.dao.sql.impl
 
 import instep.collection.AssocArray
 import instep.dao.DaoException
-import instep.dao.impl.AbstractPlan
 import instep.dao.sql.*
 
-class DefaultTableSelectPlan(override val from: Table) : AbstractPlan<TableSelectPlan>(), TableSelectPlan {
+class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan {
     override val statement: String
         get() {
             val selectClause = select.filterNotNull().map {

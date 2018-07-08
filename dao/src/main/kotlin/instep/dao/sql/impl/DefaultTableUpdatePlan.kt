@@ -2,12 +2,11 @@ package instep.dao.sql.impl
 
 import instep.Instep
 import instep.dao.DaoException
-import instep.dao.impl.AbstractPlan
 import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
-open class DefaultTableUpdatePlan(val table: Table) : AbstractPlan<TableUpdatePlan>(), TableUpdatePlan {
+open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     override var where: Condition? = null

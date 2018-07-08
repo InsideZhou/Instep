@@ -2,12 +2,11 @@ package instep.dao.sql.impl
 
 import instep.Instep
 import instep.dao.DaoException
-import instep.dao.impl.AbstractPlan
 import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
-open class DefaultTableInsertPlan(val table: Table) : AbstractPlan<TableInsertPlan>(), TableInsertPlan {
+open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     private val typeConversion = Instep.make(TypeConversion::class.java)

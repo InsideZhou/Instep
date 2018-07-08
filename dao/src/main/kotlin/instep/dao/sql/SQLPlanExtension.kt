@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package instep.dao.sql
 
 import instep.Instep
@@ -8,8 +10,8 @@ import instep.servicecontainer.ServiceNotFoundException
 import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.ResultSet
+import java.sql.SQLException
 
-@Suppress("unused")
 private val init = run {
     try {
         Instep.make(SQLPlanExecutor::class.java)
@@ -22,6 +24,7 @@ private val init = run {
 /**
  * @see [SQLPlanExecutor.execute]
  */
+@Throws(SQLPlanExecutionException::class)
 fun Plan<*>.execute() {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.execute(this)
@@ -30,6 +33,7 @@ fun Plan<*>.execute() {
 /**
  * @see [SQLPlanExecutor.execute]
  */
+@Throws(SQLPlanExecutionException::class)
 fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.execute(this, cls)
@@ -38,6 +42,7 @@ fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
 /**
  * @see [SQLPlanExecutor.executeScalar]
  */
+@Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeScalar(): String {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeScalar(this)
@@ -46,6 +51,7 @@ fun Plan<*>.executeScalar(): String {
 /**
  * @see [SQLPlanExecutor.executeScalar]
  */
+@Throws(SQLPlanExecutionException::class)
 fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeScalar(this, cls)
@@ -54,6 +60,7 @@ fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
 /**
  * @see [SQLPlanExecutor.executeUpdate]
  */
+@Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeUpdate(): Long {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeUpdate(this)
@@ -62,12 +69,14 @@ fun Plan<*>.executeUpdate(): Long {
 /**
  * @see [SQLPlanExecutor.executeResultSet]
  */
+@Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeResultSet(conn: Connection): ResultSet {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     return planExec.executeResultSet(conn, this)
 }
 
 @Suppress("unchecked_cast")
+@Throws(SQLPlanExecutionException::class)
 fun TableSelectPlan.execute(): List<TableRow> {
     val planExec = Instep.make(SQLPlanExecutor::class.java)
     val connMan = Instep.make(ConnectionProvider::class.java)
@@ -82,12 +91,16 @@ fun TableSelectPlan.execute(): List<TableRow> {
         }
         return result
     }
+    catch (e: SQLException) {
+        throw SQLPlanExecutionException(e)
+    }
     finally {
         conn.close()
     }
 }
 
 @Suppress("unchecked_cast")
+@Throws(SQLPlanExecutionException::class)
 fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
     val typeconvert = Instep.make(TypeConversion::class.java)
     val planExec = Instep.make(SQLPlanExecutor::class.java)
@@ -117,7 +130,7 @@ fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
                     targetMirror.findSetter(field.name)?.invoke(instance, value)
                 }
                 catch (e: IllegalArgumentException) {
-                    InstepLogger.warning({ e.toString() }, InstepSQL.LoggerName)
+                    InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
                 }
             }
         }

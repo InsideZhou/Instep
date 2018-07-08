@@ -5,6 +5,7 @@ import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
 import instep.servicecontainer.ServiceNotFoundException
+import java.lang.reflect.Modifier
 
 /**
  * Abstract DAO object.
@@ -13,6 +14,9 @@ import instep.servicecontainer.ServiceNotFoundException
 abstract class Table(val tableName: String, val dialect: Dialect) {
     constructor(tableName: String) : this(tableName, Instep.make(Dialect::class.java))
 
+    /**
+     * for java interop.
+     */
     fun bool(name: String): BooleanColumn {
         return boolean(name)
     }
@@ -25,6 +29,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return StringColumn(name, StringColumnType.Char, length)
     }
 
+    /**
+     * for java interop.
+     */
     fun charColumn(name: String, length: Int): StringColumn {
         return char(name, length)
     }
@@ -58,6 +65,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return IntegerColumn(name, IntegerColumnType.Int)
     }
 
+    /**
+     * for java interop.
+     */
     fun integer(name: String): IntegerColumn {
         return int(name)
     }
@@ -66,6 +76,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return IntegerColumn(name, IntegerColumnType.Long)
     }
 
+    /**
+     * for java interop.
+     */
     fun longColumn(name: String): IntegerColumn {
         return long(name)
     }
@@ -86,6 +99,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return FloatingColumn(name, FloatingColumnType.Float)
     }
 
+    /**
+     * for java interop.
+     */
     fun floatColumn(name: String): FloatingColumn {
         return float(name)
     }
@@ -94,6 +110,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return FloatingColumn(name, FloatingColumnType.Double)
     }
 
+    /**
+     * for java interop.
+     */
     fun doubleColumn(name: String): FloatingColumn {
         return double(name)
     }
@@ -130,9 +149,17 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     val columns: List<Column<*>>
         get() {
             val mirror = Instep.reflect(this)
-            return mirror.getters
+            val getterColumns = mirror.getters
                 .filter { Column::class.java.isAssignableFrom(it.returnType) }
                 .map { it.invoke(this) as Column<*> }
+                .toSet()
+
+            val fieldColumns = this.javaClass.fields
+                .filter { Modifier.isPublic(it.modifiers) && Column::class.java.isAssignableFrom(it.type) }
+                .map { it.get(this) as Column<*> }
+                .toSet()
+
+            return (getterColumns + fieldColumns).toList()
         }
 
     val primaryKey: Column<*>?
@@ -166,6 +193,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return factory.createInstance(this)
     }
 
+    @Throws(SQLPlanExecutionException::class)
     fun <T : Any> get(key: Number, cls: Class<T>): T? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
@@ -173,6 +201,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return select().where(pk eq key).execute(cls).singleOrNull()
     }
 
+    @Throws(SQLPlanExecutionException::class)
     fun <T : Any> get(key: String, cls: Class<T>): T? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
@@ -180,6 +209,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return select().where(pk eq key).execute(cls).singleOrNull()
     }
 
+    @Throws(SQLPlanExecutionException::class)
     operator fun get(key: Number): TableRow? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
@@ -187,6 +217,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return select().where(pk eq key).execute().singleOrNull()
     }
 
+    @Throws(SQLPlanExecutionException::class)
     operator fun get(key: String): TableRow? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
@@ -194,10 +225,12 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return select().where(pk eq key).execute().singleOrNull()
     }
 
+    @Throws(SQLPlanExecutionException::class)
     operator fun set(key: Number, obj: Any) {
         insertOrUpdate(key, obj)
     }
 
+    @Throws(SQLPlanExecutionException::class)
     operator fun set(key: String, obj: Any) {
         insertOrUpdate(key, obj)
     }
@@ -267,31 +300,38 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
 
         init {
             try {
+                Instep.make(TableRowFactory::class.java)
+            }
+            catch (e: ServiceNotFoundException) {
+                Instep.bind(TableRowFactory::class.java, TableRowFactory.Companion)
+            }
+
+            try {
                 Instep.make(TableSelectPlanFactory::class.java)
             }
             catch (e: ServiceNotFoundException) {
-                Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlan.Companion)
+                Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlanFactory.Companion)
             }
 
             try {
                 Instep.make(TableInsertPlanFactory::class.java)
             }
             catch (e: ServiceNotFoundException) {
-                Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlan.Companion)
+                Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlanFactory.Companion)
             }
 
             try {
                 Instep.make(TableUpdatePlanFactory::class.java)
             }
             catch (e: ServiceNotFoundException) {
-                Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlan.Companion)
+                Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlanFactory.Companion)
             }
 
             try {
                 Instep.make(TableDeletePlanFactory::class.java)
             }
             catch (e: ServiceNotFoundException) {
-                Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlan.Companion)
+                Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlanFactory.Companion)
             }
         }
     }

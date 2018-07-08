@@ -3,14 +3,12 @@ package instep.dao.sql.impl
 import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.sql.ConnectionProvider
+import instep.dao.sql.SQLPlanExecutionException
 import instep.dao.sql.SQLPlanExecutor
 import instep.dao.sql.TableInsertPlan
 import instep.typeconversion.Converter
 import instep.typeconversion.TypeConversion
-import java.sql.Connection
-import java.sql.PreparedStatement
-import java.sql.ResultSet
-import java.sql.Types
+import java.sql.*
 import java.time.OffsetDateTime
 
 open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : SQLPlanExecutor {
@@ -21,6 +19,9 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
         try {
             val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
             stmt.execute()
+        }
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
         }
         finally {
             conn.close()
@@ -36,6 +37,9 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
             return rs.getString(1)
         }
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
+        }
         finally {
             conn.close()
         }
@@ -50,6 +54,9 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
             if (!rs.next() || rs.wasNull()) return null
 
             return Helper.extractColumnValue(cls, Helper.getResultSetDelegate(connectionProvider.dialect, rs), 1) as T
+        }
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
         }
         finally {
             conn.close()
@@ -67,6 +74,9 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
             if (null == stmt) throw e
 
             return stmt.executeUpdate().toLong()
+        }
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
         }
         finally {
             conn.close()
@@ -113,6 +123,9 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
             catch (e: Exception) {
                 throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
             }
+        }
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
         }
         finally {
             conn.close()

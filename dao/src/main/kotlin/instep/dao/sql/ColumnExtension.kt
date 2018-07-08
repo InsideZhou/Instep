@@ -115,6 +115,8 @@ fun DateTimeColumn.min(): Aggregate {
     }
 }
 
+fun Column<*>.isNull(): Condition = Condition.isNull(name)
+fun Column<*>.notNull(): Condition = Condition.isNotNull(name)
 
 fun Column<*>.asc(nullFirst: Boolean = false): OrderBy {
     val column = this

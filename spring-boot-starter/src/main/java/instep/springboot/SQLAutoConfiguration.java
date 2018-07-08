@@ -2,7 +2,6 @@ package instep.springboot;
 
 import instep.Instep;
 import instep.dao.ExpressionFactory;
-import instep.dao.PlanFromTextFactory;
 import instep.dao.sql.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -23,7 +22,7 @@ public class SQLAutoConfiguration {
         Instep instep,
         @Autowired(required = false) SQLPlanExecutor sqlPlanExecutor,
         @Autowired(required = false) ExpressionFactory expressionFactory,
-        @Autowired(required = false) PlanFromTextFactory planFromTextFactory,
+        @Autowired(required = false) SQLPlanFactory sqlPlanFactory,
         @Autowired(required = false) TableSelectPlanFactory tableSelectPlanFactory,
         @Autowired(required = false) TableInsertPlanFactory tableInsertPlanFactory,
         @Autowired(required = false) TableUpdatePlanFactory tableUpdatePlanFactory,
@@ -40,8 +39,8 @@ public class SQLAutoConfiguration {
             instep.bind(ExpressionFactory.class, expressionFactory, "");
         }
 
-        if (null != planFromTextFactory) {
-            instep.bind(PlanFromTextFactory.class, planFromTextFactory, "");
+        if (null != sqlPlanFactory) {
+            instep.bind(SQLPlanFactory.class, sqlPlanFactory, "");
         }
 
         if (null != tableSelectPlanFactory) {

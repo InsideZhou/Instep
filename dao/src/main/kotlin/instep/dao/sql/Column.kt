@@ -22,6 +22,11 @@ abstract class Column<T : Column<T>>(val name: String) {
         default = exp
         return this as T
     }
+
+    /**
+     * for java interop.
+     */
+    fun defaultValue(exp: String): T = default(exp)
 }
 
 abstract class NumberColumn<T : Column<T>>(name: String) : Column<T>(name)

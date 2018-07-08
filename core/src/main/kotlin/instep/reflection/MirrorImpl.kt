@@ -3,9 +3,9 @@ package instep.reflection
 import java.lang.reflect.Field
 import java.lang.reflect.Method
 
+@Suppress("unused")
 class MirrorImpl<T : Any>(override val type: Class<T>) : Mirror<T> {
-    constructor(instance: T) : this(instance.javaClass) {
-    }
+    constructor(instance: T) : this(instance.javaClass)
 
     override val annotations: Set<Annotation> by lazy {
         type.annotations.toSet()
@@ -30,11 +30,11 @@ class MirrorImpl<T : Any>(override val type: Class<T>) : Mirror<T> {
     override val properties: Set<Field>
 
     init {
-        fieldsWithGetter = mutableSetOf<Field>()
-        fieldsWithSetter = mutableSetOf<Field>()
+        fieldsWithGetter = mutableSetOf()
+        fieldsWithSetter = mutableSetOf()
 
-        getters = type.declaredFields.map { f ->
-            val m = type.declaredMethods.filter {
+        getters = type.fields.map { f ->
+            val m = type.methods.filter {
                 it.name == "get${f.name.capitalize()}" && it.returnType.isAssignableFrom(f.type) ||
                     Boolean::class.java == f.type && it.name == "is${f.name.capitalize()}"
             }.singleOrNull()
@@ -44,8 +44,8 @@ class MirrorImpl<T : Any>(override val type: Class<T>) : Mirror<T> {
             return@map m
         }.filterNotNull().toSet()
 
-        setters = type.declaredFields.map { f ->
-            val m = type.declaredMethods.filter {
+        setters = type.fields.map { f ->
+            val m = type.methods.filter {
                 it.name == "set${f.name.capitalize()}" && it.parameterTypes.size == 1 && f.type.isAssignableFrom(it.parameterTypes[0])
             }.singleOrNull()
 

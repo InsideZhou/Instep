@@ -15,6 +15,10 @@ interface InstepLogger {
     fun info(log: String, logger: String = "")
     fun warning(log: String, logger: String = "")
 
+    fun debug(log: String, cls: Class<*>) = debug(log, cls.name)
+    fun info(log: String, cls: Class<*>) = info(log, cls.name)
+    fun warning(log: String, cls: Class<*>) = warning(log, cls.name)
+
     companion object {
         var logger = try {
             Instep.make(InstepLogger::class.java)
@@ -46,5 +50,9 @@ interface InstepLogger {
                 }
             }
         }
+
+        fun debug(lazy: () -> String, cls: Class<*>) = debug(lazy, cls.name)
+        fun info(lazy: () -> String, cls: Class<*>) = info(lazy, cls.name)
+        fun warning(lazy: () -> String, cls: Class<*>) = warning(lazy, cls.name)
     }
 }
