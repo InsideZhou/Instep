@@ -169,8 +169,28 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return dialect.createTable(tableName, columns)
     }
 
+    fun rename(name: String): Plan<*> {
+        return dialect.renameTable(tableName, name)
+    }
+
     fun addColumn(column: Column<*>): Plan<*> {
         return dialect.addColumn(tableName, column)
+    }
+
+    fun dropColumn(column: Column<*>): Plan<*> {
+        return dialect.dropColumn(tableName, column)
+    }
+
+    fun renameColumn(column: Column<*>, oldName: String): Plan<*> {
+        return dialect.renameColumn(tableName, column, oldName)
+    }
+
+    fun alterColumnNotNull(column: Column<*>): Plan<*> {
+        return dialect.alterColumnNotNull(tableName, column)
+    }
+
+    fun alterColumnDefault(column: Column<*>): Plan<*> {
+        return dialect.alterColumnDefault(tableName, column)
     }
 
     fun insert(): TableInsertPlan {

@@ -74,9 +74,43 @@ abstract class AbstractDialect : Dialect {
         return InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
     }
 
+    override fun renameTable(tableName: String, newName: String): Plan<*> {
+        return InstepSQL.plan("ALTER TABLE $tableName RENAME TO $newName")
+    }
+
     override fun addColumn(tableName: String, column: Column<*>): Plan<*> {
         val columnDefinition = definitionForColumns(column)
         return InstepSQL.plan("ALTER TABLE $tableName ADD COLUMN $columnDefinition")
+    }
+
+    override fun dropColumn(tableName: String, column: Column<*>): Plan<*> {
+        return InstepSQL.plan("ALTER TABLE $tableName DROP COLUMN ${column.name}")
+    }
+
+    override fun renameColumn(tableName: String, column: Column<*>, oldName: String): Plan<*> {
+        return InstepSQL.plan("ALTER TABLE $tableName RENAME COLUMN $oldName TO ${column.name}")
+    }
+
+    override fun alterColumnNotNull(tableName: String, column: Column<*>): Plan<*> {
+        val txt = "ALTER TABLE $tableName ALTER COLUMN ${column.name}"
+
+        if (column.nullable) {
+            return InstepSQL.plan("$txt DROP NOT NULL")
+        }
+        else {
+            return InstepSQL.plan("$txt SET NOT NULL")
+        }
+    }
+
+    override fun alterColumnDefault(tableName: String, column: Column<*>): Plan<*> {
+        val txt = "ALTER TABLE $tableName ALTER COLUMN ${column.name}"
+
+        if (column.default.isBlank()) {
+            return InstepSQL.plan("$txt DROP DEFAULT")
+        }
+        else {
+            return InstepSQL.plan("$txt SET DEFAULT ${column.default}")
+        }
     }
 
     override fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?) {

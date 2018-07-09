@@ -14,7 +14,15 @@ import java.sql.PreparedStatement
  */
 interface Dialect : Serializable {
     fun createTable(tableName: String, columns: List<Column<*>>): Plan<*>
+    fun renameTable(tableName: String, newName: String): Plan<*>
+
     fun addColumn(tableName: String, column: Column<*>): Plan<*>
+    fun dropColumn(tableName: String, column: Column<*>): Plan<*>
+
+    fun renameColumn(tableName: String, column: Column<*>, oldName: String): Plan<*>
+
+    fun alterColumnNotNull(tableName: String, column: Column<*>): Plan<*>
+    fun alterColumnDefault(tableName: String, column: Column<*>): Plan<*>
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 
