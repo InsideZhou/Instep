@@ -10,10 +10,6 @@ class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultS
     private val expressionFactory = Instep.make(ExpressionFactory::class.java)
     private val superExpression = expressionFactory.createInstance(txt)
 
-    override fun clone(): DefaultSQLPlan {
-        return super<SQLPlan>.clone()
-    }
-
     override val parameters: List<Any?>
         get() = superExpression.parameters
 
