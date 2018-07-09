@@ -16,10 +16,10 @@ import org.springframework.context.annotation.Configuration;
  */
 @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 @Configuration
-@ConditionalOnMissingBean(Instep.class)
 public class CoreAutoConfiguration {
     @SuppressWarnings("SpringJavaAutowiringInspection")
     @Bean
+    @ConditionalOnMissingBean
     public Instep instep(
         @Autowired(required = false) ServiceContainer serviceContainer,
         @Autowired(required = false) Cache cache,
