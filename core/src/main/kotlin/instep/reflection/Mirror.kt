@@ -1,37 +1,28 @@
 package instep.reflection
 
-import java.io.Serializable
-import java.lang.reflect.Field
-import java.lang.reflect.Method
+import kotlin.reflect.KClass
+import kotlin.reflect.KMutableProperty
+import kotlin.reflect.KProperty
+import kotlin.reflect.full.memberProperties
+import kotlin.reflect.full.superclasses
 
-/**
- * Reflect details of type.
- */
-interface Mirror<T : Any> : Serializable {
-    val type: Class<T>
+@Suppress("unused", "MemberVisibilityCanBePrivate")
+class Mirror<T : Any>(val type: KClass<T>) {
+    constructor(instance: T) : this(instance.javaClass.kotlin)
 
-    val annotations: Set<Annotation>
-    val parents: Set<Class<*>>
+    val annotations: Set<Annotation> by lazy { type.annotations.toSet() }
 
-    val getters: Set<Method>
-    val setters: Set<Method>
+    val parents: Set<KClass<*>> by lazy { type.superclasses.toSet() }
 
-    val fieldsWithGetter: Set<Field>
-    val fieldsWithSetter: Set<Field>
+    val getters: Set<KProperty.Getter<*>> by lazy { type.memberProperties.map { it.getter }.toSet() }
+    val setters: Set<KMutableProperty.Setter<*>> by lazy { mutableProperties.map { it.setter }.toSet() }
 
-    val properties: Set<Field>
+    val properties = type.memberProperties.toSet()
 
-    /**
-     * Find a getter.
-     * @param name Getter's name,  with or without "get/is" prefix.
-     * @param ignoreCase ignore name case or not.
-     */
-    fun findGetter(name: String, ignoreCase: Boolean = true): Method?
+    val readableProperties = type.memberProperties.filterNot { it is KMutableProperty<*> }.toSet()
+    val mutableProperties = type.memberProperties.mapNotNull { it as? KMutableProperty<*> }.toSet()
 
-    /**
-     * Find a setter.
-     * @param name Setter's name,  with or without "set" prefix.
-     * @param ignoreCase ignore name case or not.
-     */
-    fun findSetter(name: String, ignoreCase: Boolean = true): Method?
+    companion object {
+        private const val serialVersionUID = -1198502315155859418L
+    }
 }

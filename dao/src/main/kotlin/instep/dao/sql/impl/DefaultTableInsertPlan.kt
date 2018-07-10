@@ -21,9 +21,10 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
 
     override fun set(obj: Any): TableInsertPlan {
         val mirror = Instep.reflect(obj)
-        mirror.fieldsWithGetter.forEach { field ->
-            table.columns.find { it.name == field.name }?.apply {
-                params[this] = mirror.findGetter(field.name)!!.invoke(obj)
+
+        mirror.readableProperties.forEach { p ->
+            table.columns.find { it.name == p.field.name }?.apply {
+                params[this] = p.getter.invoke(obj)
             }
         }
 

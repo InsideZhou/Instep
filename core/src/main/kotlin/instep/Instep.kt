@@ -2,14 +2,15 @@ package instep
 
 import instep.cache.Cache
 import instep.cache.driver.MemoryCache
+import instep.reflection.JMirror
 import instep.reflection.Mirror
-import instep.reflection.MirrorImpl
 import instep.servicecontainer.ServiceContainer
 import instep.servicecontainer.ServiceNotFoundException
 import instep.servicecontainer.impl.MemoryServiceContainer
 import instep.typeconversion.DefaultTypeConversion
 import instep.typeconversion.TypeConversion
 import instep.typeconversion.TypeConversionException
+import kotlin.reflect.KClass
 
 @Suppress("unused")
 object Instep {
@@ -48,36 +49,47 @@ object Instep {
      * Reflect class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> reflect(cls: Class<T>): Mirror<T> {
+    fun <T : Any> reflect(cls: Class<T>): JMirror<T> {
         val cache = make(Cache::class.java)
-        val mirror = if (cache.containsKey(cls.name)) {
-            cache[cls.name] as Mirror<T>
+        return if (cache.containsKey(cls.name)) {
+            cache[cls.name] as JMirror<T>
         }
         else {
-            val m = MirrorImpl(cls)
-            cache[cls.name] = m
+            val m = JMirror(cls)
+            cache[cls.name!!] = m
             m
         }
-
-        return mirror
     }
 
     /**
      * Reflect instance.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> reflect(instance: T): Mirror<T> {
-        val cls = instance.javaClass
+    fun <T : Any> reflect(instance: T): JMirror<T> {
+        return reflect(instance.javaClass)
+    }
+
+    /**
+     * Reflect class.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> kReflect(cls: KClass<T>): Mirror<T> {
         val cache = make(Cache::class.java)
-        val mirror = if (cache.containsKey(cls.name)) {
-            cache[cls.name] as Mirror<T>
+        return if (cache.containsKey(cls.qualifiedName)) {
+            cache[cls.qualifiedName] as Mirror<T>
         }
         else {
-            val m = MirrorImpl(cls)
-            cache[cls.name] = m
+            val m = Mirror(cls)
+            cache[cls.qualifiedName!!] = m
             m
         }
+    }
 
-        return mirror
+    /**
+     * Reflect instance.
+     */
+    @Suppress("UNCHECKED_CAST")
+    fun <T : Any> kReflect(instance: T): Mirror<T> {
+        return kReflect(instance.javaClass.kotlin)
     }
 }

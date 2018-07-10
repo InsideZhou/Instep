@@ -186,6 +186,7 @@ abstract class AbstractDialect : Dialect {
             DateTimeColumnType.Time -> "TIME"
             DateTimeColumnType.DateTime -> "TIMESTAMP"
             DateTimeColumnType.OffsetDateTime -> "TIMESTAMP WITH TIME ZONE"
+            DateTimeColumnType.Instant -> "TIMESTAMP"
         }
     }
 

@@ -72,7 +72,7 @@ enum class FloatingColumnType {
 }
 
 enum class DateTimeColumnType {
-    Date, Time, DateTime, OffsetDateTime
+    Date, Time, DateTime, OffsetDateTime, Instant
 }
 
 enum class BinaryColumnType {

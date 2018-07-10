@@ -22,7 +22,7 @@ subprojects {
     group = 'me.insidezhou.instep'
     version = '1.0.0-SNAPSHOT'
 
-    ext.kotlinVersion = '1.2.50'
+    ext.kotlinVersion = '1.1.61'
 
     apply plugin: 'idea'
     apply plugin: 'java'

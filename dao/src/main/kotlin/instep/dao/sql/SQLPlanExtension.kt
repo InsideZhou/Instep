@@ -106,21 +106,27 @@ fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
 
     val targetMirror = Instep.reflect(cls)
     val tableMirror = Instep.reflect(this.from)
+    val self = this
 
     return rows.map { row ->
-        val instance = targetMirror.type.newInstance()
-        targetMirror.fieldsWithSetter.forEach { field ->
-            val col = tableMirror.findGetter(field.name)?.invoke(this.from)
-            if (null == col) return@forEach
+        val instance = cls.newInstance()
 
-            val value = row[col as Column<*>]
-            if (null != value) {
-                try {
-                    targetMirror.findSetter(field.name)?.invoke(instance, value)
+        targetMirror.mutableProperties.forEach { p ->
+            tableMirror.readableProperties.find {
+                p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+            }?.let {
+                val col = it.getter.invoke(self.from) as Column<*>
+
+                row[col]?.let {
+                    try {
+                        p.setter.invoke(instance, it)
+                    }
+                    catch (e: IllegalArgumentException) {
+                        InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
+                    }
                 }
-                catch (e: IllegalArgumentException) {
-                    InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
-                }
+
+                return@forEach
             }
         }
 

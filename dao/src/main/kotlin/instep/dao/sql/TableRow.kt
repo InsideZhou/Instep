@@ -124,6 +124,7 @@ interface TableRowFactory {
                         DateTimeColumnType.Time -> rs.getLocalTime(info.index)
                         DateTimeColumnType.DateTime -> rs.getLocalDateTime(info.index)
                         DateTimeColumnType.OffsetDateTime -> rs.getOffsetDateTime(info.index)
+                        DateTimeColumnType.Instant -> rs.getInstant(info.index)
                     }
 
                     is BinaryColumn -> when (col.type) {

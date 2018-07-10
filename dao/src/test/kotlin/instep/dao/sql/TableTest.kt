@@ -35,7 +35,7 @@ object TableTest {
             is PostgreSQLDialect -> AccountTable.numeric("balance", 1000, 2).notnull()
             else -> AccountTable.numeric("balance", Int.MAX_VALUE, 2).notnull()
         }
-        val createdAt = AccountTable.datetime("created_at").notnull()
+        val createdAt = AccountTable.instant("created_at").notnull()
         var birthDate = AccountTable.date("birth_date")
         var birthTime = AccountTable.time("birth_time")
         var birthday = if (AccountTable.dialect.isOffsetDateTimeSupported) {

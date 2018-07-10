@@ -4,7 +4,6 @@ import instep.Instep
 import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
-import java.lang.reflect.Modifier
 
 /**
  * Abstract DAO object.
@@ -136,6 +135,10 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
     }
 
+    fun instant(name: String): DateTimeColumn {
+        return DateTimeColumn(name, DateTimeColumnType.Instant)
+    }
+
     fun bytes(name: String, length: Int): BinaryColumn {
         return BinaryColumn(name, BinaryColumnType.Varying, length)
     }
@@ -148,17 +151,17 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     val columns: List<Column<*>>
         get() {
             val mirror = Instep.reflect(this)
-            val getterColumns = mirror.getters
-                .filter { Column::class.java.isAssignableFrom(it.returnType) }
-                .map { it.invoke(this) as Column<*> }
-                .toSet()
 
-            val fieldColumns = this.javaClass.fields
-                .filter { Modifier.isPublic(it.modifiers) && Column::class.java.isAssignableFrom(it.type) }
-                .map { it.get(this) as Column<*> }
-                .toSet()
-
-            return (getterColumns + fieldColumns).toList()
+            return mirror.getPropertiesUntil(Table::class.java)
+                .filter { Column::class.java.isAssignableFrom(it.field.type) }
+                .map {
+                    if (null != it.getter) {
+                        it.getter!!.invoke(this)
+                    }
+                    else {
+                        it.field.get(this)
+                    } as Column<*>
+                }
         }
 
     val primaryKey: Column<*>?

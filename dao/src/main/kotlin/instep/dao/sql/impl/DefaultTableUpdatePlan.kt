@@ -17,16 +17,17 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
     override fun set(column: Column<*>, value: Any?): TableUpdatePlan {
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
 
-        params.put(column, value)
+        params[column] = value
 
         return this
     }
 
     override fun set(obj: Any): TableUpdatePlan {
         val mirror = Instep.reflect(obj)
-        mirror.fieldsWithGetter.forEach { field ->
-            table.columns.find { it.name == field.name }?.apply {
-                params.put(this, mirror.findGetter(field.name)!!.invoke(obj))
+
+        mirror.readableProperties.forEach { p ->
+            table.columns.find { it.name == p.field.name }?.apply {
+                params[this] = p.getter.invoke(obj)
             }
         }
 
