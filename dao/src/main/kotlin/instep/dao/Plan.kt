@@ -17,7 +17,15 @@ interface Plan<T : Plan<T>> : Serializable {
     fun debug(): T {
         val self = this
         InstepLogger.debug({ statement }, self.javaClass.name)
-        InstepLogger.debug({ parameters.map(Any?::toString).joinToString("|") }, self.javaClass.name)
+        InstepLogger.debug({ parameterToLogFormat() }, self.javaClass.name)
+        return self as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun info(): T {
+        val self = this
+        InstepLogger.info({ statement }, self.javaClass.name)
+        InstepLogger.info({ parameterToLogFormat() }, self.javaClass.name)
         return self as T
     }
 
@@ -26,4 +34,6 @@ interface Plan<T : Plan<T>> : Serializable {
         runner(this as T)
         return this
     }
+
+    fun parameterToLogFormat(): String = parameters.map(Any?::toString).joinToString("|")
 }
