@@ -1,7 +1,7 @@
 package instep.dao.sql
 
+import instep.Instep
 import instep.UnexpectedCodeError
-import instep.dao.sql.impl.Helper
 import java.io.InputStream
 import java.math.BigDecimal
 import java.sql.Blob
@@ -91,11 +91,14 @@ interface TableRowFactory {
 
     @Suppress("FoldInitializerAndIfToElvis")
     companion object : TableRowFactory {
+        val resultSetDelegate = Instep.make(ResultSetDelegate::class.java)
+        val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
+
         override fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow {
             val row = TableRow()
-            val rs = Helper.getResultSetDelegate(dialect, resultSet)
+            val rs = resultSetDelegate.getDelegate(dialect, resultSet)
 
-            val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
+            val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
             table.columns.forEach { col ->
                 val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) }
                 if (null == info) return@forEach

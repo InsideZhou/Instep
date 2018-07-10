@@ -35,14 +35,5 @@ class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultS
 
     companion object {
         private const val serialVersionUID = -9202019814173830690L
-
-        init {
-            try {
-                Instep.make(ExpressionFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(ExpressionFactory::class.java, ExpressionFactory.Companion)
-            }
-        }
     }
 }

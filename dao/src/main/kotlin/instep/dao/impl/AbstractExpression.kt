@@ -18,10 +18,6 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         }
     }
 
-    override public fun clone(): T {
-        return super.clone() as T
-    }
-
     override val expression: String
         get() {
             var index = 0

@@ -5,21 +5,10 @@ package instep.dao.sql
 import instep.Instep
 import instep.InstepLogger
 import instep.dao.Plan
-import instep.dao.sql.impl.DefaultSQLPlanExecutor
-import instep.servicecontainer.ServiceNotFoundException
 import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
-
-private val init = run {
-    try {
-        Instep.make(SQLPlanExecutor::class.java)
-    }
-    catch (e: ServiceNotFoundException) {
-        Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
-    }
-}
 
 /**
  * @see [SQLPlanExecutor.execute]

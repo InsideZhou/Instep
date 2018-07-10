@@ -1,10 +1,7 @@
 package instep.dao.sql
 
-import instep.Instep
 import instep.dao.Plan
 import instep.dao.PlanExecutor
-import instep.dao.sql.impl.DefaultSQLPlanExecutor
-import instep.servicecontainer.ServiceNotFoundException
 import java.sql.Connection
 import java.sql.ResultSet
 
@@ -26,15 +23,4 @@ interface SQLPlanExecutor : PlanExecutor {
 
     @Throws(SQLPlanExecutionException::class)
     fun executeResultSet(conn: Connection, plan: Plan<*>): ResultSet
-
-    companion object {
-        init {
-            try {
-                Instep.make(SQLPlanExecutor::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
-            }
-        }
-    }
 }

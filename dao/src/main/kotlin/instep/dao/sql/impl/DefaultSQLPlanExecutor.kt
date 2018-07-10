@@ -2,22 +2,35 @@ package instep.dao.sql.impl
 
 import instep.Instep
 import instep.collection.AssocArray
-import instep.dao.sql.ConnectionProvider
-import instep.dao.sql.SQLPlanExecutionException
-import instep.dao.sql.SQLPlanExecutor
-import instep.dao.sql.TableInsertPlan
+import instep.dao.sql.*
 import instep.typeconversion.Converter
 import instep.typeconversion.TypeConversion
 import java.sql.*
 import java.time.OffsetDateTime
 
-open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : SQLPlanExecutor {
-    constructor() : this(Instep.make(ConnectionProvider::class.java))
+@Suppress("MemberVisibilityCanBePrivate")
+open class DefaultSQLPlanExecutor(
+    val connectionProvider: ConnectionProvider,
+    val resultSetValueExtractor: ResultSetValueExtractor,
+    val resultSetDelegate: ResultSetDelegate,
+    val columnInfoSetGenerator: ColumnInfoSetGenerator,
+    val preparedStatementGenerator: PreparedStatementGenerator,
+    val typeconvert: TypeConversion
+) : SQLPlanExecutor {
+
+    constructor() : this(
+        Instep.make(ConnectionProvider::class.java),
+        Instep.make(ResultSetValueExtractor::class.java),
+        Instep.make(ResultSetDelegate::class.java),
+        Instep.make(ColumnInfoSetGenerator::class.java),
+        Instep.make(PreparedStatementGenerator::class.java),
+        Instep.make(TypeConversion::class.java)
+    )
 
     override fun execute(plan: instep.dao.Plan<*>) {
         val conn = connectionProvider.getConnection()
         try {
-            val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
+            val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
             stmt.execute()
         }
         catch (e: SQLException) {
@@ -53,7 +66,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
             val rs = executeResultSet(conn, plan)
             if (!rs.next() || rs.wasNull()) return null
 
-            return Helper.extractColumnValue(cls, Helper.getResultSetDelegate(connectionProvider.dialect, rs), 1) as T
+            return resultSetValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T
         }
         catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
@@ -63,11 +76,12 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
         }
     }
 
+    @Suppress("LiftReturnOrAssignment")
     override fun executeUpdate(plan: instep.dao.Plan<*>): Long {
         var stmt: PreparedStatement? = null
         val conn = connectionProvider.getConnection()
         try {
-            stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
+            stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
             return stmt.executeLargeUpdate()
         }
         catch (e: UnsupportedOperationException) {
@@ -84,7 +98,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     }
 
     override fun executeResultSet(conn: Connection, plan: instep.dao.Plan<*>): ResultSet {
-        val stmt = Helper.generateStatement(conn, connectionProvider.dialect, plan)
+        val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
 
         return when (plan) {
             is TableInsertPlan -> {
@@ -98,7 +112,6 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
     override fun <T : Any> execute(plan: instep.dao.Plan<*>, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
-        val typeconvert = Instep.make(TypeConversion::class.java)
         val conn = connectionProvider.getConnection()
         try {
             val rs = executeResultSet(conn, plan)
@@ -113,11 +126,11 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
             }
 
             val mirror = Instep.reflect(cls)
-            val columnInfoSet = Helper.generateColumnInfoSet(rs.metaData)
+            val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
 
             try {
                 while (rs.next()) {
-                    result.add(Helper.rowToInstanceAsInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
+                    result.add(Helper.resultSetToInstanceByInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
                 }
             }
             catch (e: Exception) {
@@ -136,6 +149,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
 
     companion object {
         init {
+            val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
             val typeconvert = Instep.make(TypeConversion::class.java)
 
             if (!typeconvert.canConvert(ResultSet::class.java, AssocArray::class.java)) {
@@ -143,7 +157,7 @@ open class DefaultSQLPlanExecutor(val connectionProvider: ConnectionProvider) : 
                     override fun <T : ResultSet> convert(instance: T): AssocArray {
                         val array = AssocArray(true)
 
-                        Helper.generateColumnInfoSet(instance.metaData).forEach { item ->
+                        columnInfoSetGenerator.generate(instance.metaData).forEach { item ->
                             when (item.type) {
                                 Types.TINYINT -> array[item.label] = instance.getByte(item.index)
                                 Types.SMALLINT -> array[item.label] = instance.getShort(item.index)

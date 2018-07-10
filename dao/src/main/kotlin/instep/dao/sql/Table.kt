@@ -4,7 +4,6 @@ import instep.Instep
 import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
-import instep.servicecontainer.ServiceNotFoundException
 import java.lang.reflect.Modifier
 
 /**
@@ -317,42 +316,5 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
 
     companion object {
         val DefaultInsertValue = object {}
-
-        init {
-            try {
-                Instep.make(TableRowFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(TableRowFactory::class.java, TableRowFactory.Companion)
-            }
-
-            try {
-                Instep.make(TableSelectPlanFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlanFactory.Companion)
-            }
-
-            try {
-                Instep.make(TableInsertPlanFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlanFactory.Companion)
-            }
-
-            try {
-                Instep.make(TableUpdatePlanFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlanFactory.Companion)
-            }
-
-            try {
-                Instep.make(TableDeletePlanFactory::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
-                Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlanFactory.Companion)
-            }
-        }
     }
 }
