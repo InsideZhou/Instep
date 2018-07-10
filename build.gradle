@@ -125,11 +125,4 @@ subprojects {
             }
         }
     }
-
-    [install.repositories.mavenInstaller, uploadArchives.repositories.mavenDeployer]*.pom*.whenConfigured { pom ->
-        def localDep = pom.dependencies.find { dep -> dep.groupId == project.group }
-        if (localDep) {
-            localDep.artifactId = "$rootProject.name-$localDep.artifactId"
-        }
-    }
 }
