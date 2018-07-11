@@ -2,21 +2,25 @@ package instep.springboot;
 
 import instep.Instep;
 import instep.dao.sql.ConnectionProvider;
+import instep.dao.sql.Dialect;
 import instep.dao.sql.InstepSQL;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import instep.dao.sql.TransactionContext;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.sql.DataSource;
 
 /**
  * auto configuration for instep.dao.sql module.
  */
 @Configuration
-@ConditionalOnBean({ConnectionProvider.class})
 public class SQLAutoConfiguration {
     @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
-    public InstepSQL instepSQL(ConnectionProvider connectionProvider, Instep instep) {
-        instep.bind(ConnectionProvider.class, connectionProvider, "");
+    @ConditionalOnMissingBean
+    public InstepSQL instepSQL(DataSource dataSource, Dialect dialect, Instep instep) {
+        instep.bind(ConnectionProvider.class, new TransactionContext.ConnectionProvider(dataSource, dialect), "");
 
         return InstepSQL.INSTANCE;
     }
