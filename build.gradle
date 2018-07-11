@@ -5,6 +5,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.+"
+        classpath 'org.springframework.boot:spring-boot-gradle-plugin:2.0.3.RELEASE'
     }
 }
 
@@ -22,13 +23,12 @@ subprojects {
     group = 'me.insidezhou.instep'
     version = '1.0.0-SNAPSHOT'
 
-    ext.kotlinVersion = '1.1.61'
+    ext.kotlinVersion = '1.2.51'
 
     apply plugin: 'idea'
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven'
-    apply plugin: 'signing'
     apply plugin: 'org.jetbrains.dokka'
 
     apply plugin: 'propdeps'
@@ -36,9 +36,16 @@ subprojects {
     apply plugin: 'propdeps-idea'
     apply plugin: 'propdeps-eclipse'
 
+    apply plugin: 'signing'
+    apply plugin: 'maven-publish'
+
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
+
     repositories {
         mavenLocal()
         jcenter()
+        maven { url "http://repo.spring.io/milestone" }
     }
 
     dependencies {
@@ -71,58 +78,74 @@ subprojects {
         from dokka.outputDirectory
     }
 
+    task publishToSonatype {
+        group "publishing"
+        description "发布到Sonatype仓库"
+        dependsOn tasks.withType(PublishToMavenRepository).matching {
+            it.repository == publishing.repositories.sonatype
+        }
+    }
+
     test {
         useTestNG()
     }
 
-    artifacts {
-        archives jar, sourceJar, docJar
-    }
+    publishing {
+        publications {
+            all(MavenPublication) {
+                artifactId jar.baseName
 
-    signing {
-        sign configurations.archives
-    }
+                from components.java
 
-    uploadArchives {
-        repositories {
-            mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                artifact sourceJar
+                artifact docJar
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                pom.project {
-                    name 'Instep'
-                    description 'Tools are designed to make coding easier.'
-                    url 'https://github.com/InsideZhou/Instep'
+                pom {
+                    name = 'Instep'
+                    description = 'Tools are designed to make coding easier.'
+                    url = 'https://github.com/InsideZhou/Instep'
 
                     scm {
-                        connection 'scm:git:git://github.com/InsideZhou/Instep.git'
-                        developerConnection 'scm:git:ssh://github.com/InsideZhou/Instep.git'
-                        url 'https://github.com/InsideZhou/Instep'
+                        connection = 'scm:git:git://github.com/InsideZhou/Instep.git'
+                        developerConnection = 'scm:git:ssh://github.com/InsideZhou/Instep.git'
+                        url = 'https://github.com/InsideZhou/Instep'
 
                     }
 
                     licenses {
                         license {
-                            name 'The 2-Clause BSD License'
-                            url 'https://opensource.org/licenses/BSD-2-Clause'
+                            name = 'The 2-Clause BSD License'
+                            url = 'https://opensource.org/licenses/BSD-2-Clause'
                         }
                     }
 
                     developers {
                         developer {
-                            name 'Inside Zhou'
-                            email 'inside@insidezhou.me'
+                            name = 'Inside Zhou'
+                            email = 'inside@insidezhou.me'
                         }
                     }
                 }
             }
         }
+
+        repositories {
+            maven {
+                def isSnapshot = version.endsWith("SNAPSHOT")
+                def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+                def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+
+                url isSnapshot ? snapshotsRepoUrl : releasesRepoUrl
+                name 'sonatype'
+                credentials {
+                    username = ossrhUsername
+                    password = ossrhPassword
+                }
+            }
+        }
+    }
+
+    signing {
+        sign publishing.publications.all
     }
 }
