@@ -15,18 +15,14 @@ interface Plan<T : Plan<T>> : Serializable {
 
     @Suppress("UNCHECKED_CAST")
     fun debug(): T {
-        val self = this
-        InstepLogger.debug({ statement }, self.javaClass.name)
-        InstepLogger.debug({ parameterToLogFormat() }, self.javaClass.name)
-        return self as T
+        InstepLogger.debug({ "$statement\n${parameterToLogFormat()}" }, this.javaClass.name)
+        return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     fun info(): T {
-        val self = this
-        InstepLogger.info({ statement }, self.javaClass.name)
-        InstepLogger.info({ parameterToLogFormat() }, self.javaClass.name)
-        return self as T
+        InstepLogger.info({ "$statement\n${parameterToLogFormat()}" }, this.javaClass.name)
+        return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
