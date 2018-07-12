@@ -16,7 +16,7 @@ object ConditionTest {
     }
 
     init {
-        AccountTable.createIfNotExists().execute()
+        AccountTable.create().execute()
 
         insertAccounts()
     }

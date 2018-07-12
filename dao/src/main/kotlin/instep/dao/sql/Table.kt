@@ -166,12 +166,9 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     val primaryKey: Column<*>?
         get() = columns.singleOrNull { it.primary }
 
-    fun create(): SQLPlan<*> {
-        return dialect.createTable(tableName, columns)
-    }
-
-    fun createIfNotExists(): SQLPlan<*> {
-        return dialect.createTableIfNotExists(tableName, columns)
+    @JvmOverloads
+    fun create(checkExists: Boolean = true): SQLPlan<*> {
+        return if (checkExists) dialect.createTableIfNotExists(tableName, columns) else dialect.createTable(tableName, columns)
     }
 
     fun rename(name: String): SQLPlan<*> {

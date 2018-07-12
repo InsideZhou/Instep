@@ -51,7 +51,7 @@ object InstepSQLTest {
             }
         })
 
-        TransactionTable.createIfNotExists().execute()
+        TransactionTable.create().execute()
     }
 
     @Test
