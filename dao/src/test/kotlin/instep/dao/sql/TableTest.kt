@@ -50,7 +50,7 @@ object TableTest {
 
     @org.testng.annotations.Test
     fun createAccountTable() {
-        AccountTable.create().execute()
+        AccountTable.createIfNotExists().execute()
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)

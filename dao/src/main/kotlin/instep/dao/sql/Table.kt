@@ -3,7 +3,6 @@ package instep.dao.sql
 import instep.ImpossibleBranch
 import instep.Instep
 import instep.dao.DaoException
-import instep.dao.Plan
 
 /**
  * Abstract DAO object.
@@ -167,31 +166,35 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     val primaryKey: Column<*>?
         get() = columns.singleOrNull { it.primary }
 
-    fun create(): Plan<*> {
+    fun create(): SQLPlan<*> {
         return dialect.createTable(tableName, columns)
     }
 
-    fun rename(name: String): Plan<*> {
+    fun createIfNotExists(): SQLPlan<*> {
+        return dialect.createTableIfNotExists(tableName, columns)
+    }
+
+    fun rename(name: String): SQLPlan<*> {
         return dialect.renameTable(tableName, name)
     }
 
-    fun addColumn(column: Column<*>): Plan<*> {
+    fun addColumn(column: Column<*>): SQLPlan<*> {
         return dialect.addColumn(tableName, column)
     }
 
-    fun dropColumn(column: Column<*>): Plan<*> {
+    fun dropColumn(column: Column<*>): SQLPlan<*> {
         return dialect.dropColumn(tableName, column)
     }
 
-    fun renameColumn(column: Column<*>, oldName: String): Plan<*> {
+    fun renameColumn(column: Column<*>, oldName: String): SQLPlan<*> {
         return dialect.renameColumn(tableName, column, oldName)
     }
 
-    fun alterColumnNotNull(column: Column<*>): Plan<*> {
+    fun alterColumnNotNull(column: Column<*>): SQLPlan<*> {
         return dialect.alterColumnNotNull(tableName, column)
     }
 
-    fun alterColumnDefault(column: Column<*>): Plan<*> {
+    fun alterColumnDefault(column: Column<*>): SQLPlan<*> {
         return dialect.alterColumnDefault(tableName, column)
     }
 

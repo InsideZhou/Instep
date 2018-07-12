@@ -1,7 +1,6 @@
 package instep.dao.sql
 
 import instep.dao.DaoException
-import instep.dao.Plan
 import instep.dao.sql.dialect.H2Dialect
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
@@ -13,16 +12,17 @@ import java.sql.PreparedStatement
  * SQL dialect.
  */
 interface Dialect : Serializable {
-    fun createTable(tableName: String, columns: List<Column<*>>): Plan<*>
-    fun renameTable(tableName: String, newName: String): Plan<*>
+    fun createTable(tableName: String, columns: List<Column<*>>): SQLPlan<*>
+    fun createTableIfNotExists(tableName: String, columns: List<Column<*>>): SQLPlan<*>
+    fun renameTable(tableName: String, newName: String): SQLPlan<*>
 
-    fun addColumn(tableName: String, column: Column<*>): Plan<*>
-    fun dropColumn(tableName: String, column: Column<*>): Plan<*>
+    fun addColumn(tableName: String, column: Column<*>): SQLPlan<*>
+    fun dropColumn(tableName: String, column: Column<*>): SQLPlan<*>
 
-    fun renameColumn(tableName: String, column: Column<*>, oldName: String): Plan<*>
+    fun renameColumn(tableName: String, column: Column<*>, oldName: String): SQLPlan<*>
 
-    fun alterColumnNotNull(tableName: String, column: Column<*>): Plan<*>
-    fun alterColumnDefault(tableName: String, column: Column<*>): Plan<*>
+    fun alterColumnNotNull(tableName: String, column: Column<*>): SQLPlan<*>
+    fun alterColumnDefault(tableName: String, column: Column<*>): SQLPlan<*>
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 

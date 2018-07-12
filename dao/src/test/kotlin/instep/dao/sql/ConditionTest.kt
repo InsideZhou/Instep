@@ -1,7 +1,5 @@
 package instep.dao.sql
 
-import instep.Instep
-
 
 object ConditionTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
@@ -18,7 +16,7 @@ object ConditionTest {
     }
 
     init {
-        AccountTable.create().execute()
+        AccountTable.createIfNotExists().execute()
 
         insertAccounts()
     }

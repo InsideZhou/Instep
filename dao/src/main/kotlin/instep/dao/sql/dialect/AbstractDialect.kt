@@ -1,10 +1,9 @@
 package instep.dao.sql.dialect
 
-import instep.InstepLogger
 import instep.ImpossibleBranch
+import instep.InstepLogger
 import instep.dao.PlaceHolder
 import instep.dao.PlaceHolderRemainingException
-import instep.dao.Plan
 import instep.dao.sql.*
 import java.io.InputStream
 import java.io.Reader
@@ -64,9 +63,19 @@ abstract class AbstractDialect : Dialect {
     override val pagination: Pagination = StandardPagination()
     override val isOffsetDateTimeSupported: Boolean = true
 
-    override fun createTable(tableName: String, columns: List<Column<*>>): Plan<*> {
+    override fun createTable(tableName: String, columns: List<Column<*>>): SQLPlan<*> {
+        val ddl = "CREATE TABLE $tableName (\n"
+
+        return createTable(tableName, ddl, columns)
+    }
+
+    override fun createTableIfNotExists(tableName: String, columns: List<Column<*>>): SQLPlan<*> {
         val ddl = "CREATE TABLE IF NOT EXISTS $tableName (\n"
 
+        return createTable(tableName, ddl, columns)
+    }
+
+    private fun createTable(tableName: String, ddl: String, columns: List<Column<*>>): SQLPlan<*> {
         if (columns.isEmpty()) {
             InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
         }
@@ -74,24 +83,24 @@ abstract class AbstractDialect : Dialect {
         return InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
     }
 
-    override fun renameTable(tableName: String, newName: String): Plan<*> {
+    override fun renameTable(tableName: String, newName: String): SQLPlan<*> {
         return InstepSQL.plan("ALTER TABLE $tableName RENAME TO $newName")
     }
 
-    override fun addColumn(tableName: String, column: Column<*>): Plan<*> {
+    override fun addColumn(tableName: String, column: Column<*>): SQLPlan<*> {
         val columnDefinition = definitionForColumns(column)
         return InstepSQL.plan("ALTER TABLE $tableName ADD COLUMN $columnDefinition")
     }
 
-    override fun dropColumn(tableName: String, column: Column<*>): Plan<*> {
+    override fun dropColumn(tableName: String, column: Column<*>): SQLPlan<*> {
         return InstepSQL.plan("ALTER TABLE $tableName DROP COLUMN ${column.name}")
     }
 
-    override fun renameColumn(tableName: String, column: Column<*>, oldName: String): Plan<*> {
+    override fun renameColumn(tableName: String, column: Column<*>, oldName: String): SQLPlan<*> {
         return InstepSQL.plan("ALTER TABLE $tableName RENAME COLUMN $oldName TO ${column.name}")
     }
 
-    override fun alterColumnNotNull(tableName: String, column: Column<*>): Plan<*> {
+    override fun alterColumnNotNull(tableName: String, column: Column<*>): SQLPlan<*> {
         val txt = "ALTER TABLE $tableName ALTER COLUMN ${column.name}"
 
         if (column.nullable) {
@@ -102,7 +111,7 @@ abstract class AbstractDialect : Dialect {
         }
     }
 
-    override fun alterColumnDefault(tableName: String, column: Column<*>): Plan<*> {
+    override fun alterColumnDefault(tableName: String, column: Column<*>): SQLPlan<*> {
         val txt = "ALTER TABLE $tableName ALTER COLUMN ${column.name}"
 
         if (column.default.isBlank()) {
