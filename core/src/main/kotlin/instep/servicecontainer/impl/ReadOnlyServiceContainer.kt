@@ -7,12 +7,12 @@ import instep.servicecontainer.ServiceContainer
  * Read-only service container.
  */
 @Suppress("unused")
-abstract class ReadOnlyServiceContainer : AbstractServiceContainer() {
-    override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
+abstract class ReadOnlyServiceContainer<T : Any> : AbstractServiceContainer<T>() {
+    override fun bind(cls: Class<out T>, instance: T, tag: String) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun <T : Any> bind(binding: ServiceBinding<T>) {
+    override fun bind(binding: ServiceBinding<out T>) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
@@ -20,7 +20,7 @@ abstract class ReadOnlyServiceContainer : AbstractServiceContainer() {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun removeAll(instance: Any) {
+    override fun removeAll(instance: T) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
@@ -28,11 +28,11 @@ abstract class ReadOnlyServiceContainer : AbstractServiceContainer() {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun copyServices(container: ServiceContainer) {
+    override fun copyServices(container: ServiceContainer<T>) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun copy(container: ServiceContainer) {
+    override fun copy(container: ServiceContainer<T>) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 }

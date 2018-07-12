@@ -1,7 +1,7 @@
 package instep.dao.sql.dialect
 
 import instep.InstepLogger
-import instep.UnexpectedCodeError
+import instep.ImpossibleBranch
 import instep.dao.PlaceHolder
 import instep.dao.PlaceHolderRemainingException
 import instep.dao.Plan
@@ -213,7 +213,7 @@ abstract class AbstractDialect : Dialect {
             is FloatingColumn -> definitionForFloatingColumn(column)
             is DateTimeColumn -> definitionForDateTimeColumn(column)
             is BinaryColumn -> definitionForBinaryColumn(column)
-            else -> throw UnexpectedCodeError()
+            else -> throw ImpossibleBranch()
         }
 
         if (!column.nullable) {

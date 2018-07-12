@@ -1,4 +1,4 @@
 package instep.servicecontainer
 
-class ServiceNotFoundException(val key: String) : RuntimeException(key) {
+class ServiceNotFoundException @JvmOverloads constructor(val key: String, override val cause: Exception? = null) : RuntimeException(key, cause) {
 }

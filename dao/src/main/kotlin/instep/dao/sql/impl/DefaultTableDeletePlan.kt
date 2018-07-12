@@ -23,7 +23,7 @@ open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Colum
             var txt = "DELETE FROM ${table.tableName} "
 
             if (null == where) {
-                pkValue?.apply {
+                pkValue?.let {
                     txt += "WHERE ${table.primaryKey!!.name}=?"
                 }
 
@@ -36,7 +36,7 @@ open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Colum
                 }
             }
 
-            pkValue?.apply {
+            pkValue?.let {
                 txt += " AND ${table.primaryKey!!.name}=?"
             }
 

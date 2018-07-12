@@ -3,15 +3,20 @@ package instep.dao
 import instep.Instep
 import instep.dao.impl.AbstractExpression
 import instep.dao.sql.Condition
-import instep.servicecontainer.ServiceNotFoundException
+import instep.dao.sql.InstepSQL
 import org.testng.Assert
 import org.testng.annotations.Test
 
 object ExpressionTest {
+    init {
+        InstepSQL
+    }
+
     @Test
     fun placeholder() {
         val factory = Instep.make(ExpressionFactory::class.java)
-        val expression = factory.createInstance("name = :name AND age >= :age AND :condition")
+        val expression = factory.createInstance("name = \${name} AND age >= \${age} AND \${condition}")
+        assert(expression.parameters.isNotEmpty())
         assert(expression.parameters.all { it is PlaceHolder })
 
         expression.addParameter("name", "ZhangFei")

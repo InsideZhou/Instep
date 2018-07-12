@@ -7,35 +7,31 @@ import instep.servicecontainer.ServiceNotFoundException
 /**
  * Combine services in multi containers.
  */
-open class CompositeServiceContainer(val primary: ServiceContainer, vararg val secondary: ServiceContainer) : AbstractServiceContainer() {
+@Suppress("CanBeParameter")
+open class CompositeServiceContainer<T : Any>(val primary: ServiceContainer<T>, vararg val secondary: ServiceContainer<T>) : AbstractServiceContainer<T>() {
     private val containers = listOf(primary) + secondary
 
-    override fun <T : Any> serviceBinds(): List<ServiceBinding<T>> {
-        return containers.map { it.serviceBinds<T>() }.flatten()
+    override fun serviceBinds(): List<ServiceBinding<out T>> {
+        return containers.map { it.serviceBinds() }.flatten()
     }
 
     override fun <T : Any> make(cls: Class<T>, tag: String): T {
         containers.forEach {
-            try {
-                return it.make(cls, tag)
-            }
-            catch (e: ServiceNotFoundException) {
-                //pass
-            }
+            it.make(cls, tag).let { return it }
         }
 
         throw ServiceNotFoundException(getKey(cls, tag))
     }
 
-    override fun <T : Any> bind(cls: Class<T>, instance: T, tag: String) {
+    override fun bind(cls: Class<out T>, instance: T, tag: String) {
         primary.bind(cls, instance, tag)
     }
 
-    override fun <T : Any> bind(binding: ServiceBinding<T>) {
+    override fun bind(binding: ServiceBinding<out T>) {
         primary.bind(binding)
     }
 
-    override fun <T : Any> bindInstance(key: String, instance: T) {
+    override fun bindInstance(key: String, instance: T) {
         throw UnsupportedOperationException("composite service container don't actually need this.")
     }
 
@@ -47,7 +43,7 @@ open class CompositeServiceContainer(val primary: ServiceContainer, vararg val s
         return primary.remove(cls, tag)
     }
 
-    override fun removeAll(instance: Any) {
+    override fun removeAll(instance: T) {
         primary.removeAll(instance)
     }
 
@@ -55,11 +51,11 @@ open class CompositeServiceContainer(val primary: ServiceContainer, vararg val s
         primary.clear()
     }
 
-    override fun copyServices(container: ServiceContainer) {
+    override fun copyServices(container: ServiceContainer<T>) {
         primary.copyServices(container)
     }
 
-    override fun copy(container: ServiceContainer) {
+    override fun copy(container: ServiceContainer<T>) {
         primary.copy(container)
     }
 }

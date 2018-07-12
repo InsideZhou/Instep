@@ -9,8 +9,8 @@ open class JMirror<T : Any>(val type: Class<T>) {
 
     val annotations: Set<Annotation> by lazy { type.annotations.toSet() }
 
-    val parents: Set<Class<*>> by lazy {
-        val superClasses = mutableSetOf<Class<*>>()
+    val parents: Set<Class<in T>> by lazy {
+        val superClasses = mutableSetOf<Class<in T>>()
         var parent = type.superclass
         while (null != parent && parent != Any::class.java) {
             superClasses.add(parent)
@@ -46,7 +46,7 @@ open class JMirror<T : Any>(val type: Class<T>) {
         val index = parents.indexOf(cls)
         if (-1 == index) return emptySet()
 
-        return (listOf(type) + parents.take(index)).flatMap { JMirror(it).properties }.toSet()
+        return properties + parents.take(index).flatMap { JMirror(it).properties }
     }
 
     fun getMutablePropertiesUntil(cls: Class<*>): Set<MutableProperty> {

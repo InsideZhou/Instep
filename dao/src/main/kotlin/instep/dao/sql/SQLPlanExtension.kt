@@ -10,13 +10,14 @@ import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 
+val planExecutor = Instep.make(SQLPlanExecutor::class.java)
+
 /**
  * @see [SQLPlanExecutor.execute]
  */
 @Throws(SQLPlanExecutionException::class)
 fun Plan<*>.execute() {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.execute(this)
+    planExecutor.execute(this)
 }
 
 /**
@@ -24,8 +25,7 @@ fun Plan<*>.execute() {
  */
 @Throws(SQLPlanExecutionException::class)
 fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.execute(this, cls)
+    return planExecutor.execute(this, cls)
 }
 
 /**
@@ -33,8 +33,7 @@ fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
  */
 @Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeScalar(): String {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.executeScalar(this)
+    return planExecutor.executeScalar(this)
 }
 
 /**
@@ -42,8 +41,7 @@ fun Plan<*>.executeScalar(): String {
  */
 @Throws(SQLPlanExecutionException::class)
 fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.executeScalar(this, cls)
+    return planExecutor.executeScalar(this, cls)
 }
 
 /**
@@ -51,8 +49,7 @@ fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
  */
 @Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeUpdate(): Long {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.executeUpdate(this)
+    return planExecutor.executeUpdate(this)
 }
 
 /**
@@ -60,76 +57,71 @@ fun Plan<*>.executeUpdate(): Long {
  */
 @Throws(SQLPlanExecutionException::class)
 fun Plan<*>.executeResultSet(conn: Connection): ResultSet {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    return planExec.executeResultSet(conn, this)
+    return planExecutor.executeResultSet(conn, this)
 }
 
 @Suppress("unchecked_cast")
 @Throws(SQLPlanExecutionException::class)
 fun TableSelectPlan.execute(): List<TableRow> {
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
-    val connMan = Instep.make(ConnectionProvider::class.java)
-    val conn = connMan.getConnection()
-    val result = mutableListOf<TableRow>()
-    val rowFactory = Instep.make(TableRowFactory::class.java)
+    Instep.make(ConnectionProvider::class.java).let { connMan ->
+        val conn = connMan.getConnection()
+        val result = mutableListOf<TableRow>()
+        val rowFactory = Instep.make(TableRowFactory::class.java)
 
-    try {
-        val rs = planExec.executeResultSet(conn, this)
-        while (rs.next()) {
-            result.add(rowFactory.createInstance(this.from, connMan.dialect, rs))
+        try {
+            val rs = planExecutor.executeResultSet(conn, this)
+            while (rs.next()) {
+                result.add(rowFactory.createInstance(this.from, connMan.dialect, rs))
+            }
+            return result
         }
-        return result
-    }
-    catch (e: SQLException) {
-        throw SQLPlanExecutionException(e)
-    }
-    finally {
-        conn.close()
+        catch (e: SQLException) {
+            throw SQLPlanExecutionException(e)
+        }
+        finally {
+            conn.close()
+        }
     }
 }
 
 @Suppress("unchecked_cast")
 @Throws(SQLPlanExecutionException::class)
 fun <T : Any> TableSelectPlan.execute(cls: Class<T>): List<T> {
-    val typeconvert = Instep.make(TypeConversion::class.java)
-    val planExec = Instep.make(SQLPlanExecutor::class.java)
+    val plan = this
 
-    if (typeconvert.canConvert(ResultSet::class.java, cls)) {
-        return planExec.execute(this, cls)
-    }
+    Instep.make(TypeConversion::class.java).run {
+        if (canConvert(ResultSet::class.java, cls)) return planExecutor.execute(plan, cls)
 
-    val rows = execute()
+        val rows = execute()
 
-    if (typeconvert.canConvert(TableRow::class.java, cls)) {
-        return rows.map { typeconvert.convert(it, cls) }
-    }
+        if (canConvert(TableRow::class.java, cls)) return rows.map { row -> convert(row, cls) }
 
-    val targetMirror = Instep.reflect(cls)
-    val tableMirror = Instep.reflect(this.from)
-    val self = this
+        val targetMirror = Instep.reflect(cls)
+        val tableMirror = Instep.reflect(plan.from)
 
-    return rows.map { row ->
-        val instance = cls.newInstance()
+        return rows.map { row ->
+            val instance = cls.newInstance()
 
-        targetMirror.mutableProperties.forEach { p ->
-            tableMirror.readableProperties.find {
-                p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
-            }?.let {
-                val col = it.getter.invoke(self.from) as Column<*>
+            targetMirror.mutableProperties.forEach { p ->
+                tableMirror.readableProperties.find {
+                    p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                }?.let {
+                    val col = it.getter.invoke(plan.from) as Column<*>
 
-                row[col]?.let {
-                    try {
-                        p.setter.invoke(instance, it)
+                    row[col]?.let {
+                        try {
+                            p.setter.invoke(instance, it)
+                        }
+                        catch (e: IllegalArgumentException) {
+                            InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
+                        }
                     }
-                    catch (e: IllegalArgumentException) {
-                        InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
-                    }
+
+                    return@forEach
                 }
-
-                return@forEach
             }
-        }
 
-        return@map instance
+            return@map instance
+        }
     }
 }

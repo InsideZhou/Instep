@@ -1,6 +1,6 @@
 package instep.dao.sql
 
-import instep.UnexpectedCodeError
+import instep.ImpossibleBranch
 import instep.dao.Expression
 import instep.dao.impl.AbstractExpression
 
@@ -184,7 +184,7 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
             when (word) {
                 AND -> conj.condition = conj.condition.and(condition)
                 OR -> conj.condition = conj.condition.or(condition)
-                else -> throw UnexpectedCodeError()
+                else -> throw ImpossibleBranch()
             }
         }
     }

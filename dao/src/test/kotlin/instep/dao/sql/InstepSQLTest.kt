@@ -59,7 +59,7 @@ object InstepSQLTest {
         val scalar = when (dialect) {
             is HSQLDialect -> InstepSQL.plan("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""").executeScalar()
             is MySQLDialect -> InstepSQL.plan("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""").executeScalar()
-            else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS')""").executeScalar()
+            else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')""").executeScalar()
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))
     }

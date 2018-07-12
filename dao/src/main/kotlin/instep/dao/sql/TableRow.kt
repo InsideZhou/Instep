@@ -1,7 +1,7 @@
 package instep.dao.sql
 
+import instep.ImpossibleBranch
 import instep.Instep
-import instep.UnexpectedCodeError
 import java.io.InputStream
 import java.math.BigDecimal
 import java.sql.Blob
@@ -132,7 +132,7 @@ interface TableRowFactory {
                         else -> rs.getBytes(info.index)
                     }
 
-                    else -> throw UnexpectedCodeError()
+                    else -> throw ImpossibleBranch()
                 }
             }
 

@@ -5,25 +5,24 @@ package instep.servicecontainer.impl
 import instep.Instep
 import instep.servicecontainer.*
 
-@Suppress("MemberVisibilityCanPrivate")
-abstract class AbstractServiceContainer : ServiceContainer {
-    override var binding: ServiceBindingEventHandler? = null
-    override var bound: ServiceBoundEventHandler? = null
+@Suppress("MemberVisibilityCanPrivate", "unused")
+abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
+    override var binding: ServiceBindingEventHandler<T>? = null
+    override var bound: ServiceBoundEventHandler<T>? = null
     override var resolving: ServiceResolvingEventHandler? = null
     override var resolved: ServiceResolvedEventHandler? = null
 
-    protected val serviceBindings = mutableSetOf<ServiceBinding<Any>>()
+    protected val serviceBindings = mutableSetOf<ServiceBinding<out T>>()
 
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> serviceBinds(): List<ServiceBinding<T>> {
-        return serviceBindings.map { it as ServiceBinding<T> }
+    override fun serviceBinds(): List<ServiceBinding<out T>> {
+        return serviceBindings.toList()
     }
 
-    override fun copyServices(container: ServiceContainer) {
-        container.serviceBinds<Any>().forEach { bind(it) }
+    override fun copyServices(container: ServiceContainer<T>) {
+        container.serviceBinds().forEach { bind(it) }
     }
 
-    override fun copy(container: ServiceContainer) {
+    override fun copy(container: ServiceContainer<T>) {
         copyServices(container)
 
         binding = container.binding
@@ -42,9 +41,9 @@ abstract class AbstractServiceContainer : ServiceContainer {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> bind(binding: ServiceBinding<T>) {
+    override fun bind(binding: ServiceBinding<out T>) {
         if (!fireOnBinding(binding)) return
-        if (serviceBindings.contains(binding as ServiceBinding<Any>)) return
+        if (serviceBindings.contains(binding)) return
 
         val cls = binding.cls
         val instance = binding.instance
@@ -57,7 +56,7 @@ abstract class AbstractServiceContainer : ServiceContainer {
             val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
 
             parents.forEach {
-                val key = getKey(it, tag)
+                val key = getKey(it as Class<out T>, tag)
                 if (!hasKey(key)) {
                     bindInstance(key, instance)
                 }
@@ -67,27 +66,27 @@ abstract class AbstractServiceContainer : ServiceContainer {
         fireOnBound(binding)
     }
 
-    abstract protected fun <T : Any> bindInstance(key: String, instance: T)
+    protected abstract fun bindInstance(key: String, instance: T)
 
-    abstract protected fun hasKey(key: String): Boolean
+    protected abstract fun hasKey(key: String): Boolean
 
-    protected fun <T> getKey(cls: Class<T>, tag: String = ""): String {
+    protected fun <T : Any> getKey(cls: Class<T>, tag: String = ""): String {
         return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
     }
 
-    protected fun <T : Any> fireOnBinding(binding: ServiceBinding<T>): Boolean {
+    protected fun fireOnBinding(binding: ServiceBinding<out T>): Boolean {
         return this.binding?.handle(binding) ?: true
     }
 
-    protected fun <T : Any> fireOnBound(binding: ServiceBinding<T>) {
+    protected fun fireOnBound(binding: ServiceBinding<out T>) {
         bound?.handle(binding)
     }
 
-    protected fun <T> fireOnResolving(cls: Class<T>, tag: String = ""): T? {
+    protected fun <T : Any> fireOnResolving(cls: Class<T>, tag: String = ""): T? {
         return resolving?.handle(cls, tag)
     }
 
-    protected fun <T> fireOnResolved(cls: Class<T>, obj: T, tag: String = "") {
+    protected fun <T : Any> fireOnResolved(cls: Class<T>, obj: T, tag: String = "") {
         resolved?.handle(cls, obj, tag)
     }
 }

@@ -23,8 +23,8 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
         val mirror = Instep.reflect(obj)
 
         mirror.readableProperties.forEach { p ->
-            table.columns.find { it.name == p.field.name }?.apply {
-                params[this] = p.getter.invoke(obj)
+            table.columns.find { it.name == p.field.name }?.let {
+                params[it] = p.getter.invoke(obj)
             }
         }
 

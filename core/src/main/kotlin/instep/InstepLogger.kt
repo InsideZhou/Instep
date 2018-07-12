@@ -28,25 +28,25 @@ interface InstepLogger {
         }
 
         fun debug(lazy: () -> String, logger: String = "") {
-            this.logger?.let {
-                if (it.enableDebug) {
-                    it.debug(lazy(), logger)
+            this.logger?.apply {
+                if (enableDebug) {
+                    debug(lazy(), logger)
                 }
             }
         }
 
         fun info(lazy: () -> String, logger: String = "") {
-            this.logger?.let {
-                if (it.enableInfo) {
-                    it.info(lazy(), logger)
+            this.logger?.apply {
+                if (enableInfo) {
+                    info(lazy(), logger)
                 }
             }
         }
 
         fun warning(lazy: () -> String, logger: String = "") {
-            this.logger?.let {
-                if (it.enableWarning) {
-                    it.warning(lazy(), logger)
+            this.logger?.apply {
+                if (enableWarning) {
+                    warning(lazy(), logger)
                 }
             }
         }

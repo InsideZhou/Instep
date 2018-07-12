@@ -36,7 +36,7 @@ object ServiceContainerTest {
         Instep.serviceContainer.remove(D::class.java)
     }
 
-    @Test(dependsOnMethods = arrayOf("bind"))
+    @Test(dependsOnMethods = ["bind"])
     fun removeBinding() {
         Instep.serviceContainer.remove(D::class.java)
         assert(Instep.make(A::class.java) is D)

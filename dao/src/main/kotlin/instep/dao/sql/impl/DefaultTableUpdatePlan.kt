@@ -26,8 +26,8 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
         val mirror = Instep.reflect(obj)
 
         mirror.readableProperties.forEach { p ->
-            table.columns.find { it.name == p.field.name }?.apply {
-                params[this] = p.getter.invoke(obj)
+            table.columns.find { it.name == p.field.name }?.let {
+                params[it] = p.getter.invoke(obj)
             }
         }
 
@@ -61,7 +61,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
             }.joinToString(",")} "
 
             if (null == where) {
-                pkValue?.apply {
+                pkValue?.let {
                     val column = table.primaryKey
 
                     if (column is StringColumn && column.type == StringColumnType.UUID) {
@@ -81,7 +81,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
                 }
             }
 
-            pkValue?.apply {
+            pkValue?.let {
                 val column = table.primaryKey
 
                 if (column is StringColumn && column.type == StringColumnType.UUID) {

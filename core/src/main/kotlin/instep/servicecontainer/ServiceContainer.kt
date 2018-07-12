@@ -1,18 +1,19 @@
 package instep.servicecontainer
 
+@Suppress("unused")
 /**
  * Register service and make service instance.
  */
-interface ServiceContainer {
+interface ServiceContainer<T : Any> {
     /**
      * Fire on service binding. If event handler return null, service binding would be canceled.
      */
-    var binding: ServiceBindingEventHandler?
+    var binding: ServiceBindingEventHandler<T>?
 
     /**
      * Fire on service bound.
      */
-    var bound: ServiceBoundEventHandler?
+    var bound: ServiceBoundEventHandler<T>?
 
     /**
      * Fire on service resolving.
@@ -27,14 +28,12 @@ interface ServiceContainer {
     /**
      * Get all original bindings of service.
      */
-    fun <T : Any> serviceBinds(): List<ServiceBinding<T>>
+    fun serviceBinds(): List<ServiceBinding<out T>>
 
     /**
      * Make instance by class.
      * @param tag binding tagged by.
-     * @throws ServiceNotFoundException
      */
-    @Throws(ServiceNotFoundException::class)
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T
 
     /**
@@ -42,15 +41,15 @@ interface ServiceContainer {
      * @param tag binding tagged by.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> bind(cls: Class<T>, instance: T, tag: String = "") {
-        val binding = ServiceBinding(cls, instance, tag) as ServiceBinding<Any>
+    fun bind(cls: Class<out T>, instance: T, tag: String = "") {
+        val binding = ServiceBinding(cls, instance, tag)
         bind(binding)
     }
 
     /**
      * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
      */
-    fun <T : Any> bind(binding: ServiceBinding<T>)
+    fun bind(binding: ServiceBinding<out T>)
 
     /**
      * Remove binding.
@@ -61,7 +60,7 @@ interface ServiceContainer {
     /**
      * Remove all bindings related to instance.
      */
-    fun removeAll(instance: Any)
+    fun removeAll(instance: T)
 
     /**
      * Clear all services in this container.
@@ -71,12 +70,12 @@ interface ServiceContainer {
     /**
      * Copy services only from other service container.
      */
-    fun copyServices(container: ServiceContainer)
+    fun copyServices(container: ServiceContainer<T>)
 
     /**
      * Copy all from other service container.
      */
-    fun copy(container: ServiceContainer)
+    fun copy(container: ServiceContainer<T>)
 }
 
-data class ServiceBinding<T : Any>(val cls: Class<T>, val instance: T, val tag: String = "")
+data class ServiceBinding<T : Any>(val cls: Class<out T>, val instance: T, val tag: String = "")

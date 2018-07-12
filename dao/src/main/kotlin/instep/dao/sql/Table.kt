@@ -1,14 +1,14 @@
 package instep.dao.sql
 
+import instep.ImpossibleBranch
 import instep.Instep
-import instep.UnexpectedCodeError
 import instep.dao.DaoException
 import instep.dao.Plan
 
 /**
  * Abstract DAO object.
  */
-@Suppress("unused", "FoldInitializerAndIfToElvis")
+@Suppress("unused", "FoldInitializerAndIfToElvis", "MemberVisibilityCanBePrivate")
 abstract class Table(val tableName: String, val dialect: Dialect) {
     constructor(tableName: String) : this(tableName, Instep.make(Dialect::class.java))
 
@@ -298,7 +298,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
                     return
                 }
             }
-            else -> throw UnexpectedCodeError()
+            else -> throw ImpossibleBranch()
         }
 
         val plan = insert()
