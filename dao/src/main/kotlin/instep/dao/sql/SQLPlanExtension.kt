@@ -4,19 +4,19 @@ package instep.dao.sql
 
 import instep.Instep
 import instep.InstepLogger
-import instep.dao.Plan
 import instep.typeconversion.TypeConversion
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
 
-val planExecutor = Instep.make(SQLPlanExecutor::class.java)
+@Suppress("UNCHECKED_CAST")
+val planExecutor = Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<SQLPlan<*>>
 
 /**
  * @see [SQLPlanExecutor.execute]
  */
 @Throws(SQLPlanExecutionException::class)
-fun Plan<*>.execute() {
+fun SQLPlan<*>.execute() {
     planExecutor.execute(this)
 }
 
@@ -24,7 +24,7 @@ fun Plan<*>.execute() {
  * @see [SQLPlanExecutor.execute]
  */
 @Throws(SQLPlanExecutionException::class)
-fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
+fun <T : Any> SQLPlan<*>.execute(cls: Class<T>): List<T> {
     return planExecutor.execute(this, cls)
 }
 
@@ -32,7 +32,7 @@ fun <T : Any> Plan<*>.execute(cls: Class<T>): List<T> {
  * @see [SQLPlanExecutor.executeScalar]
  */
 @Throws(SQLPlanExecutionException::class)
-fun Plan<*>.executeScalar(): String {
+fun SQLPlan<*>.executeScalar(): String {
     return planExecutor.executeScalar(this)
 }
 
@@ -40,7 +40,7 @@ fun Plan<*>.executeScalar(): String {
  * @see [SQLPlanExecutor.executeScalar]
  */
 @Throws(SQLPlanExecutionException::class)
-fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
+fun <T : Any> SQLPlan<*>.executeScalar(cls: Class<T>): T? {
     return planExecutor.executeScalar(this, cls)
 }
 
@@ -48,7 +48,7 @@ fun <T : Any> Plan<*>.executeScalar(cls: Class<T>): T? {
  * @see [SQLPlanExecutor.executeUpdate]
  */
 @Throws(SQLPlanExecutionException::class)
-fun Plan<*>.executeUpdate(): Long {
+fun SQLPlan<*>.executeUpdate(): Long {
     return planExecutor.executeUpdate(this)
 }
 
@@ -56,7 +56,7 @@ fun Plan<*>.executeUpdate(): Long {
  * @see [SQLPlanExecutor.executeResultSet]
  */
 @Throws(SQLPlanExecutionException::class)
-fun Plan<*>.executeResultSet(conn: Connection): ResultSet {
+fun SQLPlan<*>.executeResultSet(conn: Connection): ResultSet {
     return planExecutor.executeResultSet(conn, this)
 }
 

@@ -1,26 +1,25 @@
 package instep.dao.sql
 
-import instep.dao.Plan
 import instep.dao.PlanExecutor
 import java.sql.Connection
 import java.sql.ResultSet
 
-interface SQLPlanExecutor : PlanExecutor {
+interface SQLPlanExecutor<S : SQLPlan<*>> : PlanExecutor<S> {
     @Throws(SQLPlanExecutionException::class)
-    override fun execute(plan: Plan<*>)
+    override fun execute(plan: S)
 
     @Throws(SQLPlanExecutionException::class)
-    override fun executeScalar(plan: Plan<*>): String
+    override fun executeScalar(plan: S): String
 
     @Throws(SQLPlanExecutionException::class)
-    override fun <T : Any> executeScalar(plan: Plan<*>, cls: Class<T>): T?
+    override fun <T : Any> executeScalar(plan: S, cls: Class<T>): T?
 
     @Throws(SQLPlanExecutionException::class)
-    override fun <T : Any> execute(plan: Plan<*>, cls: Class<T>): List<T>
+    override fun <T : Any> execute(plan: S, cls: Class<T>): List<T>
 
     @Throws(SQLPlanExecutionException::class)
-    fun executeUpdate(plan: Plan<*>): Long
+    fun executeUpdate(plan: S): Long
 
     @Throws(SQLPlanExecutionException::class)
-    fun executeResultSet(conn: Connection, plan: Plan<*>): ResultSet
+    fun executeResultSet(conn: Connection, plan: S): ResultSet
 }

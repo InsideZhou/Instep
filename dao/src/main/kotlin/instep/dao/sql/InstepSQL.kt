@@ -12,8 +12,9 @@ object InstepSQL {
         return factory.createInstance(txt)
     }
 
-    fun executor(): SQLPlanExecutor {
-        return Instep.make(SQLPlanExecutor::class.java)
+    @Suppress("UNCHECKED_CAST")
+    fun executor(): SQLPlanExecutor<SQLPlan<*>> {
+        return Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<SQLPlan<*>>
     }
 
     fun transaction(): TransactionTemplate {
@@ -67,7 +68,7 @@ object InstepSQL {
             Instep.make(SQLPlanExecutor::class.java)
         }
         catch (e: ServiceNotFoundException) {
-            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
+            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor<SQLPlan<*>>())
         }
 
         try {
@@ -81,7 +82,7 @@ object InstepSQL {
             Instep.make(SQLPlanExecutor::class.java)
         }
         catch (e: ServiceNotFoundException) {
-            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
+            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor<SQLPlan<*>>())
         }
 
         try {

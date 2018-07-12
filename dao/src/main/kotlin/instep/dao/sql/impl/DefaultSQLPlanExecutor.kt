@@ -9,14 +9,14 @@ import java.sql.*
 import java.time.OffsetDateTime
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class DefaultSQLPlanExecutor(
+open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     val connectionProvider: ConnectionProvider,
     val resultSetValueExtractor: ResultSetValueExtractor,
     val resultSetDelegate: ResultSetDelegate,
     val columnInfoSetGenerator: ColumnInfoSetGenerator,
     val preparedStatementGenerator: PreparedStatementGenerator,
     val typeconvert: TypeConversion
-) : SQLPlanExecutor {
+) : SQLPlanExecutor<S> {
 
     constructor() : this(
         Instep.make(ConnectionProvider::class.java),
@@ -27,7 +27,7 @@ open class DefaultSQLPlanExecutor(
         Instep.make(TypeConversion::class.java)
     )
 
-    override fun execute(plan: instep.dao.Plan<*>) {
+    override fun execute(plan: S) {
         val conn = connectionProvider.getConnection()
         try {
             val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
@@ -41,7 +41,7 @@ open class DefaultSQLPlanExecutor(
         }
     }
 
-    override fun executeScalar(plan: instep.dao.Plan<*>): String {
+    override fun executeScalar(plan: S): String {
         val conn = connectionProvider.getConnection()
 
         try {
@@ -59,7 +59,7 @@ open class DefaultSQLPlanExecutor(
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> executeScalar(plan: instep.dao.Plan<*>, cls: Class<T>): T? {
+    override fun <T : Any> executeScalar(plan: S, cls: Class<T>): T? {
         val conn = connectionProvider.getConnection()
 
         try {
@@ -77,7 +77,7 @@ open class DefaultSQLPlanExecutor(
     }
 
     @Suppress("LiftReturnOrAssignment")
-    override fun executeUpdate(plan: instep.dao.Plan<*>): Long {
+    override fun executeUpdate(plan: S): Long {
         var stmt: PreparedStatement? = null
         val conn = connectionProvider.getConnection()
         try {
@@ -97,7 +97,7 @@ open class DefaultSQLPlanExecutor(
         }
     }
 
-    override fun executeResultSet(conn: Connection, plan: instep.dao.Plan<*>): ResultSet {
+    override fun executeResultSet(conn: Connection, plan: S): ResultSet {
         val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
 
         return when (plan) {
@@ -109,7 +109,7 @@ open class DefaultSQLPlanExecutor(
         }
     }
 
-    override fun <T : Any> execute(plan: instep.dao.Plan<*>, cls: Class<T>): List<T> {
+    override fun <T : Any> execute(plan: S, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
         val conn = connectionProvider.getConnection()
