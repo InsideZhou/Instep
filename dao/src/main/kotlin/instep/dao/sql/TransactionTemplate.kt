@@ -32,7 +32,7 @@ object TransactionTemplate {
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
 
     @Suppress("unchecked_cast")
-    fun <R : Any?> template(level: Int, runner: TransactionContext.() -> R): R {
+    fun <R> template(level: Int, runner: TransactionContext.() -> R): R {
         var transactionContext = threadLocalTransactionContext.get()
         if (null == transactionContext) {
             val connMan = Instep.make(IConnectionProvider::class.java)

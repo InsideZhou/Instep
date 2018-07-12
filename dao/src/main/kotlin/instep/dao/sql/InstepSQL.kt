@@ -21,6 +21,10 @@ object InstepSQL {
         return TransactionTemplate
     }
 
+    fun <R> transaction(level: Int, runner: TransactionContext.() -> R): R {
+        return TransactionTemplate.template(level, runner)
+    }
+
     init {
         try {
             Instep.make(ResultSetValueExtractor::class.java)
