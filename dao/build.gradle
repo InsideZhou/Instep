@@ -1,16 +1,8 @@
-buildscript {
-    buildscript { scriptHandler ->
-        apply from: '../buildscript.gradle', to: scriptHandler
-    }
-}
-
-apply plugin: 'kotlin'
-
 dependencies {
     api project(':core')
 
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlinVersion"
-    implementation "org.jetbrains.kotlin:kotlin-reflect:$kotlinVersion"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
 
     testImplementation 'com.alibaba:druid:1.0.31'
     testImplementation 'net.moznion:random-string:1.1.0'

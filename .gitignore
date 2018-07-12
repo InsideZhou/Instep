@@ -1,12 +1,16 @@
-gradle-app.setting
-
-/.idea/
-/.gradle/
-.idea/*
-.gradle/*
-
-/build/*
+build/*
 */build/*
+
+out/*
 */out/*
 
+bin/*
+*/bin/*
+
 *.iml
+.project
+.settings
+.classpath
+.vscode
+.idea/
+.gradle/

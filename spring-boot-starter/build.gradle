@@ -3,11 +3,3 @@ dependencies {
 
     implementation "org.springframework.boot:spring-boot-starter"
 }
-
-jar {
-    enabled = true
-}
-
-bootJar {
-    classifier = 'boot'
-}
