@@ -6,15 +6,15 @@ import java.io.InputStream
 import java.math.BigDecimal
 import java.sql.Blob
 import java.sql.ResultSet
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.OffsetDateTime
+import java.time.*
 
+@Suppress("unused")
 /**
  * A table row filled with data.
  */
 class TableRow {
+    private val offset = OffsetDateTime.now().offset
+
     private val map = mutableMapOf<Column<*>, Any?>()
 
     operator fun get(column: Column<*>): Any? {
@@ -48,27 +48,58 @@ class TableRow {
         }
     }
 
-    operator fun get(column: DateTimeColumn): OffsetDateTime? {
-        val value = map[column]
-        return when (value) {
-            is LocalDateTime -> OffsetDateTime.of(value, OffsetDateTime.now().offset)
-            is LocalDate -> OffsetDateTime.of(value, LocalTime.MIDNIGHT, OffsetDateTime.now().offset)
-            is LocalTime -> OffsetDateTime.of(LocalDate.ofEpochDay(0), value, OffsetDateTime.now().offset)
-            is OffsetDateTime -> value
-            null -> null
-            else -> throw UnsupportedOperationException("Converting $value to OffsetDateTime is not supported.")
+    fun getOffsetDateTime(column: DateTimeColumn): OffsetDateTime? {
+        return map[column]?.let {
+            when (it) {
+                is LocalDateTime -> OffsetDateTime.of(it, offset)
+                is Instant -> OffsetDateTime.ofInstant(it, offset)
+                is OffsetDateTime -> it
+                else -> throw UnsupportedOperationException("Converting $it to OffsetDateTime is not supported.")
+            }
         }
     }
 
     fun getLocalDateTime(column: DateTimeColumn): LocalDateTime? {
-        val value = map[column]
-        return when (value) {
-            is LocalDateTime -> value
-            is LocalDate -> LocalDateTime.of(value, LocalTime.MIDNIGHT)
-            is LocalTime -> LocalDateTime.of(LocalDate.ofEpochDay(0), value)
-            is OffsetDateTime -> value.toLocalDateTime()
-            null -> null
-            else -> throw UnsupportedOperationException("Converting $value to LocalDateTime is not supported.")
+        return map[column]?.let {
+            when (it) {
+                is LocalDateTime -> it
+                is Instant -> LocalDateTime.ofInstant(it, offset)
+                is OffsetDateTime -> it.toLocalDateTime()
+                else -> throw UnsupportedOperationException("Converting $it to LocalDateTime is not supported.")
+            }
+        }
+    }
+
+    fun getLocalDate(column: DateTimeColumn): LocalDate? {
+        return map[column]?.let {
+            when (it) {
+                is LocalDateTime -> it.toLocalDate()
+                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalDate()
+                is OffsetDateTime -> it.toLocalDate()
+                else -> throw UnsupportedOperationException("Converting $it to LocalDate is not supported.")
+            }
+        }
+    }
+
+    fun getLocalTime(column: DateTimeColumn): LocalTime? {
+        return map[column]?.let {
+            when (it) {
+                is LocalDateTime -> it.toLocalTime()
+                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalTime()
+                is OffsetDateTime -> it.toLocalTime()
+                else -> throw UnsupportedOperationException("Converting $it to LocalTime is not supported.")
+            }
+        }
+    }
+
+    operator fun get(column: DateTimeColumn): Instant? {
+        return map[column]?.let {
+            when (it) {
+                is LocalDateTime -> it.toInstant(offset)
+                is Instant -> it
+                is OffsetDateTime -> it.toInstant()
+                else -> throw UnsupportedOperationException("Converting $it to Instant is not supported.")
+            }
         }
     }
 
