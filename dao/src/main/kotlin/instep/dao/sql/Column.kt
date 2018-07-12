@@ -3,6 +3,7 @@ package instep.dao.sql
 abstract class Column<T : Column<T>>(val name: String) {
     var primary = false
     var nullable = true
+    var unique = false
     var default = ""
 
     @Suppress("UNCHECKED_CAST")
@@ -14,6 +15,12 @@ abstract class Column<T : Column<T>>(val name: String) {
     @Suppress("UNCHECKED_CAST")
     fun notnull(): T {
         this.nullable = false
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun unique(): T {
+        this.unique = true
         return this as T
     }
 

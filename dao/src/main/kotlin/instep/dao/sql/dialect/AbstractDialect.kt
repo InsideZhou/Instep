@@ -233,6 +233,10 @@ abstract class AbstractDialect : Dialect {
             txt += " DEFAULT ${column.default}"
         }
 
+        if (column.unique) {
+            txt += " UNIQUE"
+        }
+
         if (column.primary) {
             txt += " PRIMARY KEY"
         }

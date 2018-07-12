@@ -29,6 +29,7 @@ object TableTest {
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
         val id = AccountTable.uuid("id").primary()
+        val code = AccountTable.varchar("code", 16).unique()
         val name = AccountTable.varchar("name", 256).notnull()
         val balance = when (AccountTable.dialect) {
             is MySQLDialect -> AccountTable.numeric("balance", 65, 2).notnull()
