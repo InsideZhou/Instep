@@ -1,6 +1,7 @@
 package instep.dao.sql.impl
 
 import instep.Instep
+import instep.InstepLogger
 import instep.collection.AssocArray
 import instep.dao.sql.*
 import instep.typeconversion.Converter
@@ -109,6 +110,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         }
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> execute(plan: S, cls: Class<T>): List<T> {
         val result = mutableListOf<T>()
 
@@ -121,20 +123,57 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                     val instanceOfT = typeconvert.convert(rs, ResultSet::class.java, cls)
                     result.add(instanceOfT)
                 }
-
-                return result
             }
+            else if (plan is TableSelectPlan) {
+                val rows = mutableListOf<TableRow>()
 
-            val mirror = Instep.reflect(cls)
-            val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
-
-            try {
                 while (rs.next()) {
-                    result.add(Helper.resultSetToInstanceByInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
+                    rows.add(TableRow.createInstance(plan.from, connectionProvider.dialect, rs))
+                }
+
+                if (typeconvert.canConvert(TableRow::class.java, cls)) return rows.map { row -> typeconvert.convert(row, cls) }
+                if (cls == TableRow::class.java) return rows as List<T>
+
+                val targetMirror = Instep.reflect(cls)
+                val tableMirror = Instep.reflect(plan.from)
+
+                return rows.map { row ->
+                    val instance = cls.newInstance()
+
+                    targetMirror.mutableProperties.forEach { p ->
+                        tableMirror.readableProperties.find {
+                            p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                        }?.let {
+                            val col = it.getter.invoke(plan.from) as Column<*>
+
+                            row[col]?.let {
+                                try {
+                                    p.setter.invoke(instance, it)
+                                }
+                                catch (e: IllegalArgumentException) {
+                                    InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
+                                }
+                            }
+
+                            return@forEach
+                        }
+                    }
+
+                    return@map instance
                 }
             }
-            catch (e: Exception) {
-                throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
+            else {
+                val mirror = Instep.reflect(cls)
+                val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
+
+                try {
+                    while (rs.next()) {
+                        result.add(Helper.resultSetToInstanceByInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
+                    }
+                }
+                catch (e: Exception) {
+                    throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
+                }
             }
         }
         catch (e: SQLException) {

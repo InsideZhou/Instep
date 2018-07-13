@@ -55,13 +55,6 @@ object InstepSQL {
         }
 
         try {
-            Instep.make(TableRowFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
-            Instep.bind(TableRowFactory::class.java, TableRowFactory.Companion)
-        }
-
-        try {
             Instep.make(SQLPlanFactory::class.java)
         }
         catch (e: ServiceNotFoundException) {

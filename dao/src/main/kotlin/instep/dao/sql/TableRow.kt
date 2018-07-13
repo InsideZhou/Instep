@@ -38,6 +38,16 @@ class TableRow {
         return map[column] as String
     }
 
+    fun getFloat(column: FloatingColumn): Float {
+        val value = map[column]
+        return when (value) {
+            is Double -> value.toFloat()
+            is Float -> value
+            is BigDecimal -> value.toFloat()
+            else -> throw UnsupportedOperationException("Converting $value to Double is not supported.")
+        }
+    }
+
     operator fun get(column: FloatingColumn): Double {
         val value = map[column]
         return when (value) {
@@ -73,6 +83,7 @@ class TableRow {
     fun getLocalDate(column: DateTimeColumn): LocalDate? {
         return map[column]?.let {
             when (it) {
+                is LocalDate -> it
                 is LocalDateTime -> it.toLocalDate()
                 is Instant -> LocalDateTime.ofInstant(it, offset).toLocalDate()
                 is OffsetDateTime -> it.toLocalDate()
@@ -84,6 +95,7 @@ class TableRow {
     fun getLocalTime(column: DateTimeColumn): LocalTime? {
         return map[column]?.let {
             when (it) {
+                is LocalTime -> it
                 is LocalDateTime -> it.toLocalTime()
                 is Instant -> LocalDateTime.ofInstant(it, offset).toLocalTime()
                 is OffsetDateTime -> it.toLocalTime()
@@ -115,17 +127,12 @@ class TableRow {
     operator fun set(column: Column<*>, value: Any?) {
         map[column] = value
     }
-}
 
-interface TableRowFactory {
-    fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow
-
-    @Suppress("FoldInitializerAndIfToElvis")
-    companion object : TableRowFactory {
+    companion object {
         val resultSetDelegate = Instep.make(ResultSetDelegate::class.java)
         val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
 
-        override fun createInstance(table: Table, dialect: Dialect, resultSet: ResultSet): TableRow {
+        fun <T : Table> createInstance(table: T, dialect: Dialect, resultSet: ResultSet): TableRow {
             val row = TableRow()
             val rs = resultSetDelegate.getDelegate(dialect, resultSet)
 

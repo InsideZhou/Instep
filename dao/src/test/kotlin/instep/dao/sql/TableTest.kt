@@ -3,6 +3,7 @@ package instep.dao.sql
 import instep.Instep
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
+import org.testng.Assert
 import java.time.*
 import java.util.*
 
@@ -130,18 +131,21 @@ object TableTest {
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
 
-        assert(account[AccountTable.birthDate] == OffsetDateTime.of(birthDate, LocalTime.MIDNIGHT, ZonedDateTime.now().offset))
-        assert(account[AccountTable.birthTime] == OffsetDateTime.of(LocalDate.ofEpochDay(0), birthTime, ZonedDateTime.now().offset))
+        Assert.assertThrows(UnsupportedOperationException::class.java, { account[AccountTable.birthDate] })
+        Assert.assertThrows(UnsupportedOperationException::class.java, { account[AccountTable.birthTime] })
+
+        assert(account.getLocalDate(AccountTable.birthDate) == birthDate)
+        assert(account.getLocalTime(AccountTable.birthTime) == birthTime)
 
         if (dialect.isOffsetDateTimeSupported) {
-            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
+            assert(account.getOffsetDateTime(AccountTable.birthday) == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
         }
         else {
-            assert(account[AccountTable.birthday] == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
+            assert(account.getOffsetDateTime(AccountTable.birthday) == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
         }
 
-        assert(account.getLocalDateTime(AccountTable.birthDate) == LocalDateTime.of(birthDate, LocalTime.MIDNIGHT))
-        assert(account.getLocalDateTime(AccountTable.birthTime) == LocalDateTime.of(LocalDate.ofEpochDay(0), birthTime))
+        Assert.assertThrows(UnsupportedOperationException::class.java, { account.getLocalDateTime(AccountTable.birthDate) })
+        Assert.assertThrows(UnsupportedOperationException::class.java, { account.getLocalDateTime(AccountTable.birthTime) })
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
