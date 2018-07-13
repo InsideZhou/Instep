@@ -18,7 +18,7 @@ interface SQLPlanExecutor<S : SQLPlan<*>> : PlanExecutor<S> {
     override fun <T : Any> execute(plan: S, cls: Class<T>): List<T>
 
     @Throws(SQLPlanExecutionException::class)
-    fun executeUpdate(plan: S): Long
+    fun executeUpdate(plan: S): Int
 
     @Throws(SQLPlanExecutionException::class)
     fun executeResultSet(conn: Connection, plan: S): ResultSet

@@ -6,7 +6,10 @@ import instep.collection.AssocArray
 import instep.dao.sql.*
 import instep.typeconversion.Converter
 import instep.typeconversion.TypeConversion
-import java.sql.*
+import java.sql.Connection
+import java.sql.ResultSet
+import java.sql.SQLException
+import java.sql.Types
 import java.time.OffsetDateTime
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -79,17 +82,11 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     }
 
     @Suppress("LiftReturnOrAssignment")
-    override fun executeUpdate(plan: S): Long {
-        var stmt: PreparedStatement? = null
+    override fun executeUpdate(plan: S): Int {
         val conn = connectionProvider.getConnection()
         try {
-            stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
-            return stmt.executeLargeUpdate()
-        }
-        catch (e: SQLFeatureNotSupportedException) {
-            if (null == stmt) throw e
-
-            return stmt.executeUpdate().toLong()
+            val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
+            return stmt.executeUpdate()
         }
         catch (e: SQLException) {
             throw SQLPlanExecutionException(e)

@@ -45,7 +45,7 @@ fun <T : Any> SQLPlan<*>.executeScalar(cls: Class<T>): T? {
  * @see [SQLPlanExecutor.executeUpdate]
  */
 @Throws(SQLPlanExecutionException::class)
-fun SQLPlan<*>.executeUpdate(): Long {
+fun SQLPlan<*>.executeUpdate(): Int {
     return planExecutor.executeUpdate(this)
 }
 
