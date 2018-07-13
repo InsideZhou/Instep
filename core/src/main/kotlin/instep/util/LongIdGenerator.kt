@@ -18,14 +18,24 @@ class LongIdGenerator(
     val epoch: Long
 ) : Serializable {
 
+    constructor(
+        workerId: Int,
+        timestampBits: Int,
+        highPaddingBits: Int,
+        workerIdBits: Int,
+        lowPaddingBits: Int
+    ) : this(
+        workerId, timestampBits, highPaddingBits, workerIdBits, lowPaddingBits,
+        SecureRandom.getInstanceStrong(),
+        1517414400L //Thu Feb 01 2018 00:00:00 GMT, seconds
+    )
+
     constructor(workerId: Int) : this(
         workerId,
         32,
         0,
         12,
-        0,
-        SecureRandom.getInstanceStrong(),
-        1517414400L //Thu Feb 01 2018 00:00:00 GMT, seconds
+        0
     )
 
     var maxWorkerId: Int = -1
