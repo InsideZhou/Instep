@@ -86,7 +86,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
             return stmt.executeLargeUpdate()
         }
-        catch (e: UnsupportedOperationException) {
+        catch (e: SQLFeatureNotSupportedException) {
             if (null == stmt) throw e
 
             return stmt.executeUpdate().toLong()
