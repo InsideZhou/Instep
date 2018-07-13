@@ -65,7 +65,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
 
         try {
             val rs = executeResultSet(conn, plan)
-            if (!rs.next() || rs.wasNull()) return null
+
+            if (!rs.next() || rs.getString(1)?.isBlank() ?: true || rs.wasNull()) return null
 
             return resultSetValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T
         }

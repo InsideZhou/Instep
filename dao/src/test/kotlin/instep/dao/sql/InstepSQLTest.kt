@@ -6,6 +6,7 @@ import instep.InstepLogger
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import net.moznion.random.string.RandomStringGenerator
+import org.testng.Assert
 import org.testng.annotations.Test
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -62,6 +63,8 @@ object InstepSQLTest {
             else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')""").executeScalar()
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))
+
+        Assert.assertNull(InstepSQL.plan("""SELECT NULL""").executeScalar(Int::class.java))
     }
 
     @Test
