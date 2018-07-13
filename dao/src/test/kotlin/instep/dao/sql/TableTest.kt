@@ -95,7 +95,7 @@ object TableTest {
         AccountTable.update()
             .set(AccountTable.name, "laozi")
             .set(AccountTable.balance, 3.33)
-            .where(id)
+            .whereKey(id)
             .debug()
             .executeUpdate()
 

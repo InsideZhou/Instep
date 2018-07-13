@@ -34,7 +34,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
         return this
     }
 
-    override fun where(key: Any): TableUpdatePlan {
+    override fun whereKey(key: Any): TableUpdatePlan {
         if (null == table.primaryKey) throw DaoException("Table ${table.tableName} should has primary key")
 
         pkValue = key

@@ -10,7 +10,7 @@ interface TableUpdatePlan : SQLPlan<TableUpdatePlan>, WhereClause<TableUpdatePla
     fun set(obj: Any): TableUpdatePlan
 
     @Throws(DaoException::class)
-    fun where(key: Any): TableUpdatePlan
+    fun whereKey(key: Any): TableUpdatePlan
 }
 
 interface TableUpdatePlanFactory<out T : TableUpdatePlan> {

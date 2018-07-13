@@ -274,7 +274,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
                             }
                             plan.where(pk as NumberColumn eq key).execute()
                         }
-                        else -> plan.set(obj).where(key).execute()
+                        else -> plan.set(obj).whereKey(key).execute()
                     }
 
                     return
@@ -292,7 +292,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
                             }
                             plan.where(pk as StringColumn eq key).execute()
                         }
-                        else -> plan.set(obj).where(key).execute()
+                        else -> plan.set(obj).whereKey(key).execute()
                     }
 
                     return
