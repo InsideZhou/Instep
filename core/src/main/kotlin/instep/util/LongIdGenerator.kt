@@ -15,7 +15,8 @@ class LongIdGenerator(
     workerIdBits: Int,
     lowPaddingBits: Int,
     val random: SecureRandom,
-    val epoch: Long
+    val epoch: Long,
+    val sequenceStartRange: Int
 ) : Serializable {
 
     constructor(
@@ -27,7 +28,8 @@ class LongIdGenerator(
     ) : this(
         workerId, timestampBits, highPaddingBits, workerIdBits, lowPaddingBits,
         SecureRandom.getInstanceStrong(),
-        1517414400L //Thu Feb 01 2018 00:00:00 GMT, seconds
+        1517414400L, //Thu Feb 01 2018 00:00:00 GMT, seconds
+        1000
     )
 
     constructor(workerId: Int) : this(
@@ -86,7 +88,7 @@ class LongIdGenerator(
             }
         }
         else {
-            sequence = random.nextInt(100)
+            sequence = random.nextInt(sequenceStartRange)
         }
 
         lastTimestamp = timestamp
