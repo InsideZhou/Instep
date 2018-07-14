@@ -1,12 +1,11 @@
 package instep.dao
 
 import instep.InstepLogger
-import java.io.Serializable
 
 /**
  * Plan that is targeting relational database manipulated by SQL.
  */
-interface Plan<T : Plan<T>> : Serializable {
+interface Plan<T : Plan<T>> {
     val statement: String
     /**
      * Order of parameters need to be same as order of statement's placeholders.

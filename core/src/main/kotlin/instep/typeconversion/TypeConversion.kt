@@ -1,11 +1,9 @@
 package instep.typeconversion
 
-import java.io.Serializable
-
 /**
  * Convert instance to another type。
  */
-interface TypeConversion : Serializable {
+interface TypeConversion {
     /**
      * Register type converter.
      */

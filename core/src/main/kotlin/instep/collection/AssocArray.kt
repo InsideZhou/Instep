@@ -1,13 +1,12 @@
 package instep.collection
 
-import java.io.Serializable
 import java.util.*
 
 /**
  * Associative array.
  */
 @Suppress("unused")
-open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collection<Any?> {
+open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
     constructor(entries: Array<out Pair<Any, Any?>>, keyIgnoreCase: Boolean = false) : this(keyIgnoreCase) {
         addPairs(entries)
     }
@@ -126,7 +125,7 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collec
 /**
  * Key of associative array.
  */
-class AAKey private constructor() : Serializable, Any() {
+class AAKey private constructor() : Any() {
     var stringKey = ""
         private set
     var intKey = 0
@@ -145,7 +144,7 @@ class AAKey private constructor() : Serializable, Any() {
             intKey = key.toInt()
             usingInt = true
         }
-        catch(e: NumberFormatException) {
+        catch (e: NumberFormatException) {
             stringKey = key
         }
     }

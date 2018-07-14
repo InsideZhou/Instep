@@ -1,9 +1,8 @@
 package instep.dao
 
 import instep.dao.impl.DefaultExpression
-import java.io.Serializable
 
-interface Expression<T : Expression<T>> : Serializable {
+interface Expression<T : Expression<T>> {
     val expression: String
     val parameters: List<Any?>
 

@@ -1,6 +1,5 @@
 package instep.util
 
-import java.io.Serializable
 import java.security.SecureRandom
 
 @Suppress("unused", "CanBeParameter")
@@ -17,7 +16,7 @@ class LongIdGenerator(
     val random: SecureRandom,
     val epoch: Long,
     val sequenceStartRange: Int
-) : Serializable {
+) {
 
     constructor(
         workerId: Int,

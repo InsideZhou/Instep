@@ -5,13 +5,12 @@ import instep.dao.sql.dialect.H2Dialect
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
-import java.io.Serializable
 import java.sql.PreparedStatement
 
 /**
  * SQL dialect.
  */
-interface Dialect : Serializable {
+interface Dialect {
     fun createTable(tableName: String, columns: List<Column<*>>): SQLPlan<*>
     fun createTableIfNotExists(tableName: String, columns: List<Column<*>>): SQLPlan<*>
     fun renameTable(tableName: String, newName: String): SQLPlan<*>
