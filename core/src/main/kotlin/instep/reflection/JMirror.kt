@@ -1,7 +1,9 @@
 package instep.reflection
 
+import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
+import java.lang.reflect.Modifier
 
 @Suppress("unused", "MemberVisibilityCanBePrivate")
 open class JMirror<T : Any>(val type: Class<T>) {
@@ -57,9 +59,24 @@ open class JMirror<T : Any>(val type: Class<T>) {
         return pickReadableProperties(getPropertiesUntil(cls)).toSet()
     }
 
-    companion object {
-        private const val serialVersionUID = -1198502315155859418L
+    fun findFactoryMethodBy(cls: Class<*>): Method? {
+        return type.declaredMethods.find {
+            Modifier.isPublic(it.modifiers) &&
+                1 == it.parameterCount &&
+                it.parameterTypes[0].isAssignableFrom(cls) &&
+                type.isAssignableFrom(it.returnType)
+        }
+    }
 
+    fun findFactoryConstructorBy(cls: Class<*>): Constructor<*>? {
+        return type.declaredConstructors.find {
+            Modifier.isPublic(it.modifiers) &&
+                1 == it.parameterCount &&
+                it.parameterTypes[0].isAssignableFrom(cls)
+        }
+    }
+
+    companion object {
         fun pickMutableProperties(properties: Iterable<Property>): Iterable<MutableProperty> {
             return properties.filterNot { null == it.setter }.map { MutableProperty(it.field, it.setter!!) }
         }

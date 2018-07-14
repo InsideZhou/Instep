@@ -21,8 +21,4 @@ class Mirror<T : Any>(val type: KClass<T>) {
 
     val readableProperties = type.memberProperties.filterNot { it is KMutableProperty<*> }.toSet()
     val mutableProperties = type.memberProperties.mapNotNull { it as? KMutableProperty<*> }.toSet()
-
-    companion object {
-        private const val serialVersionUID = -1198502315155859418L
-    }
 }

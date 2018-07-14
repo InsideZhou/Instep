@@ -17,8 +17,12 @@ interface TypeConversion {
     /**
      * Remove type converter.
      */
-    @Throws(ConverterNotExistsException::class)
     fun <From, To> remove(from: Class<From>, to: Class<To>): Converter<From, To>?
+
+    /**
+     * Remove type converter, all possible conversion implement by derived From to derived To would also be removed.
+     */
+    fun <From, To> removeAll(from: Class<From>, to: Class<To>)
 
     /**
      * Check if TypeConversion can convert FromClass to ToClass.
