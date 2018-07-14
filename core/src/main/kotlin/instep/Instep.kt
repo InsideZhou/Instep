@@ -1,6 +1,6 @@
 package instep
 
-import instep.cache.CommonCache
+import instep.cache.Cache
 import instep.cache.driver.MemoryCache
 import instep.reflection.JMirror
 import instep.reflection.Mirror
@@ -16,7 +16,7 @@ object Instep {
     var serviceContainer: ServiceContainer<Any> = MemoryServiceContainer(MemoryCache())
 
     init {
-        serviceContainer.bind(CommonCache::class.java, MemoryCache<Any>())
+        serviceContainer.bind(Cache::class.java, MemoryCache<Any>())
         serviceContainer.bind(TypeConversion::class.java, DefaultTypeConversion())
     }
 
@@ -49,7 +49,7 @@ object Instep {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> reflect(cls: Class<T>): JMirror<T> {
-        (make(CommonCache::class.java)).let { cache ->
+        make(Cache::class.java as Class<Cache<Any>>).let { cache ->
             return if (cache.containsKey(cls.name)) {
                 cache[cls.name] as JMirror<T>
             }
@@ -74,7 +74,7 @@ object Instep {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> kReflect(cls: KClass<T>): Mirror<T> {
-        make(CommonCache::class.java).let { cache ->
+        make(Cache::class.java as Class<Cache<Any>>).let { cache ->
             return if (cache.containsKey(cls.qualifiedName)) {
                 cache[cls.qualifiedName] as Mirror<T>
             }
