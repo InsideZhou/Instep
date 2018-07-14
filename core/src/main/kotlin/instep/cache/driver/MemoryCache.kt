@@ -1,18 +1,18 @@
 package instep.cache.driver
 
 import instep.cache.Cache
+import instep.cache.Cache.Companion.assertKeyIsValid
 import instep.cache.CacheKeyNotExistsException
-import instep.cache.GenericCache.Companion.assertKeyIsValid
 import java.util.concurrent.ConcurrentHashMap
 
-open class MemoryCache : Cache {
-    private val map = ConcurrentHashMap<String, CacheStore>()
+open class MemoryCache<T> : Cache<T> {
+    private val map = ConcurrentHashMap<String, CacheStore<T>>()
 
-    override val entries: Set<Map.Entry<String, Any>>
+    override val entries: Set<Map.Entry<String, T>>
         get() = map.entries.map {
-            object : Map.Entry<String, Any> {
+            object : Map.Entry<String, T> {
                 override val key: String = it.key
-                override val value: Any = it.value.value
+                override val value: T = it.value.value
             }
         }.toSet()
 
@@ -22,14 +22,14 @@ open class MemoryCache : Cache {
     override val size: Int
         get() = map.size
 
-    override val values: Collection<Any>
+    override val values: Collection<T>
         get() = map.values.map { it.value }
 
     override fun containsKey(key: String): Boolean {
         return map.containsKey(key)
     }
 
-    override fun containsValue(value: Any): Boolean {
+    override fun containsValue(value: T): Boolean {
         return values.contains(value)
     }
 
@@ -37,30 +37,31 @@ open class MemoryCache : Cache {
         return map.isEmpty()
     }
 
-    override fun remove(key: String): Any? {
-        return map.remove(key)
+    @Suppress("UNCHECKED_CAST")
+    override fun remove(key: String): T? {
+        return map.remove(key)?.value
     }
 
-    override fun put(key: String, value: Any, ttl: Int) {
+    override fun put(key: String, value: T, ttl: Int) {
         assertKeyIsValid(key)
 
-        map.put(key, CacheStore(value, System.currentTimeMillis(), ttl))
+        map[key] = CacheStore(value, System.currentTimeMillis(), ttl)
     }
 
-    override fun set(key: String, value: Any) {
+    override fun set(key: String, value: T) {
         assertKeyIsValid(key)
 
         var store = map[key]
         if (null == store) {
-            map.put(key, CacheStore(value, System.currentTimeMillis()))
+            map[key] = CacheStore(value, System.currentTimeMillis())
         }
         else {
             store = store.copy(value)
-            map.put(key, store)
+            map[key] = store
         }
     }
 
-    override fun get(key: String): Any? {
+    override fun get(key: String): T? {
         val store = map[key]
         if (null == store || !isAlive(store)) return null
 
@@ -72,26 +73,26 @@ open class MemoryCache : Cache {
         if (null == store) throw CacheKeyNotExistsException(key)
 
         store = store.copy(createdTime = System.currentTimeMillis(), ttl = ttl ?: store.ttl)
-        map.put(key, store)
+        map[key] = store
     }
 
-    override fun getAlive(): Map<String, Any> {
-        return map.filterValues { store -> isAlive(store) }
+    override fun getAlive(): Map<String, T> {
+        return map.filterValues { store -> isAlive(store) }.mapValues { store -> store.value.value }
     }
 
-    override fun getExpired(): Map<String, Any> {
-        return map.filterValues { store -> !isAlive(store) }
+    override fun getExpired(): Map<String, T> {
+        return map.filterValues { store -> !isAlive(store) }.mapValues { store -> store.value.value }
     }
 
-    override fun clearExpired(): Map<String, Any> {
+    override fun clearExpired(): Map<String, T> {
         val expired = map.filterValues { store -> !isAlive(store) }
         expired.forEach { pair -> map.remove(pair.key) }
         return expired.mapValues { store -> store.value.value }
     }
 
-    open protected fun isAlive(store: CacheStore): Boolean {
+    open protected fun isAlive(store: CacheStore<T>): Boolean {
         return store.ttl < 0 || store.createdTime + store.ttl > System.currentTimeMillis()
     }
 }
 
-data class CacheStore(val value: Any, val createdTime: Long, val ttl: Int = -1)
+data class CacheStore<T>(val value: T, val createdTime: Long, val ttl: Int = -1)

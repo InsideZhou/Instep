@@ -3,7 +3,7 @@ package instep.servicecontainer.impl
 import instep.cache.driver.MemoryCache
 import instep.servicecontainer.ServiceNotFoundException
 
-open class MemoryServiceContainer<T : Any>(memoryCache: MemoryCache) : AbstractServiceContainer<T>() {
+open class MemoryServiceContainer<T>(memoryCache: MemoryCache<T>) : AbstractServiceContainer<T>() {
     private val memory = memoryCache
 
     override fun bindInstance(key: String, instance: T) {
@@ -13,8 +13,8 @@ open class MemoryServiceContainer<T : Any>(memoryCache: MemoryCache) : AbstractS
     override fun hasKey(key: String): Boolean = memory.containsKey(key)
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> remove(cls: Class<T>, tag: String): T? {
-        return memory.remove(getKey(cls, tag)) as? T
+    override fun <E : T> remove(cls: Class<E>, tag: String): E? {
+        return memory.remove(getKey(cls, tag)) as? E
     }
 
     override fun removeAll(instance: T) {
@@ -22,12 +22,12 @@ open class MemoryServiceContainer<T : Any>(memoryCache: MemoryCache) : AbstractS
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun <T : Any> make(cls: Class<T>, tag: String): T {
+    override fun <E : T> make(cls: Class<E>, tag: String): E {
         val key = getKey(cls, tag)
 
-        val obj = fireOnResolving(cls) ?: memory[key] as? T
+        val obj = fireOnResolving(cls) ?: memory[key]
 
-        return obj ?: throw ServiceNotFoundException(key)
+        return obj as? E ?: throw ServiceNotFoundException(key)
     }
 
     override fun clear() {

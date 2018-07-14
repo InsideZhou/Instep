@@ -5,24 +5,26 @@ package instep.servicecontainer.impl
 import instep.Instep
 import instep.servicecontainer.*
 
-@Suppress("MemberVisibilityCanPrivate", "unused")
-abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
-    override var binding: ServiceBindingEventHandler<T>? = null
-    override var bound: ServiceBoundEventHandler<T>? = null
+@Suppress("MemberVisibilityCanPrivate", "unused", "MemberVisibilityCanBePrivate")
+abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
+    override var binding: ServiceBindingEventHandler? = null
+    override var bound: ServiceBoundEventHandler? = null
     override var resolving: ServiceResolvingEventHandler? = null
     override var resolved: ServiceResolvedEventHandler? = null
 
     protected val serviceBindings = mutableSetOf<ServiceBinding<out T>>()
 
+    @Suppress("UNCHECKED_CAST")
     override fun serviceBinds(): List<ServiceBinding<out T>> {
         return serviceBindings.toList()
     }
 
-    override fun copyServices(container: ServiceContainer<T>) {
+    @Suppress("UNCHECKED_CAST")
+    override fun copyServices(container: ServiceContainer<out T>) {
         container.serviceBinds().forEach { bind(it) }
     }
 
-    override fun copy(container: ServiceContainer<T>) {
+    override fun copy(container: ServiceContainer<out T>) {
         copyServices(container)
 
         binding = container.binding
@@ -56,7 +58,7 @@ abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
             val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
 
             parents.forEach {
-                val key = getKey(it as Class<out T>, tag)
+                val key = getKey(it as Class<T>, tag)
                 if (!hasKey(key)) {
                     bindInstance(key, instance)
                 }
@@ -70,7 +72,7 @@ abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
 
     protected abstract fun hasKey(key: String): Boolean
 
-    protected fun <T : Any> getKey(cls: Class<T>, tag: String = ""): String {
+    protected fun getKey(cls: Class<out T>, tag: String = ""): String {
         return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
     }
 
@@ -82,11 +84,11 @@ abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
         bound?.handle(binding)
     }
 
-    protected fun <T : Any> fireOnResolving(cls: Class<T>, tag: String = ""): T? {
+    protected fun fireOnResolving(cls: Class<out T>, tag: String = ""): T? {
         return resolving?.handle(cls, tag)
     }
 
-    protected fun <T : Any> fireOnResolved(cls: Class<T>, obj: T, tag: String = "") {
+    protected fun fireOnResolved(cls: Class<out T>, obj: T, tag: String = "") {
         resolved?.handle(cls, obj, tag)
     }
 }

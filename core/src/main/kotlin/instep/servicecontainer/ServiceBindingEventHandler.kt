@@ -1,13 +1,13 @@
 package instep.servicecontainer
 
 @Suppress("unused")
-interface ServiceBindingEventHandler<T : Any> {
+interface ServiceBindingEventHandler {
     /**
      * Handle service binding event.
 
      * @return If false, service binding will be canceled.
      */
-    fun handle(binding: ServiceBinding<out T>): Boolean {
+    fun <T> handle(binding: ServiceBinding<T>): Boolean {
         return true
     }
 }

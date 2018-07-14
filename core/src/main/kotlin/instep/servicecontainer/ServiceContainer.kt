@@ -4,16 +4,16 @@ package instep.servicecontainer
 /**
  * Register service and make service instance.
  */
-interface ServiceContainer<T : Any> {
+interface ServiceContainer<T> {
     /**
      * Fire on service binding. If event handler return null, service binding would be canceled.
      */
-    var binding: ServiceBindingEventHandler<T>?
+    var binding: ServiceBindingEventHandler?
 
     /**
      * Fire on service bound.
      */
-    var bound: ServiceBoundEventHandler<T>?
+    var bound: ServiceBoundEventHandler?
 
     /**
      * Fire on service resolving.
@@ -34,7 +34,7 @@ interface ServiceContainer<T : Any> {
      * Make instance by class.
      * @param tag binding tagged by.
      */
-    fun <T : Any> make(cls: Class<T>, tag: String = ""): T
+    fun <E : T> make(cls: Class<E>, tag: String = ""): E
 
     /**
      * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
@@ -42,8 +42,7 @@ interface ServiceContainer<T : Any> {
      */
     @Suppress("UNCHECKED_CAST")
     fun bind(cls: Class<out T>, instance: T, tag: String = "") {
-        val binding = ServiceBinding(cls, instance, tag)
-        bind(binding)
+        bind(ServiceBinding(cls, instance, tag))
     }
 
     /**
@@ -55,7 +54,7 @@ interface ServiceContainer<T : Any> {
      * Remove binding.
      * @param tag binding tagged by.
      */
-    fun <T : Any> remove(cls: Class<T>, tag: String = ""): T?
+    fun <E : T> remove(cls: Class<E>, tag: String = ""): E?
 
     /**
      * Remove all bindings related to instance.
@@ -70,12 +69,12 @@ interface ServiceContainer<T : Any> {
     /**
      * Copy services only from other service container.
      */
-    fun copyServices(container: ServiceContainer<T>)
+    fun copyServices(container: ServiceContainer<out T>)
 
     /**
      * Copy all from other service container.
      */
-    fun copy(container: ServiceContainer<T>)
+    fun copy(container: ServiceContainer<out T>)
 }
 
-data class ServiceBinding<T : Any>(val cls: Class<out T>, val instance: T, val tag: String = "")
+data class ServiceBinding<T>(val cls: Class<out T>, val instance: T, val tag: String = "")

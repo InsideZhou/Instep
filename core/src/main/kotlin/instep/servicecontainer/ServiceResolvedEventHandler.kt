@@ -4,5 +4,5 @@ interface ServiceResolvedEventHandler {
     /**
      * Handle service resolved event.
      */
-    fun <T : Any> handle(cls: Class<T>, obj: T, tag: String = "") {}
+    fun <T> handle(cls: Class<out T>, obj: T, tag: String = "") {}
 }

@@ -1,9 +1,9 @@
 package instep.servicecontainer
 
 @Suppress("unused")
-interface ServiceBoundEventHandler<T : Any> {
+interface ServiceBoundEventHandler {
     /**
      * Handle service bound event.
      */
-    fun handle(binding: ServiceBinding<out T>) {}
+    fun <T> handle(binding: ServiceBinding<T>) {}
 }

@@ -16,7 +16,7 @@ abstract class ReadOnlyServiceContainer<T : Any> : AbstractServiceContainer<T>()
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun <T : Any> remove(cls: Class<T>, tag: String): T? {
+    override fun <E : T> remove(cls: Class<E>, tag: String): E? {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
@@ -28,11 +28,11 @@ abstract class ReadOnlyServiceContainer<T : Any> : AbstractServiceContainer<T>()
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun copyServices(container: ServiceContainer<T>) {
+    override fun copyServices(container: ServiceContainer<out T>) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 
-    override fun copy(container: ServiceContainer<T>) {
+    override fun copy(container: ServiceContainer<out T>) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
 }
