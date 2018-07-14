@@ -1,11 +1,9 @@
 package instep.typeconversion
 
-import java.io.Serializable
-
 /**
  * Convert instance to another type。
  */
-interface Converter<From, To> : Serializable {
+interface Converter<From, To> {
     /**
      * Get type that convert from.
      */

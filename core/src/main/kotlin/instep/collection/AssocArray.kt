@@ -6,6 +6,7 @@ import java.util.*
 /**
  * Associative array.
  */
+@Suppress("unused")
 open class AssocArray(val keyIgnoreCase: Boolean = false) : Serializable, Collection<Any?> {
     constructor(entries: Array<out Pair<Any, Any?>>, keyIgnoreCase: Boolean = false) : this(keyIgnoreCase) {
         addPairs(entries)

@@ -3,7 +3,7 @@ package instep.typeconversion
 import instep.cache.driver.MemoryCache
 
 open class DefaultTypeConversion : TypeConversion {
-    private val cache = MemoryCache()
+    private val cache = MemoryCache<Any>()
 
     override fun <From, To> canConvert(from: Class<From>, to: Class<To>): Boolean {
         val result = cache.containsKey(getKey(from, to))
@@ -65,9 +65,5 @@ open class DefaultTypeConversion : TypeConversion {
 
     protected fun <From, To> getKey(from: Class<From>, to: Class<To>): String {
         return "instep.typeconversion.${from.name}_${to.name}"
-    }
-
-    companion object {
-        private const val serialVersionUID = -5626355667117652076L
     }
 }

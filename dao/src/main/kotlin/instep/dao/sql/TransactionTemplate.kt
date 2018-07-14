@@ -9,23 +9,23 @@ import java.sql.Connection as JdbcConnection
 
 @Suppress("unused")
 object TransactionTemplate {
-    fun <R : Any> none(runner: TransactionContext.() -> R): R {
+    fun <R> none(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_NONE, runner)
     }
 
-    fun <R : Any> uncommitted(runner: TransactionContext.() -> R): R {
+    fun <R> uncommitted(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
-    fun <R : Any> committed(runner: TransactionContext.() -> R): R {
+    fun <R> committed(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
     }
 
-    fun <R : Any> repeatable(runner: TransactionContext.() -> R): R {
+    fun <R> repeatable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
-    fun <R : Any> serializable(runner: TransactionContext.() -> R): R {
+    fun <R> serializable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
     }
 

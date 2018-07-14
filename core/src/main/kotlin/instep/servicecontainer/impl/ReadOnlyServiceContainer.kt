@@ -7,7 +7,7 @@ import instep.servicecontainer.ServiceContainer
  * Read-only service container.
  */
 @Suppress("unused")
-abstract class ReadOnlyServiceContainer<T : Any> : AbstractServiceContainer<T>() {
+abstract class ReadOnlyServiceContainer<T> : AbstractServiceContainer<T>() {
     override fun bind(cls: Class<out T>, instance: T, tag: String) {
         throw UnsupportedOperationException("Service container is read-only.")
     }
