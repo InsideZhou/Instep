@@ -71,8 +71,10 @@ open class MySQLDialect : AbstractDialect() {
     }
 
     override fun definitionForDateTimeColumn(column: DateTimeColumn): String {
-        if (column.type == DateTimeColumnType.OffsetDateTime) throw DaoException("DateTimeColumn.OffsetDateTime is not support")
-
-        return super.definitionForDateTimeColumn(column);
+        return when (column.type) {
+            DateTimeColumnType.DateTime -> "DATETIME"
+            DateTimeColumnType.OffsetDateTime -> throw DaoException("DateTimeColumn.OffsetDateTime is not support")
+            else -> return super.definitionForDateTimeColumn(column);
+        }
     }
 }

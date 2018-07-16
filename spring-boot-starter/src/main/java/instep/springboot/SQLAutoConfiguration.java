@@ -17,6 +17,7 @@ import javax.sql.DataSource;
  * auto configuration for instep.dao.sql module.
  */
 @Configuration
+@SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
 public class SQLAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
@@ -33,7 +34,6 @@ public class SQLAutoConfiguration {
         return dialect;
     }
 
-    @SuppressWarnings("SpringJavaInjectionPointsAutowiringInspection")
     @Bean
     @ConditionalOnMissingBean
     public InstepSQL instepSQL(DataSource dataSource, Dialect dialect, Instep instep) {
