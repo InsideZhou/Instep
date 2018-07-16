@@ -23,6 +23,7 @@ object Instep {
     /**
      * @see ServiceContainer.bind
      */
+    @JvmOverloads
     fun <T : Any> bind(cls: Class<T>, obj: T, tag: String = "") {
         serviceContainer.bind(cls, obj, tag)
     }
@@ -30,6 +31,7 @@ object Instep {
     /**
      * @see ServiceContainer.make
      */
+    @JvmOverloads
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T {
         return serviceContainer.make(cls, tag)
     }
