@@ -48,7 +48,7 @@ open class JMirror<T : Any>(val type: Class<T>) {
         val index = parents.indexOf(cls)
         if (-1 == index) return emptySet()
 
-        return properties + parents.take(index).flatMap { JMirror(it).properties }
+        return properties + parents.take(index).flatMap { JMirror(it as Class<*>).properties }
     }
 
     fun getMutablePropertiesUntil(cls: Class<*>): Set<MutableProperty> {
