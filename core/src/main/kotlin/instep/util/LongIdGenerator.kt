@@ -70,7 +70,6 @@ class LongIdGenerator(
         }
     }
 
-    @Throws(Exception::class)
     @Synchronized
     fun generate(): Long {
         var timestamp = timeGen()
