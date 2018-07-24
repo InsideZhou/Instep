@@ -11,7 +11,7 @@ open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Colum
 
     private var pkValue: Any? = null
 
-    override fun where(key: Any): TableDeletePlan {
+    override fun whereKey(key: Any): TableDeletePlan {
         if (null == table.primaryKey) throw DaoException("Table ${table.tableName} should has primary key")
 
         pkValue = key

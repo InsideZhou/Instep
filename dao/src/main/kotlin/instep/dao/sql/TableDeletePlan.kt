@@ -5,7 +5,7 @@ import instep.dao.sql.impl.DefaultTableDeletePlan
 
 interface TableDeletePlan : SQLPlan<TableDeletePlan>, WhereClause<TableDeletePlan> {
     @Throws(DaoException::class)
-    fun where(key: Any): TableDeletePlan
+    fun whereKey(key: Any): TableDeletePlan
 }
 
 interface TableDeletePlanFactory<out T : TableDeletePlan> {
