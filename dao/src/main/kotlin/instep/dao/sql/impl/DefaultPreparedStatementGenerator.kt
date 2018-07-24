@@ -11,8 +11,8 @@ import java.sql.Statement
 
 open class DefaultPreparedStatementGenerator : PreparedStatementGenerator {
     override fun generate(conn: Connection, dialect: Dialect, plan: Plan<*>): PreparedStatement {
-        val stmt = when (plan) {
-            is TableInsertPlan -> conn.prepareStatement(plan.statement, Statement.RETURN_GENERATED_KEYS)
+        val stmt = when {
+            plan is TableInsertPlan || plan.statement.startsWith("insert", true) -> conn.prepareStatement(plan.statement, Statement.RETURN_GENERATED_KEYS)
             else -> conn.prepareStatement(plan.statement)
         }
 
