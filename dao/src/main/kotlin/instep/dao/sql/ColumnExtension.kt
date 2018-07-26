@@ -10,7 +10,6 @@ val dialect = Instep.make(Dialect::class.java)
 
 infix fun BooleanColumn.eq(value: Boolean): Condition = Condition.eq(name, value)
 
-
 infix fun StringColumn.eq(value: String): Condition = when (this.type) {
     StringColumnType.UUID -> Condition.eq(name, value, dialect.placeholderForUUIDType)
     StringColumnType.JSON -> Condition.eq(name, value, dialect.placeholderForJSONType)
@@ -41,28 +40,32 @@ infix fun StringColumn.inArray(value: Array<String>): Condition = when (this.typ
     else -> Condition.inArray(name, value)
 }
 
+infix fun StringColumn.eq(value: Enum<*>): Condition = eq(value.name)
+infix fun StringColumn.startsWith(value: Enum<*>): Condition = startsWith(value.name)
+infix fun StringColumn.endsWith(value: Enum<*>): Condition = endsWith(value.name)
+infix fun StringColumn.contains(value: Enum<*>): Condition = contains(value.name)
+infix fun StringColumn.inArray(value: Array<Enum<*>>): Condition = inArray(value.map { it.name }.toTypedArray())
+
+
+infix fun <T : Enum<*>> IntegerColumn.eq(value: T): Condition = Condition.eq(name, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.gt(value: T): Condition = Condition.gt(name, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.gte(value: T): Condition = Condition.gte(name, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.lt(value: T): Condition = Condition.lt(name, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.lte(value: T): Condition = Condition.lte(name, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.inArray(value: Array<T>): Condition = Condition.inArray(name, value.map { it.ordinal }.toTypedArray())
 
 infix fun <T : Number> NumberColumn<*>.eq(value: T): Condition = Condition.eq(name, value)
-
 infix fun <T : Number> NumberColumn<*>.gt(value: T): Condition = Condition.gt(name, value)
-
 infix fun <T : Number> NumberColumn<*>.gte(value: T): Condition = Condition.gte(name, value)
-
 infix fun <T : Number> NumberColumn<*>.lt(value: T): Condition = Condition.lt(name, value)
-
 infix fun <T : Number> NumberColumn<*>.lte(value: T): Condition = Condition.lte(name, value)
-
 infix fun <T : Number> NumberColumn<*>.inArray(value: Array<T>): Condition = Condition.inArray(name, value)
 
 
 infix fun <T : Temporal> DateTimeColumn.eq(value: T): Condition = Condition.eq(name, value)
-
 infix fun <T : Temporal> DateTimeColumn.gt(value: T): Condition = Condition.gt(name, value)
-
 infix fun <T : Temporal> DateTimeColumn.gte(value: T): Condition = Condition.gte(name, value)
-
 infix fun <T : Temporal> DateTimeColumn.lt(value: T): Condition = Condition.lt(name, value)
-
 infix fun <T : Temporal> DateTimeColumn.lte(value: T): Condition = Condition.lte(name, value)
 
 

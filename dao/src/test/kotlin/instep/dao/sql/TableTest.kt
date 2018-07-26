@@ -17,8 +17,14 @@ object TableTest {
     val birthTime = LocalTime.of(6, 6)
     val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
 
+    @Suppress("UNUSED_PARAMETER")
+    enum class AccountType(code: String, desc: String) {
+        Admin("admin", "管理员"), User("user", "用户");
+    }
+
     class Account {
         var id = UUID.randomUUID().toString()
+        var type = AccountType.User
         var name = ""
         var balance: java.math.BigDecimal = java.math.BigDecimal.ZERO
         var createdAt: Instant = Instant.now()
@@ -30,6 +36,7 @@ object TableTest {
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
         val id = AccountTable.uuid("id").primary()
+        val type = varchar("type", 16).notnull()
         val code = AccountTable.varchar("code", 16).unique()
         val name = AccountTable.varchar("name", 256).notnull()
         val balance = when (AccountTable.dialect) {
@@ -69,6 +76,7 @@ object TableTest {
             val name = stringGenerator.generateByRegex("\\w{1,256}")
             AccountTable.insert()
                 .addValue(AccountTable.id, UUID.randomUUID().toString())
+                .addValue(AccountTable.type, AccountType.Admin)
                 .addValue(AccountTable.name, name)
                 .addValue(AccountTable.balance, random.nextDouble())
                 .addValue(AccountTable.createdAt, Instant.now())

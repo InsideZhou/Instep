@@ -17,7 +17,10 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
     override fun set(column: Column<*>, value: Any?): TableUpdatePlan {
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
 
-        params[column] = value
+        when (value) {
+            is Enum<*> -> params[column] = if (IntegerColumn::class.java == column.javaClass) value.ordinal else value.name
+            else -> params[column] = value
+        }
 
         return this
     }

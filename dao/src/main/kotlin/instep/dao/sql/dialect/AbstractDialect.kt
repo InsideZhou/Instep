@@ -124,6 +124,7 @@ abstract class AbstractDialect : Dialect {
 
     override fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?) {
         when (value) {
+            is Enum<*> -> stmt.setString(index, value.name)
             is PlaceHolder -> throw PlaceHolderRemainingException(value)
             is Boolean -> stmt.setBoolean(index, value)
             is Char -> stmt.setString(index, value.toString())
@@ -141,8 +142,8 @@ abstract class AbstractDialect : Dialect {
             is LocalDate -> stmt.setDate(index, java.sql.Date.valueOf(value))
             is LocalTime -> stmt.setTime(index, java.sql.Time.valueOf(value))
             is LocalDateTime -> stmt.setTimestamp(index, java.sql.Timestamp.valueOf(value))
-            is OffsetDateTime -> value.toZonedDateTime().let {
-                stmt.setTimestamp(index, java.sql.Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(it.zone)))
+            is OffsetDateTime -> value.toZonedDateTime().apply {
+                stmt.setTimestamp(index, java.sql.Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(zone)))
             }
             is InputStream -> stmt.setBinaryStream(index, value)
             is Reader -> stmt.setCharacterStream(index, value)

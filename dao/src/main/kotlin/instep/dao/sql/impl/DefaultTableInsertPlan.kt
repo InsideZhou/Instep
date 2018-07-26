@@ -14,7 +14,7 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
     override fun addValue(column: Column<*>, value: Any?): TableInsertPlan {
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
 
-        params[column] = value
+        setValue(column, value)
 
         return this
     }
@@ -24,11 +24,18 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
 
         mirror.readableProperties.forEach { p ->
             table.columns.find { it.name == p.field.name }?.let {
-                params[it] = p.getter.invoke(obj)
+                setValue(it, p.getter.invoke(obj))
             }
         }
 
         return this
+    }
+
+    private fun setValue(column: Column<*>, value: Any?) {
+        when (value) {
+            is Enum<*> -> params[column] = if (IntegerColumn::class.java == column.javaClass) value.ordinal else value.name
+            else -> params[column] = value
+        }
     }
 
     override val statement: String
