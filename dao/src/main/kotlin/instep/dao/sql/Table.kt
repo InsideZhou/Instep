@@ -14,136 +14,136 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     /**
      * for java interop.
      */
-    fun bool(name: String): BooleanColumn {
+    open fun bool(name: String): BooleanColumn {
         return boolean(name)
     }
 
-    fun boolean(name: String): BooleanColumn {
+    open fun boolean(name: String): BooleanColumn {
         return BooleanColumn(name)
     }
 
-    fun char(name: String, length: Int): StringColumn {
+    open fun char(name: String, length: Int): StringColumn {
         return StringColumn(name, StringColumnType.Char, length)
     }
 
     /**
      * for java interop.
      */
-    fun charColumn(name: String, length: Int): StringColumn {
+    open fun charColumn(name: String, length: Int): StringColumn {
         return char(name, length)
     }
 
-    fun varchar(name: String, length: Int): StringColumn {
+    open fun varchar(name: String, length: Int): StringColumn {
         return StringColumn(name, StringColumnType.Varchar, length)
     }
 
     @JvmOverloads
-    fun text(name: String, length: Int = 0): StringColumn {
+    open fun text(name: String, length: Int = 0): StringColumn {
         return StringColumn(name, StringColumnType.Text, length)
     }
 
-    fun uuid(name: String): StringColumn {
+    open fun uuid(name: String): StringColumn {
         return StringColumn(name, StringColumnType.UUID)
     }
 
-    fun json(name: String): StringColumn {
+    open fun json(name: String): StringColumn {
         return StringColumn(name, StringColumnType.JSON)
     }
 
-    fun tinyInt(name: String): IntegerColumn {
+    open fun tinyInt(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Tiny)
     }
 
-    fun smallInt(name: String): IntegerColumn {
+    open fun smallInt(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Small)
     }
 
-    fun int(name: String): IntegerColumn {
+    open fun int(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Int)
     }
 
     /**
      * for java interop.
      */
-    fun integer(name: String): IntegerColumn {
+    open fun integer(name: String): IntegerColumn {
         return int(name)
     }
 
-    fun long(name: String): IntegerColumn {
+    open fun long(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Long)
     }
 
     /**
      * for java interop.
      */
-    fun longColumn(name: String): IntegerColumn {
+    open fun longColumn(name: String): IntegerColumn {
         return long(name)
     }
 
-    fun autoIncrement(name: String): IntegerColumn {
+    open fun autoIncrement(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Int).apply {
             autoIncrement = true
         }
     }
 
-    fun autoIncrementLong(name: String): IntegerColumn {
+    open fun autoIncrementLong(name: String): IntegerColumn {
         return IntegerColumn(name, IntegerColumnType.Long).apply {
             autoIncrement = true
         }
     }
 
-    fun float(name: String): FloatingColumn {
+    open fun float(name: String): FloatingColumn {
         return FloatingColumn(name, FloatingColumnType.Float)
     }
 
     /**
      * for java interop.
      */
-    fun floatColumn(name: String): FloatingColumn {
+    open fun floatColumn(name: String): FloatingColumn {
         return float(name)
     }
 
-    fun double(name: String): FloatingColumn {
+    open fun double(name: String): FloatingColumn {
         return FloatingColumn(name, FloatingColumnType.Double)
     }
 
     /**
      * for java interop.
      */
-    fun doubleColumn(name: String): FloatingColumn {
+    open fun doubleColumn(name: String): FloatingColumn {
         return double(name)
     }
 
-    fun numeric(name: String, precision: Int, scale: Int): FloatingColumn {
+    open fun numeric(name: String, precision: Int, scale: Int): FloatingColumn {
         return FloatingColumn(name, FloatingColumnType.Numeric, precision, scale)
     }
 
-    fun date(name: String): DateTimeColumn {
+    open fun date(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.Date)
     }
 
-    fun time(name: String): DateTimeColumn {
+    open fun time(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.Time)
     }
 
-    fun datetime(name: String): DateTimeColumn {
+    open fun datetime(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.DateTime)
     }
 
-    fun offsetDateTime(name: String): DateTimeColumn {
+    open fun offsetDateTime(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
     }
 
-    fun instant(name: String): DateTimeColumn {
+    open fun instant(name: String): DateTimeColumn {
         return DateTimeColumn(name, DateTimeColumnType.Instant)
     }
 
-    fun bytes(name: String, length: Int): BinaryColumn {
+    open fun bytes(name: String, length: Int): BinaryColumn {
         return BinaryColumn(name, BinaryColumnType.Varying, length)
     }
 
     @JvmOverloads
-    fun lob(name: String, length: Int = 0): BinaryColumn {
+    open fun lob(name: String, length: Int = 0): BinaryColumn {
         return BinaryColumn(name, BinaryColumnType.BLOB, length)
     }
 
@@ -167,56 +167,56 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
         get() = columns.singleOrNull { it.primary }
 
     @JvmOverloads
-    fun create(checkExists: Boolean = true): SQLPlan<*> {
+    open fun create(checkExists: Boolean = true): SQLPlan<*> {
         return if (checkExists) dialect.createTableIfNotExists(tableName, columns) else dialect.createTable(tableName, columns)
     }
 
-    fun rename(name: String): SQLPlan<*> {
+    open fun rename(name: String): SQLPlan<*> {
         return dialect.renameTable(tableName, name)
     }
 
-    fun addColumn(column: Column<*>): SQLPlan<*> {
+    open fun addColumn(column: Column<*>): SQLPlan<*> {
         return dialect.addColumn(tableName, column)
     }
 
-    fun dropColumn(column: Column<*>): SQLPlan<*> {
+    open fun dropColumn(column: Column<*>): SQLPlan<*> {
         return dialect.dropColumn(tableName, column)
     }
 
-    fun renameColumn(column: Column<*>, oldName: String): SQLPlan<*> {
+    open fun renameColumn(column: Column<*>, oldName: String): SQLPlan<*> {
         return dialect.renameColumn(tableName, column, oldName)
     }
 
-    fun alterColumnNotNull(column: Column<*>): SQLPlan<*> {
+    open fun alterColumnNotNull(column: Column<*>): SQLPlan<*> {
         return dialect.alterColumnNotNull(tableName, column)
     }
 
-    fun alterColumnDefault(column: Column<*>): SQLPlan<*> {
+    open fun alterColumnDefault(column: Column<*>): SQLPlan<*> {
         return dialect.alterColumnDefault(tableName, column)
     }
 
-    fun insert(): TableInsertPlan {
+    open fun insert(): TableInsertPlan {
         val factory = Instep.make(TableInsertPlanFactory::class.java)
         return factory.createInstance(this, dialect)
     }
 
-    fun select(vararg columnOrAggregates: Any): TableSelectPlan {
+    open fun select(vararg columnOrAggregates: Any): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
         return factory.createInstance(this).select(*columnOrAggregates)
     }
 
-    fun update(): TableUpdatePlan {
+    open fun update(): TableUpdatePlan {
         val factory = Instep.make(TableUpdatePlanFactory::class.java)
         return factory.createInstance(this)
     }
 
-    fun delete(): TableDeletePlan {
+    open fun delete(): TableDeletePlan {
         val factory = Instep.make(TableDeletePlanFactory::class.java)
         return factory.createInstance(this)
     }
 
     @Throws(SQLPlanExecutionException::class)
-    fun <T : Any> get(key: Number, cls: Class<T>): T? {
+    open fun <T : Any> get(key: Number, cls: Class<T>): T? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
         val pk = primaryKey as IntegerColumn
@@ -224,7 +224,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     }
 
     @Throws(SQLPlanExecutionException::class)
-    fun <T : Any> get(key: String, cls: Class<T>): T? {
+    open fun <T : Any> get(key: String, cls: Class<T>): T? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
         val pk = primaryKey as StringColumn
@@ -232,7 +232,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     }
 
     @Throws(SQLPlanExecutionException::class)
-    operator fun get(key: Number): TableRow? {
+    open operator fun get(key: Number): TableRow? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
         val pk = primaryKey as IntegerColumn
@@ -240,7 +240,7 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     }
 
     @Throws(SQLPlanExecutionException::class)
-    operator fun get(key: String): TableRow? {
+    open operator fun get(key: String): TableRow? {
         if (null == primaryKey) throw DaoException("Table $tableName should has primary key")
 
         val pk = primaryKey as StringColumn
@@ -248,12 +248,12 @@ abstract class Table(val tableName: String, val dialect: Dialect) {
     }
 
     @Throws(SQLPlanExecutionException::class)
-    operator fun set(key: Number, obj: Any) {
+    open operator fun set(key: Number, obj: Any) {
         insertOrUpdate(key, obj)
     }
 
     @Throws(SQLPlanExecutionException::class)
-    operator fun set(key: String, obj: Any) {
+    open operator fun set(key: String, obj: Any) {
         insertOrUpdate(key, obj)
     }
 
