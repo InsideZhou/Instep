@@ -74,7 +74,7 @@ class LongIdGenerator(
         var timestamp = timeGen()
 
         if (timestamp < lastTimestamp) {
-            throw Exception("Clock moved backwards.  Refusing to generate id for ${lastTimestamp - timestamp} milliseconds")
+            throw Exception("Clock moved backwards.  Refusing to generate id for ${lastTimestamp - timestamp} seconds")
         }
 
         if (lastTimestamp == timestamp) {
