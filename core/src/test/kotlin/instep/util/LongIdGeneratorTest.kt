@@ -15,7 +15,6 @@ class LongIdGeneratorTest {
             println(idGenerator.generate())
         }
 
-        println(ts / 1000)
         println(counter)
     }
 }

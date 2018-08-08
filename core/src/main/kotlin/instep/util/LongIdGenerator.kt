@@ -2,10 +2,9 @@ package instep.util
 
 import java.security.SecureRandom
 
-@Suppress("unused", "CanBeParameter")
 /**
  * 64 bits id generator. twitter snowflake.
- * timestamp - highPadding - worker - lowPadding - sequence
+ * 0 - timestamp - highPadding - worker - lowPadding - sequence
  */
 class LongIdGenerator(
     val workerId: Int,
@@ -58,7 +57,7 @@ class LongIdGenerator(
         private set
 
     init {
-        val sequenceBits = 64 - timestampBits - highPaddingBits - workerIdBits - lowPaddingBits
+        val sequenceBits = 63 - timestampBits - highPaddingBits - workerIdBits - lowPaddingBits
 
         maxWorkerId = maxIntegerAtBits(workerIdBits)
         maxSequenceValue = maxIntegerAtBits(sequenceBits)
@@ -107,8 +106,6 @@ class LongIdGenerator(
     }
 
     companion object {
-        private const val serialVersionUID = 8188036141814766454L
-
         fun maxIntegerAtBits(bits: Int): Int = -1 xor (-1 shl bits)
     }
 }
