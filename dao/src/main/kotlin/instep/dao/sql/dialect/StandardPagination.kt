@@ -14,14 +14,10 @@ open class StandardPagination : Pagination {
 
     override fun statement(statement: String, limit: Int, offset: Int): String {
         if (limit <= 0) {
-            return if (offset > 0) "$statement\n OFFSET $offset" else statement
+            return if (offset > 0) "$statement\n OFFSET ?" else statement
         }
         else {
-            return if (offset > 0) "$statement\nLIMIT $limit OFFSET $offset" else "$statement\nLIMIT $limit"
+            return if (offset > 0) "$statement\nLIMIT ? OFFSET ?" else "$statement\nLIMIT ?"
         }
-    }
-
-    companion object {
-        private const val serialVersionUID = 2177079123844099155L
     }
 }
