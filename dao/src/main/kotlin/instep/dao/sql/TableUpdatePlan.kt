@@ -5,6 +5,9 @@ import instep.dao.sql.impl.DefaultTableUpdatePlan
 
 interface TableUpdatePlan : SQLPlan<TableUpdatePlan>, WhereClause<TableUpdatePlan> {
     @Throws(DaoException::class)
+    fun step(column: NumberColumn<*>, value: Number): TableUpdatePlan
+
+    @Throws(DaoException::class)
     fun set(column: Column<*>, value: Any?): TableUpdatePlan
 
     fun set(obj: Any): TableUpdatePlan
@@ -22,3 +25,5 @@ interface TableUpdatePlanFactory<out T : TableUpdatePlan> {
         }
     }
 }
+
+data class StepValue(val step: Number)

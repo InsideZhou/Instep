@@ -14,8 +14,19 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
     private var pkValue: Any? = null
     private val typeConversion = Instep.make(TypeConversion::class.java)
 
-    override fun set(column: Column<*>, value: Any?): TableUpdatePlan {
+    override fun step(column: NumberColumn<*>, value: Number): TableUpdatePlan {
+        assertColumnBelongToMe(column)
+        params[column] = StepValue(value)
+
+        return this;
+    }
+
+    private fun assertColumnBelongToMe(column: Column<*>) {
         if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
+    }
+
+    override fun set(column: Column<*>, value: Any?): TableUpdatePlan {
+        assertColumnBelongToMe(column)
 
         when (value) {
             is Enum<*> -> params[column] = if (IntegerColumn::class.java == column.javaClass) value.ordinal else value.name
@@ -46,21 +57,25 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
 
     override val statement: String
         get() {
-            val columns = params.entries
-
-            var txt = "UPDATE ${table.tableName} SET ${columns.map {
+            var txt = "UPDATE ${table.tableName} SET ${params.entries.map {
                 val column = it.key
+                val value = it.value
 
-                if (column is StringColumn) {
-                    if (column.type == StringColumnType.UUID) {
-                        return@map "${it.key.name}=${table.dialect.placeholderForUUIDType}"
+                val standardSetClause = "${it.key.name}=?"
+
+                when (column) {
+                    is StringColumn -> when (column.type) {
+                        StringColumnType.UUID -> "${it.key.name}=${table.dialect.placeholderForUUIDType}"
+                        StringColumnType.JSON -> "${it.key.name}=${table.dialect.placeholderForJSONType}"
+                        else -> standardSetClause
                     }
-                    else if (column.type == StringColumnType.JSON) {
-                        return@map "${it.key.name}=${table.dialect.placeholderForJSONType}"
+                    is NumberColumn -> when (value) {
+                        is StepValue -> "${it.key.name}=(${it.key.name} + ?)"
+                        else -> standardSetClause
                     }
+                    else -> standardSetClause
                 }
 
-                "${it.key.name}=?"
             }.joinToString(",")} "
 
             if (null == where) {
@@ -104,20 +119,21 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
                 val column = it.key
                 val value = it.value
 
-                if (column is StringColumn &&
-                    column.type == StringColumnType.JSON &&
-                    null != value &&
-                    value !is String) {
+                when {
+                    (column is StringColumn &&
+                        column.type == StringColumnType.JSON &&
+                        null != value &&
+                        value !is String) ->
+                        if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
+                            typeConversion.convert(value, JsonType::class.java).value
+                        }
+                        else {
+                            value.toString()
+                        }
 
-                    if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
-                        typeConversion.convert(value, JsonType::class.java).value
-                    }
-                    else {
-                        value.toString()
-                    }
-                }
-                else {
-                    value
+                    value is StepValue -> value.step
+
+                    else -> value
                 }
             }.toList()
 

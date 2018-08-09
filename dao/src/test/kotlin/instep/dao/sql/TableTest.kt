@@ -121,6 +121,23 @@ object TableTest {
         laozi = AccountTable.select().where(AccountTable.id eq id).execute().single()
         assert(laozi[AccountTable.name] == "dao de jing")
         assert(laozi[AccountTable.balance] == 6.66)
+
+        AccountTable.update()
+            .step(AccountTable.balance, 2.22)
+            .whereKey(id)
+            .executeUpdate()
+
+        laozi = AccountTable.select().where(AccountTable.id eq id).execute().single()
+        assert(laozi[AccountTable.name] == "dao de jing")
+        assert(laozi[AccountTable.balance] == 8.88)
+
+        AccountTable.update()
+            .step(AccountTable.balance, -1)
+            .whereKey(id)
+            .executeUpdate()
+
+        laozi = AccountTable.select().where(AccountTable.id eq id).execute().single()
+        assert(laozi[AccountTable.balance] == 7.88)
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
