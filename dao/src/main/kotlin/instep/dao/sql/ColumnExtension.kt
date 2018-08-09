@@ -9,6 +9,7 @@ val dialect = Instep.make(Dialect::class.java)
 
 
 infix fun BooleanColumn.eq(value: Boolean): Condition = Condition.eq(name, value)
+infix fun BooleanColumn.notEQ(value: Boolean): Condition = Condition.notEQ(name, value)
 
 infix fun StringColumn.eq(value: String): Condition = when (this.type) {
     StringColumnType.UUID -> Condition.eq(name, value, dialect.placeholderForUUIDType)

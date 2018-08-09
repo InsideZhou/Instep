@@ -21,8 +21,8 @@ object InstepSQL {
         return TransactionTemplate
     }
 
-    fun <R> transaction(level: Int, runner: TransactionContext.() -> R): R {
-        return TransactionTemplate.template(level, runner)
+    fun <R> transaction(runner: TransactionContext.() -> R): R {
+        return TransactionTemplate.run(runner)
     }
 
     init {

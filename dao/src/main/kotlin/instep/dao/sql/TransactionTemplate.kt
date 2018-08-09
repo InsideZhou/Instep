@@ -3,47 +3,51 @@ package instep.dao.sql
 import instep.Instep
 import instep.InstepLogger
 import instep.servicecontainer.ServiceNotFoundException
+import java.sql.Connection
 import javax.sql.DataSource
 import instep.dao.sql.ConnectionProvider as IConnectionProvider
-import java.sql.Connection as JdbcConnection
 
 @Suppress("unused")
 object TransactionTemplate {
-    fun <R> none(runner: TransactionContext.() -> R): R {
-        return template(JdbcConnection.TRANSACTION_NONE, runner)
+    fun <R> run(runner: TransactionContext.() -> R): R {
+        return template(null, runner)
     }
 
     fun <R> uncommitted(runner: TransactionContext.() -> R): R {
-        return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
+        return template(Connection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
     fun <R> committed(runner: TransactionContext.() -> R): R {
-        return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
+        return template(Connection.TRANSACTION_READ_COMMITTED, runner)
     }
 
     fun <R> repeatable(runner: TransactionContext.() -> R): R {
-        return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
+        return template(Connection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
     fun <R> serializable(runner: TransactionContext.() -> R): R {
-        return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
+        return template(Connection.TRANSACTION_SERIALIZABLE, runner)
     }
 
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
 
     @Suppress("unchecked_cast")
-    fun <R> template(level: Int, runner: TransactionContext.() -> R): R {
+    fun <R> template(level: Int?, runner: TransactionContext.() -> R): R {
         var transactionContext = threadLocalTransactionContext.get()
         if (null == transactionContext) {
-            val connMan = Instep.make(IConnectionProvider::class.java)
-            val conn = connMan.getConnection()
-            conn.transactionIsolation = level
+            val connProvider = Instep.make(IConnectionProvider::class.java)
+            val conn = connProvider.getConnection()
+
+            if (null != level) {
+                conn.transactionIsolation = level
+            }
+
             conn.autoCommit = false
             transactionContext = TransactionContext(conn)
         }
         else {
-            if (level > transactionContext.conn.transactionIsolation) {
-                InstepLogger.warning({ "nested transaction isolation $level is greater then outer ${transactionContext.conn.transactionIsolation}" }, this.javaClass)
+            if (null != level && level < transactionContext.conn.transactionIsolation) {
+                InstepLogger.warning({ "nested transaction isolation $level is lesser then outer ${transactionContext.conn.transactionIsolation}" }, this.javaClass)
             }
 
             transactionContext.depth += 1
@@ -86,7 +90,7 @@ object TransactionTemplate {
     }
 }
 
-class TransactionContext(val conn: JdbcConnection) {
+class TransactionContext(val conn: Connection) {
     var depth = 0
 
     fun abort() {
@@ -105,38 +109,12 @@ class TransactionContext(val conn: JdbcConnection) {
             }
         }
 
-        override fun getConnection(): JdbcConnection {
+        override fun getConnection(): Connection {
             TransactionTemplate.threadLocalTransactionContext.get()?.let {
                 return@getConnection it.conn
             }
 
-            return Connection(ds.connection)
-        }
-
-        class Connection(private val conn: JdbcConnection) : JdbcConnection by conn {
-            override fun rollback() {
-                TransactionTemplate.threadLocalTransactionContext.get()?.run {
-                    abort()
-                }
-
-                conn.rollback()
-            }
-
-            override fun commit() {
-                TransactionTemplate.threadLocalTransactionContext.get()?.let {
-                    return@commit
-                }
-
-                conn.commit()
-            }
-
-            override fun close() {
-                TransactionTemplate.threadLocalTransactionContext.get()?.run {
-                    return@close
-                }
-
-                conn.close()
-            }
+            return ds.connection
         }
     }
 }
