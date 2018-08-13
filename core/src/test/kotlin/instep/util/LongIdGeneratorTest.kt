@@ -17,4 +17,11 @@ class LongIdGeneratorTest {
 
         println(counter)
     }
+
+    @Test
+    fun maxWorkerId() {
+        val idGenerator = LongIdGenerator(0)
+
+        assert(idGenerator.maxWorkerId == 4095)
+    }
 }
