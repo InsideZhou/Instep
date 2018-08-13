@@ -3,9 +3,9 @@ package instep.dao.sql
 import instep.Instep
 import instep.InstepLogger
 import instep.servicecontainer.ServiceNotFoundException
-import java.sql.Connection
 import javax.sql.DataSource
 import instep.dao.sql.ConnectionProvider as IConnectionProvider
+import java.sql.Connection as JdbcConnection
 
 @Suppress("unused")
 object TransactionTemplate {
@@ -14,19 +14,19 @@ object TransactionTemplate {
     }
 
     fun <R> uncommitted(runner: TransactionContext.() -> R): R {
-        return template(Connection.TRANSACTION_READ_UNCOMMITTED, runner)
+        return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
     fun <R> committed(runner: TransactionContext.() -> R): R {
-        return template(Connection.TRANSACTION_READ_COMMITTED, runner)
+        return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
     }
 
     fun <R> repeatable(runner: TransactionContext.() -> R): R {
-        return template(Connection.TRANSACTION_REPEATABLE_READ, runner)
+        return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
     fun <R> serializable(runner: TransactionContext.() -> R): R {
-        return template(Connection.TRANSACTION_SERIALIZABLE, runner)
+        return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
     }
 
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
@@ -90,7 +90,7 @@ object TransactionTemplate {
     }
 }
 
-class TransactionContext(val conn: Connection) {
+class TransactionContext(val conn: JdbcConnection) {
     var depth = 0
 
     fun abort() {
@@ -109,12 +109,38 @@ class TransactionContext(val conn: Connection) {
             }
         }
 
-        override fun getConnection(): Connection {
+        override fun getConnection(): JdbcConnection {
             TransactionTemplate.threadLocalTransactionContext.get()?.let {
                 return@getConnection it.conn
             }
 
-            return ds.connection
+            return Connection(ds.connection)
+        }
+
+        class Connection(private val conn: JdbcConnection) : JdbcConnection by conn {
+            override fun rollback() {
+                TransactionTemplate.threadLocalTransactionContext.get()?.run {
+                    abort()
+                }
+
+                conn.rollback()
+            }
+
+            override fun commit() {
+                TransactionTemplate.threadLocalTransactionContext.get()?.let {
+                    return@commit
+                }
+
+                conn.commit()
+            }
+
+            override fun close() {
+                TransactionTemplate.threadLocalTransactionContext.get()?.run {
+                    return@close
+                }
+
+                conn.close()
+            }
         }
     }
 }
