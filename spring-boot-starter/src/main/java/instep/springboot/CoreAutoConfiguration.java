@@ -2,10 +2,14 @@ package instep.springboot;
 
 import instep.Instep;
 import instep.InstepLogger;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * auto configuration for instep.core module.
@@ -25,6 +29,8 @@ public class CoreAutoConfiguration {
     @Bean
     @ConditionalOnMissingBean
     public InstepLogger instepLogger() {
+        final Map<String, Log> loggerCache = new ConcurrentHashMap<>();
+
         return new InstepLogger() {
             @Override
             public boolean getEnableDebug() {
@@ -43,17 +49,23 @@ public class CoreAutoConfiguration {
 
             @Override
             public void debug(String s, String s1) {
-                LogFactory.getLog(s1).debug(s);
+                Log logger = loggerCache.getOrDefault(s1, LogFactory.getLog(s1));
+                logger.debug(s);
+                loggerCache.putIfAbsent(s1, logger);
             }
 
             @Override
             public void info(String s, String s1) {
-                LogFactory.getLog(s1).info(s);
+                Log logger = loggerCache.getOrDefault(s1, LogFactory.getLog(s1));
+                logger.info(s);
+                loggerCache.putIfAbsent(s1, logger);
             }
 
             @Override
             public void warning(String s, String s1) {
-                LogFactory.getLog(s1).warn(s);
+                Log logger = loggerCache.getOrDefault(s1, LogFactory.getLog(s1));
+                logger.warn(s);
+                loggerCache.putIfAbsent(s1, logger);
             }
 
             @Override
