@@ -1,6 +1,6 @@
 package instep.util
 
-import java.security.SecureRandom
+import java.util.*
 
 /**
  * 64 bits id generator. twitter snowflake.
@@ -12,7 +12,7 @@ class LongIdGenerator(
     highPaddingBits: Int,
     workerIdBits: Int,
     lowPaddingBits: Int,
-    val random: SecureRandom,
+    val random: Random,
     val epoch: Long,
     val sequenceStartRange: Int
 ) {
@@ -25,7 +25,7 @@ class LongIdGenerator(
         lowPaddingBits: Int
     ) : this(
         workerId, timestampBits, highPaddingBits, workerIdBits, lowPaddingBits,
-        SecureRandom.getInstanceStrong(),
+        Random(),
         1517414400L, //Thu Feb 01 2018 00:00:00 GMT, seconds
         1000
     )
