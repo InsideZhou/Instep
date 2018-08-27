@@ -270,8 +270,8 @@ open class Condition protected constructor(txt: String) : AbstractExpression<Con
         const val OR = "OR"
         const val VALUE_FORMAT = "?"
 
-        fun empty(): Condition {
-            return Condition("")
+        fun plain(txt: String = ""): Condition {
+            return Condition(txt)
         }
 
         fun eq(left: String, right: Any, valueFormat: String = VALUE_FORMAT): Condition {
