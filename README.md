@@ -1,2 +1,2 @@
 # Instep
-> Tools are designed to make coding easier.
+> Tools are designed for coding easier.
