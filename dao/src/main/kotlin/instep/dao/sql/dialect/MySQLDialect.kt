@@ -14,7 +14,7 @@ import java.time.LocalDateTime
 import java.time.LocalTime
 import java.util.*
 
-open class MySQLDialect : AbstractDialect() {
+open class MySQLDialect : CommentInTableDefinitionDialect() {
     open class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         private val calendar = Calendar.getInstance(TimeZone.getDefault())
 
@@ -51,7 +51,7 @@ open class MySQLDialect : AbstractDialect() {
         }
     }
 
-    override val isOffsetDateTimeSupported: Boolean = false
+    override val offsetDateTimeSupported: Boolean = false
 
     override fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?) {
         val calendar = Calendar.getInstance()

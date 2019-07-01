@@ -6,7 +6,7 @@ import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
-open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan {
+open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan, SubSQLPlan<TableInsertPlan>() {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     private val typeConversion = Instep.make(TypeConversion::class.java)

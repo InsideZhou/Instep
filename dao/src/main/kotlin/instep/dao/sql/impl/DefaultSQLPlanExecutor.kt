@@ -12,7 +12,7 @@ import java.sql.SQLException
 import java.sql.Types
 import java.time.OffsetDateTime
 
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "UNCHECKED_CAST")
 open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     val connectionProvider: ConnectionProvider,
     val resultSetValueExtractor: ResultSetValueExtractor,
@@ -36,6 +36,14 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         try {
             val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
             stmt.execute()
+
+            if (plan.subPlans.isNotEmpty()) {
+                plan.subPlans.forEach {
+                    it.debug()
+
+                    execute(it as S)
+                }
+            }
         }
         catch (e: SQLException) {
             throw SQLPlanExecutionException(e)

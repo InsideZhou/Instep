@@ -11,8 +11,8 @@ import java.sql.PreparedStatement
  * SQL dialect.
  */
 interface Dialect {
-    fun createTable(tableName: String, columns: List<Column<*>>): SQLPlan<*>
-    fun createTableIfNotExists(tableName: String, columns: List<Column<*>>): SQLPlan<*>
+    fun createTable(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*>
+    fun createTableIfNotExists(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*>
     fun renameTable(tableName: String, newName: String): SQLPlan<*>
 
     fun addColumn(tableName: String, column: Column<*>): SQLPlan<*>
@@ -30,7 +30,8 @@ interface Dialect {
     val placeholderForJSONType: String
 
     val pagination: Pagination
-    val isOffsetDateTimeSupported: Boolean
+    val offsetDateTimeSupported: Boolean
+    val separatelyCommenting: Boolean
 
     companion object {
         /**

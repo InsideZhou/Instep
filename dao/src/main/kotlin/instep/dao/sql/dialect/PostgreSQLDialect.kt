@@ -6,8 +6,8 @@ import instep.dao.sql.IntegerColumnType
 import instep.dao.sql.StringColumn
 
 
-open class PostgreSQLDialect : AbstractDialect() {
-    override val isOffsetDateTimeSupported: Boolean = false
+open class PostgreSQLDialect : SeparateCommentDialect() {
+    override val offsetDateTimeSupported: Boolean = false
 
     override fun definitionForAutoIncrementColumn(column: IntegerColumn): String = when (column.type) {
         IntegerColumnType.Long -> "BIGSERIAL"

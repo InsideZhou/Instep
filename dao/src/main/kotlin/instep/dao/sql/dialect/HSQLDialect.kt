@@ -6,7 +6,7 @@ import instep.dao.sql.StringColumn
 import java.time.OffsetDateTime
 
 
-open class HSQLDialect : AbstractDialect() {
+open class HSQLDialect : SeparateCommentDialect() {
     open class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getOffsetDateTime(index: Int): OffsetDateTime? {
             return rs.getObject(index) as? OffsetDateTime

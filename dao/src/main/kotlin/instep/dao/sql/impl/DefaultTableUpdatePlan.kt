@@ -6,7 +6,7 @@ import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
-open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan {
+open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPlan<TableUpdatePlan>() {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     override var where: Condition? = null

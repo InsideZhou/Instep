@@ -4,9 +4,9 @@ import instep.Instep
 import instep.dao.Expression
 import instep.dao.ExpressionFactory
 import instep.dao.sql.SQLPlan
-import instep.servicecontainer.ServiceNotFoundException
+import instep.dao.sql.SubSQLPlan
 
-class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultSQLPlan> {
+class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultSQLPlan>, SubSQLPlan<DefaultSQLPlan>() {
     private val expressionFactory = Instep.make(ExpressionFactory::class.java)
     private val superExpression = expressionFactory.createInstance(txt)
 
@@ -31,9 +31,5 @@ class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultS
     override fun addExpression(placeHolderName: String, expression: Expression<*>?): DefaultSQLPlan {
         superExpression.addExpression(placeHolderName, expression)
         return this
-    }
-
-    companion object {
-        private const val serialVersionUID = -9202019814173830690L
     }
 }

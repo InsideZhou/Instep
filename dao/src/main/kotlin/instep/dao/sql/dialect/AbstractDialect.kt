@@ -61,26 +61,32 @@ abstract class AbstractDialect : Dialect {
     override val placeholderForUUIDType: String = "?"
 
     override val pagination: Pagination = StandardPagination()
-    override val isOffsetDateTimeSupported: Boolean = true
+    override val offsetDateTimeSupported: Boolean = true
 
-    override fun createTable(tableName: String, columns: List<Column<*>>): SQLPlan<*> {
+    override fun createTable(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*> {
         val ddl = "CREATE TABLE $tableName (\n"
 
-        return createTable(tableName, ddl, columns)
+        return createTable(tableName, tableComment, ddl, columns)
     }
 
-    override fun createTableIfNotExists(tableName: String, columns: List<Column<*>>): SQLPlan<*> {
+    override fun createTableIfNotExists(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*> {
         val ddl = "CREATE TABLE IF NOT EXISTS $tableName (\n"
 
-        return createTable(tableName, ddl, columns)
+        return createTable(tableName, tableComment, ddl, columns)
     }
 
-    private fun createTable(tableName: String, ddl: String, columns: List<Column<*>>): SQLPlan<*> {
+    protected open fun createTable(tableName: String, tableComment: String, ddl: String, columns: List<Column<*>>): SQLPlan<*> {
         if (columns.isEmpty()) {
             InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
         }
 
-        return InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
+        var sql = ddl + definitionForColumns(*columns.toTypedArray()) + "\n)"
+
+        if (tableComment.isNotBlank()) {
+            sql += "\nCOMMENT='$tableComment';"
+        }
+
+        return InstepSQL.plan(sql)
     }
 
     override fun renameTable(tableName: String, newName: String): SQLPlan<*> {
@@ -245,7 +251,7 @@ abstract class AbstractDialect : Dialect {
         return txt
     }
 
-    private fun definitionForColumns(vararg columns: Column<*>): String {
+    protected open fun definitionForColumns(vararg columns: Column<*>): String {
         return columns.map { definitionForColumn(it) }.joinToString(",\n")
     }
 }

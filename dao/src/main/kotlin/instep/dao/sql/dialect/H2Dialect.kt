@@ -6,8 +6,8 @@ import instep.dao.sql.DateTimeColumnType
 import instep.dao.sql.IntegerColumn
 import instep.dao.sql.StringColumn
 
-open class H2Dialect : AbstractDialect() {
-    override val isOffsetDateTimeSupported: Boolean = false
+open class H2Dialect : CommentInTableDefinitionDialect() {
+    override val offsetDateTimeSupported: Boolean = false
 
     override fun definitionForAutoIncrementColumn(column: IntegerColumn): String = "IDENTITY"
 

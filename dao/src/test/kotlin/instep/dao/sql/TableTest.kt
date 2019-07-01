@@ -34,9 +34,9 @@ object TableTest {
         var preferences = emptyMap<String, Any?>()
     }
 
-    object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
+    object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}"), "账号表") {
         val id = AccountTable.uuid("id").primary()
-        val type = varchar("type", 16).notnull()
+        val type = varchar("type", 16).notnull().comment("账号类型")
         val code = AccountTable.varchar("code", 16).unique()
         val name = AccountTable.varchar("name", 256).notnull()
         val balance = when (AccountTable.dialect) {
@@ -47,19 +47,19 @@ object TableTest {
         val createdAt = AccountTable.instant("created_at").notnull()
         var birthDate = AccountTable.date("birth_date")
         var birthTime = AccountTable.time("birth_time")
-        var birthday = if (AccountTable.dialect.isOffsetDateTimeSupported) {
+        var birthday = if (AccountTable.dialect.offsetDateTimeSupported) {
             AccountTable.offsetDateTime("birthday")
         }
         else {
             AccountTable.datetime("birthday")
         }
         val avatar = AccountTable.lob("avatar")
-        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
+//        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
     }
 
     @org.testng.annotations.Test
     fun createAccountTable() {
-        AccountTable.create().execute()
+        AccountTable.create().debug().execute()
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
@@ -83,7 +83,7 @@ object TableTest {
                 .addValue(AccountTable.birthDate, birthDate)
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
-                .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
+//                .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
                 .debug()
                 .execute()
         }
@@ -162,7 +162,7 @@ object TableTest {
         assert(account.getLocalDate(AccountTable.birthDate) == birthDate)
         assert(account.getLocalTime(AccountTable.birthTime) == birthTime)
 
-        if (dialect.isOffsetDateTimeSupported) {
+        if (dialect.offsetDateTimeSupported) {
             assert(account.getOffsetDateTime(AccountTable.birthday) == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
         }
         else {

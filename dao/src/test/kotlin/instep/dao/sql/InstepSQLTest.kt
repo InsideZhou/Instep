@@ -17,7 +17,7 @@ object InstepSQLTest {
     val dialect = Dialect.of(datasourceUrl)
     val datasource = DruidDataSource()
 
-    object TransactionTable : Table("transaction_" + stringGenerator.generateByRegex("[a-z]{8}"), dialect) {
+    object TransactionTable : Table("transaction_" + stringGenerator.generateByRegex("[a-z]{8}"), "transaction test", dialect) {
         val id = autoIncrementLong("id").primary()
         val name = varchar("name", 256).notnull()
     }
