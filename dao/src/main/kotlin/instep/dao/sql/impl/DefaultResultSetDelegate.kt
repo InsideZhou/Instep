@@ -5,6 +5,7 @@ import instep.dao.sql.ResultSetDelegate
 import instep.dao.sql.dialect.AbstractDialect
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
+import instep.dao.sql.dialect.SQLServerDialect
 import java.sql.ResultSet
 
 
@@ -13,6 +14,7 @@ open class DefaultResultSetDelegate : ResultSetDelegate {
         return when (dialect) {
             is HSQLDialect -> HSQLDialect.ResultSet(rs)
             is MySQLDialect -> MySQLDialect.ResultSet(rs)
+            is SQLServerDialect -> SQLServerDialect.ResultSet(rs)
             else -> AbstractDialect.ResultSet(rs)
         }
     }

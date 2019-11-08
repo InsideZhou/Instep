@@ -31,9 +31,9 @@ object InstepSQLTest {
         datasource.minEvictableIdleTimeMillis = 300000
         datasource.isTestWhileIdle = true
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
-        datasource.validationQuery = "VALUES(current_timestamp)"
 
         Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
+        InstepSQL.toString()
         Instep.bind(InstepLogger::class.java, object : InstepLogger {
             override val enableDebug: Boolean = true
             override val enableInfo: Boolean = true
@@ -52,7 +52,7 @@ object InstepSQLTest {
             }
         })
 
-        TransactionTable.create().execute()
+        TransactionTable.create().debug().execute()
     }
 
     @Test

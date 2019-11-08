@@ -3,6 +3,7 @@ package instep.dao.sql
 import instep.Instep
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
+import instep.dao.sql.dialect.SQLServerDialect
 import org.testng.Assert
 import java.time.*
 import java.util.*
@@ -11,7 +12,6 @@ import java.util.*
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
-    val dialect = Instep.make(Dialect::class.java)
 
     val birthDate = LocalDate.of(1993, 6, 6)
     val birthTime = LocalTime.of(6, 6)
@@ -42,6 +42,7 @@ object TableTest {
         val balance = when (AccountTable.dialect) {
             is MySQLDialect -> AccountTable.numeric("balance", 65, 2).notnull()
             is PostgreSQLDialect -> AccountTable.numeric("balance", 1000, 2).notnull()
+            is SQLServerDialect -> AccountTable.numeric("balance", 38, 2).notnull()
             else -> AccountTable.numeric("balance", Int.MAX_VALUE, 2).notnull()
         }
         val createdAt = AccountTable.instant("created_at").notnull()
@@ -64,7 +65,7 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
     fun addColumn() {
-        AccountTable.addColumn(AccountTable.boolean("verified").default("FALSE")).execute()
+        AccountTable.addColumn(AccountTable.boolean("verified").default("0")).debug().execute()
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"))
@@ -73,11 +74,11 @@ object TableTest {
         val total = random.ints(10, 100).findAny().orElse(100)
 
         for (index in 0..total) {
-            val name = stringGenerator.generateByRegex("\\w{1,256}")
             AccountTable.insert()
                 .addValue(AccountTable.id, UUID.randomUUID().toString())
                 .addValue(AccountTable.type, AccountType.Admin)
-                .addValue(AccountTable.name, name)
+                .addValue(AccountTable.name, stringGenerator.generateByRegex("\\w{1,256}"))
+                .addValue(AccountTable.code, stringGenerator.generateByRegex("\\w{6}"))
                 .addValue(AccountTable.balance, random.nextDouble())
                 .addValue(AccountTable.createdAt, Instant.now())
                 .addValue(AccountTable.birthDate, birthDate)

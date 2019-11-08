@@ -4,6 +4,8 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib"
     implementation "org.jetbrains.kotlin:kotlin-reflect"
 
+    implementation 'com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8'
+
     testImplementation 'com.alibaba:druid:1.0.31'
     testImplementation 'net.moznion:random-string:1.1.0'
 
