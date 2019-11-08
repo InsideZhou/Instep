@@ -1,10 +1,8 @@
 package instep.dao.sql
 
-import instep.dao.DaoException
 import instep.dao.sql.impl.DefaultTableDeletePlan
 
 interface TableDeletePlan : SQLPlan<TableDeletePlan>, WhereClause<TableDeletePlan> {
-    @Throws(DaoException::class)
     fun whereKey(key: Any): TableDeletePlan
 }
 

@@ -9,29 +9,35 @@ import java.sql.Connection as JdbcConnection
 
 @Suppress("unused")
 object TransactionTemplate {
+    @Throws(Exception::class)
     fun <R> run(runner: TransactionContext.() -> R): R {
         return template(null, runner)
     }
 
+    @Throws(Exception::class)
     fun <R> uncommitted(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
+    @Throws(Exception::class)
     fun <R> committed(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
     }
 
+    @Throws(Exception::class)
     fun <R> repeatable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
+    @Throws(Exception::class)
     fun <R> serializable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
     }
 
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
 
-    @Suppress("unchecked_cast")
+    @Throws(Exception::class)
+    @Suppress("UNCHECKED_CAST")
     fun <R> template(level: Int?, runner: TransactionContext.() -> R): R {
         var transactionContext = threadLocalTransactionContext.get()
         if (null == transactionContext) {
@@ -72,7 +78,9 @@ object TransactionTemplate {
         }
         catch (e: TransactionContext.AbortException) {
             conn.rollback(sp)
-            return null as R
+            if (null != e.cause) {
+                throw e.cause
+            }
         }
         catch (e: Exception) {
             conn.rollback(sp)
@@ -87,17 +95,25 @@ object TransactionTemplate {
                 conn.close()
             }
         }
+
+        return null as R
     }
 }
+
 
 class TransactionContext(val conn: JdbcConnection) {
     var depth = 0
 
     fun abort() {
-        throw AbortException()
+        throw AbortException(null)
     }
 
-    class AbortException : Exception()
+    @Suppress("unused")
+    fun abort(cause: Exception) {
+        throw AbortException(cause)
+    }
+
+    class AbortException(cause: Exception?) : Exception(cause)
 
     class ConnectionProvider(val ds: DataSource, override val dialect: Dialect) : IConnectionProvider {
         init {

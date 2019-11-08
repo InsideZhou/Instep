@@ -1,18 +1,14 @@
 package instep.dao.sql
 
-import instep.dao.DaoException
 import instep.dao.sql.impl.DefaultTableUpdatePlan
 
 interface TableUpdatePlan : SQLPlan<TableUpdatePlan>, WhereClause<TableUpdatePlan> {
-    @Throws(DaoException::class)
     fun step(column: NumberColumn<*>, value: Number): TableUpdatePlan
 
-    @Throws(DaoException::class)
     fun set(column: Column<*>, value: Any?): TableUpdatePlan
 
     fun set(obj: Any): TableUpdatePlan
 
-    @Throws(DaoException::class)
     fun whereKey(key: Any): TableUpdatePlan
 }
 

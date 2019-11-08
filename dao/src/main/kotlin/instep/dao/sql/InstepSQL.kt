@@ -21,6 +21,7 @@ object InstepSQL {
         return TransactionTemplate
     }
 
+    @Throws(Exception::class)
     fun <R> transaction(runner: TransactionContext.() -> R): R {
         return TransactionTemplate.run(runner)
     }
