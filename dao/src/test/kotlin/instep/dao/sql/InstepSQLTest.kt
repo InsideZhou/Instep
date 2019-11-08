@@ -5,6 +5,7 @@ import instep.Instep
 import instep.InstepLogger
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
+import instep.dao.sql.dialect.SQLServerDialect
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.Assert
 import org.testng.annotations.Test
@@ -60,6 +61,7 @@ object InstepSQLTest {
         val scalar = when (dialect) {
             is HSQLDialect -> InstepSQL.plan("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""").executeScalar()
             is MySQLDialect -> InstepSQL.plan("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""").executeScalar()
+            is SQLServerDialect -> InstepSQL.plan("""SELECT format(current_timestamp, 'yyyy-MM-dd HH:mm:ss')""").executeScalar()
             else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')""").executeScalar()
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))

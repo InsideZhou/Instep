@@ -1,6 +1,7 @@
 package instep.dao.sql
 
 import instep.collection.AssocArray
+import instep.dao.sql.dialect.SQLServerDialect
 import instep.dao.sql.impl.DefaultTableSelectPlan
 
 interface TableSelectPlan : SQLPlan<TableSelectPlan>, WhereClause<TableSelectPlan> {
@@ -26,8 +27,9 @@ interface TableSelectPlanFactory<out T : TableSelectPlan> {
     fun createInstance(table: Table): T
 
     companion object : TableSelectPlanFactory<TableSelectPlan> {
-        override fun createInstance(table: Table): TableSelectPlan {
-            return DefaultTableSelectPlan(table)
+        override fun createInstance(table: Table): TableSelectPlan = when (table.dialect) {
+            is SQLServerDialect -> SQLServerDialect.SelectPlan(table)
+            else -> DefaultTableSelectPlan(table)
         }
     }
 }

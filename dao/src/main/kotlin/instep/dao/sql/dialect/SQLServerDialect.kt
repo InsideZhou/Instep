@@ -3,11 +3,12 @@ package instep.dao.sql.dialect
 import instep.InstepLogger
 import instep.dao.sql.*
 import instep.dao.sql.impl.DefaultSQLPlan
+import instep.dao.sql.impl.DefaultTableSelectPlan
 import microsoft.sql.DateTimeOffset
 import java.time.OffsetDateTime
 
 open class SQLServerDialect : SeparateCommentDialect() {
-    open class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
+    class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getOffsetDateTime(index: Int): OffsetDateTime? {
             return (rs.getObject(index) as? DateTimeOffset)?.offsetDateTime
         }
@@ -16,6 +17,44 @@ open class SQLServerDialect : SeparateCommentDialect() {
             return (rs.getObject(label) as? DateTimeOffset)?.offsetDateTime
         }
     }
+
+    class SelectPlan(from: Table) : DefaultTableSelectPlan(from) {
+        val noOrderByButRowsLimited get() = orderBy.isEmpty() && limit > 0
+
+        override val selectWords get() = if (noOrderByButRowsLimited) "${super.selectWords} TOP $limit" else super.selectWords
+
+        override val statement: String
+            get() {
+                val sql = baseSql + whereTxt + groupByTxt + havingTxt + orderByTxt
+                return if (noOrderByButRowsLimited) sql else from.dialect.pagination.statement(sql, limit, offset)
+            }
+
+        override val parameters: List<Any?>
+            get() {
+                var params = where?.parameters ?: emptyList()
+
+                val havingParams = having?.parameters
+                if (null != havingParams) {
+                    params = params + havingParams
+                }
+
+                return if (noOrderByButRowsLimited) params else from.dialect.pagination.parameters(params, limit, offset)
+            }
+    }
+
+    class Pagination : StandardPagination() {
+        override fun statement(statement: String, limit: Int, offset: Int): String {
+            if (limit <= 0) {
+                return if (offset > 0) "$statement\n OFFSET ? ROWS" else statement
+            }
+            else {
+                return if (offset > 0) "$statement\nOFFSET ? ROWS\nFETCH NEXT ? ROWS ONLY" else "$statement\nOFFSET 0 ROWS\nFETCH NEXT ? ROWS ONLY"
+            }
+        }
+    }
+
+    override val pagination: instep.dao.sql.Pagination
+        get() = Pagination()
 
     override fun addColumn(tableName: String, column: Column<*>): SQLPlan<*> {
         val columnDefinition = definitionForColumns(column)
