@@ -94,7 +94,7 @@ subprojects {
 
                 pom {
                     name = 'Instep'
-                    description = 'Tools are designed to make coding easier.'
+                    description = 'Tools are designed for more easier coding.'
                     url = 'https://github.com/InsideZhou/Instep'
 
                     scm {
@@ -146,6 +146,7 @@ subprojects {
     }
 
     signing {
+        useGpgCmd()
         sign publishing.publications.full
     }
 }
