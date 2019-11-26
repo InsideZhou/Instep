@@ -6,17 +6,17 @@ import java.util.*
  * 64 bits id generator. twitter snowflake.
  * 0 - timestamp - highPadding - worker - lowPadding - sequence
  */
-class LongIdGenerator(
+@Suppress("MemberVisibilityCanBePrivate", "CanBeParameter")
+open class LongIdGenerator(
     val workerId: Int,
-    timestampBits: Int,
-    highPaddingBits: Int,
-    workerIdBits: Int,
-    lowPaddingBits: Int,
-    val random: Random,
+    val timestampBits: Int,
+    val highPaddingBits: Int,
+    val workerIdBits: Int,
+    val lowPaddingBits: Int,
     val epoch: Long,
-    val sequenceStartRange: Int
+    val sequenceStartRange: Int,
+    val random: Random? = null
 ) {
-
     constructor(
         workerId: Int,
         timestampBits: Int,
@@ -25,9 +25,9 @@ class LongIdGenerator(
         lowPaddingBits: Int
     ) : this(
         workerId, timestampBits, highPaddingBits, workerIdBits, lowPaddingBits,
-        Random(),
         1517414400L, //Thu Feb 01 2018 00:00:00 GMT, seconds
-        1000
+        1000,
+        Random()
     )
 
     constructor(workerId: Int) : this(
@@ -37,6 +37,8 @@ class LongIdGenerator(
         12,
         0
     )
+
+    val sequenceBits = 63 - timestampBits - highPaddingBits - workerIdBits - lowPaddingBits
 
     var maxWorkerId: Int = -1
         private set
@@ -57,8 +59,6 @@ class LongIdGenerator(
         private set
 
     init {
-        val sequenceBits = 63 - timestampBits - highPaddingBits - workerIdBits - lowPaddingBits
-
         maxWorkerId = maxIntegerAtBits(workerIdBits)
         maxSequenceValue = maxIntegerAtBits(sequenceBits)
         workerIdShift = sequenceBits + lowPaddingBits
@@ -85,7 +85,7 @@ class LongIdGenerator(
             }
         }
         else {
-            sequence = random.nextInt(sequenceStartRange)
+            sequence = random?.nextInt(sequenceStartRange) ?: sequenceStartRange
         }
 
         lastTimestamp = timestamp
@@ -101,7 +101,7 @@ class LongIdGenerator(
         return timestamp
     }
 
-    private fun timeGen(): Long {
+    protected open fun timeGen(): Long {
         return System.currentTimeMillis() / 1000
     }
 
