@@ -4,22 +4,9 @@ buildscript {
     }
 }
 
-apply plugin: 'idea'
-apply plugin: 'eclipse'
-
-idea {
-    project {
-        jdkName = '1.8'
-        languageLevel = '1.8'
-    }
-}
-
 subprojects {
     group = 'me.insidezhou.instep'
     version = '2.0.0'
-
-    apply plugin: 'idea'
-    apply plugin: 'eclipse'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
