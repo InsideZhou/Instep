@@ -1,27 +1,22 @@
 package instep.util
 
 import org.testng.annotations.Test
+import java.util.*
 
 
 class LongIdGeneratorTest {
-    @Test
-    fun g() {
-        val idGenerator = LongIdGenerator(0)
-
-        var counter = 0
-        val ts = System.currentTimeMillis()
-        while (System.currentTimeMillis() - ts < 1000) {
-            counter += 1
-            println(idGenerator.generate())
-        }
-
-        println(counter)
-    }
-
     @Test
     fun maxWorkerId() {
         val idGenerator = LongIdGenerator(0)
 
         assert(idGenerator.maxWorkerId == 4095)
+    }
+
+    @Test
+    fun negativeSequenceStart() {
+        val idGenerator = LongIdGenerator(0, 32, 0, 12, 0, 1517414400L, -1, Random());
+        idGenerator.generate()
+
+        assert(idGenerator.sequence > 0)
     }
 }
