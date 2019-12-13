@@ -84,8 +84,11 @@ open class LongIdGenerator(
                 timestamp = nextTick(lastTimestamp)
             }
         }
-        else {
+        else if (sequenceStartRange > 0) {
             sequence = random?.nextInt(sequenceStartRange) ?: sequenceStartRange
+        }
+        else {
+            sequence = random?.nextInt(maxIntegerAtBits(sequenceBits)) ?: 0
         }
 
         lastTimestamp = timestamp
