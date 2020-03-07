@@ -14,7 +14,7 @@ class LongIdGeneratorTest {
 
     @Test
     fun negativeSequenceStart() {
-        val idGenerator = LongIdGenerator(0, 32, 0, 12, 0, 1517414400L, -1, Random());
+        val idGenerator = LongIdGenerator(0, 32, 0, 12, 0, 1517414400L, -1, 1000, Random());
         idGenerator.generate()
 
         assert(idGenerator.sequence > 0)

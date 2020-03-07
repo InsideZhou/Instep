@@ -13,8 +13,9 @@ open class LongIdGenerator(
     val highPaddingBits: Int,
     val workerIdBits: Int,
     val lowPaddingBits: Int,
-    val epoch: Long,
+    val epochInSeconds: Long,
     val sequenceStartRange: Int,
+    val tickAccuracy: Int = 1000,
     val random: Random? = null
 ) {
     constructor(
@@ -27,6 +28,7 @@ open class LongIdGenerator(
         workerId, timestampBits, highPaddingBits, workerIdBits, lowPaddingBits,
         1517414400L, //Thu Feb 01 2018 00:00:00 GMT, seconds
         1000,
+        1000,
         Random()
     )
 
@@ -37,6 +39,9 @@ open class LongIdGenerator(
         12,
         0
     )
+
+    val epochInMilliSeconds = epochInSeconds * 1000;
+    val epochTick = epochInMilliSeconds / tickAccuracy;
 
     val sequenceBits = 63 - timestampBits - highPaddingBits - workerIdBits - lowPaddingBits
 
@@ -55,7 +60,7 @@ open class LongIdGenerator(
     var sequence = 0
         private set
 
-    var lastTimestamp = -1L
+    var lastTick = -1L
         private set
 
     init {
@@ -71,17 +76,17 @@ open class LongIdGenerator(
 
     @Synchronized
     fun generate(): Long {
-        var timestamp = timeGen()
+        var tick = generateTick()
 
-        if (timestamp < lastTimestamp) {
-            throw Exception("Clock moved backwards.  Refusing to generate id for ${lastTimestamp - timestamp} seconds")
+        if (tick < lastTick) {
+            throw Exception("Clock moved backwards. Refusing to generate id for ${lastTick - tick} ticks at $tickAccuracy accuracy.");
         }
 
-        if (lastTimestamp == timestamp) {
+        if (lastTick == tick) {
             sequence = sequence + 1 and maxSequenceValue
 
             if (0 == sequence) {
-                timestamp = nextTick(lastTimestamp)
+                tick = nextTick()
             }
         }
         else if (sequenceStartRange > 0) {
@@ -91,21 +96,21 @@ open class LongIdGenerator(
             sequence = random?.nextInt(maxIntegerAtBits(sequenceBits)) ?: 0
         }
 
-        lastTimestamp = timestamp
+        lastTick = tick
 
-        return ((timestamp - epoch) shl timestampShift) or (workerId shl workerIdShift).toLong() or sequence.toLong()
+        return ((tick - epochTick) shl timestampShift) or (workerId shl workerIdShift).toLong() or sequence.toLong()
     }
 
-    private fun nextTick(lastTimestamp: Long): Long {
-        var timestamp = timeGen()
-        while (timestamp <= lastTimestamp) {
-            timestamp = timeGen()
+    private fun nextTick(): Long {
+        var tick = generateTick()
+        while (tick <= lastTick) {
+            tick = generateTick()
         }
-        return timestamp
+        return tick
     }
 
-    protected open fun timeGen(): Long {
-        return System.currentTimeMillis() / 1000
+    private fun generateTick(): Long {
+        return System.currentTimeMillis() / tickAccuracy
     }
 
     companion object {
