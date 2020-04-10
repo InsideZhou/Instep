@@ -64,13 +64,22 @@ open class LongIdGenerator(
         private set
 
     init {
-        maxWorkerId = maxIntegerAtBits(workerIdBits)
-        maxSequenceValue = maxIntegerAtBits(sequenceBits)
+        maxWorkerId = maxIntAtBits(workerIdBits)
+        maxSequenceValue = maxIntAtBits(sequenceBits)
         workerIdShift = sequenceBits + lowPaddingBits
         timestampShift = sequenceBits + lowPaddingBits + workerIdBits + highPaddingBits
 
         if (workerId > maxWorkerId || workerId < 0) {
             throw IllegalArgumentException("worker Id can't be greater than $maxWorkerId or less than 0")
+        }
+
+        if (sequenceStartRange > maxSequenceValue) {
+            throw IllegalArgumentException("not enough sequence bits $sequenceBits for range $sequenceStartRange")
+        }
+
+        val currentTick = generateTick();
+        if (currentTick - epochTick > maxLongAtBits(timestampBits)) {
+            throw  IllegalArgumentException("not enough timestamp bits $timestampBits");
         }
     }
 
@@ -93,7 +102,7 @@ open class LongIdGenerator(
             sequence = random?.nextInt(sequenceStartRange) ?: sequenceStartRange
         }
         else {
-            sequence = random?.nextInt(maxIntegerAtBits(sequenceBits)) ?: 0
+            sequence = random?.nextInt(maxIntAtBits(sequenceBits)) ?: 0
         }
 
         lastTick = tick
@@ -114,6 +123,7 @@ open class LongIdGenerator(
     }
 
     companion object {
-        fun maxIntegerAtBits(bits: Int): Int = -1 xor (-1 shl bits)
+        fun maxIntAtBits(bits: Int): Int = -1 xor (-1 shl bits)
+        fun maxLongAtBits(bits: Int): Long = -1L xor (-1L shl bits)
     }
 }
