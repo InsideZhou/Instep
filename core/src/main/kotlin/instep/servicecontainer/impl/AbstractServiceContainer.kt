@@ -6,7 +6,7 @@ import instep.Instep
 import instep.servicecontainer.*
 
 @Suppress("MemberVisibilityCanPrivate", "unused", "MemberVisibilityCanBePrivate")
-abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
+abstract class AbstractServiceContainer<T : Any> : ServiceContainer<T> {
     override var binding: ServiceBindingEventHandler? = null
     override var bound: ServiceBoundEventHandler? = null
     override var resolving: ServiceResolvingEventHandler? = null
@@ -20,11 +20,11 @@ abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun copyServices(container: ServiceContainer<out T>) {
+    override fun <E : T> copyServices(container: ServiceContainer<E>) {
         container.serviceBinds().forEach { bind(it) }
     }
 
-    override fun copy(container: ServiceContainer<out T>) {
+    override fun <E : T> copy(container: ServiceContainer<E>) {
         copyServices(container)
 
         binding = container.binding
@@ -43,7 +43,7 @@ abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
     }
 
     @Suppress("UNCHECKED_CAST")
-    override fun bind(binding: ServiceBinding<out T>) {
+    override fun <E : T> bind(binding: ServiceBinding<E>) {
         if (!fireOnBinding(binding)) return
         if (serviceBindings.contains(binding)) return
 
@@ -55,7 +55,7 @@ abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
         serviceBindings.add(binding)
 
         if (!cls.isArray && !Collection::class.java.isAssignableFrom(cls)) {
-            val parents = Instep.reflect(cls).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
+            val parents = Instep.reflectFromClass(cls as Class<*>).parents.filter { !it.isArray && !Collection::class.java.isAssignableFrom(it) }
 
             parents.forEach {
                 val key = getKey(it as Class<T>, tag)
@@ -72,7 +72,7 @@ abstract class AbstractServiceContainer<T> : ServiceContainer<T> {
 
     protected abstract fun hasKey(key: String): Boolean
 
-    protected fun getKey(cls: Class<out T>, tag: String = ""): String {
+    protected fun <E : T> getKey(cls: Class<E>, tag: String = ""): String {
         return if (tag.isBlank()) "instep.servicecontainer.${cls.name}" else "instep.servicecontainer.${cls.name}#$tag"
     }
 

@@ -3,7 +3,7 @@ package instep.servicecontainer.impl
 import instep.cache.driver.MemoryCache
 import instep.servicecontainer.ServiceNotFoundException
 
-open class MemoryServiceContainer<T>(memoryCache: MemoryCache<T>) : AbstractServiceContainer<T>() {
+open class MemoryServiceContainer<T : Any>(memoryCache: MemoryCache<T>) : AbstractServiceContainer<T>() {
     private val memory = memoryCache
 
     override fun bindInstance(key: String, instance: T) {

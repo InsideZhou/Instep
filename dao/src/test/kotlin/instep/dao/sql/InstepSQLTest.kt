@@ -2,7 +2,6 @@ package instep.dao.sql
 
 import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
-import instep.InstepLogger
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.SQLServerDialect
@@ -35,24 +34,6 @@ object InstepSQLTest {
 
         Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
         InstepSQL.toString()
-        Instep.bind(InstepLogger::class.java, object : InstepLogger {
-            override val enableDebug: Boolean = true
-            override val enableInfo: Boolean = true
-            override val enableWarning: Boolean = true
-
-            override fun debug(log: String, logger: String) {
-                println(log)
-            }
-
-            override fun info(log: String, logger: String) {
-                println(log)
-            }
-
-            override fun warning(log: String, logger: String) {
-                System.err.println(log)
-            }
-        })
-
         TransactionTable.create().debug().execute()
     }
 

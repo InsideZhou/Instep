@@ -7,6 +7,7 @@ import instep.InstepLogger
  */
 interface Plan<T : Plan<T>> {
     val statement: String
+
     /**
      * Order of parameters need to be same as order of statement's placeholders.
      */
@@ -14,21 +15,15 @@ interface Plan<T : Plan<T>> {
 
     @Suppress("UNCHECKED_CAST")
     fun debug(): T {
-        InstepLogger.debug({ "$statement\n${parameterToLogFormat()}" }, this.javaClass.name)
+        InstepLogger.getLogger(this.javaClass).message(statement).context("parameters") { parameterToLogFormat() }.debug()
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     fun info(): T {
-        InstepLogger.info({ "$statement\n${parameterToLogFormat()}" }, this.javaClass.name)
+        InstepLogger.getLogger(this.javaClass).message(statement).context("parameters") { parameterToLogFormat() }.info()
         return this as T
     }
 
-    @Suppress("UNCHECKED_CAST")
-    fun log(runner: (T) -> Unit): T {
-        runner(this as T)
-        return this
-    }
-
-    fun parameterToLogFormat(): String = parameters.map(Any?::toString).joinToString("|")
+    fun parameterToLogFormat(): String = parameters.joinToString("|", transform = Any?::toString)
 }

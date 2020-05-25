@@ -5,9 +5,9 @@ import java.lang.reflect.Field
 import java.lang.reflect.Method
 import java.lang.reflect.Modifier
 
-@Suppress("unused", "MemberVisibilityCanBePrivate")
+@Suppress("UNCHECKED_CAST", "unused")
 open class JMirror<T : Any>(val type: Class<T>) {
-    constructor(instance: T) : this(instance.javaClass)
+    constructor(instance: T) : this(instance::class.java as Class<T>)
 
     val annotations: Set<Annotation> by lazy { type.annotations.toSet() }
 

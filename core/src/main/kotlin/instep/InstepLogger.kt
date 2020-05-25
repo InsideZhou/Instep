@@ -3,56 +3,49 @@ package instep
 import instep.servicecontainer.ServiceNotFoundException
 
 /**
- * Instep log everything through this logger, if there is a corresponding service bound in [Instep.ServiceContainer], none by default.
+ * Instep log everything through this logger, if there is a corresponding service bound in [Instep.serviceContainer], none by default.
  */
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 interface InstepLogger {
-    val enableDebug: Boolean
-    val enableInfo: Boolean
-    val enableWarning: Boolean
+    fun message(message: String): InstepLogger
+    fun exception(e: Throwable): InstepLogger
+    fun context(key: String, value: Any): InstepLogger
+    fun context(key: String, lazy: () -> String): InstepLogger
 
-    fun debug(log: String, logger: String = "")
-    fun info(log: String, logger: String = "")
-    fun warning(log: String, logger: String = "")
-
-    fun debug(log: String, cls: Class<*>) = debug(log, cls.name)
-    fun info(log: String, cls: Class<*>) = info(log, cls.name)
-    fun warning(log: String, cls: Class<*>) = warning(log, cls.name)
+    fun debug()
+    fun info()
+    fun warn()
 
     companion object {
-        var logger = try {
-            Instep.make(InstepLogger::class.java)
+        var factory = try {
+            Instep.make(InstepLoggerFactory::class.java)
         }
         catch (e: ServiceNotFoundException) {
             null
         }
 
-        fun debug(lazy: () -> String, logger: String = "") {
-            this.logger?.apply {
-                if (enableDebug) {
-                    debug(lazy(), logger)
-                }
-            }
+        var nullLogger = object : InstepLogger {
+            override fun message(message: String): InstepLogger = this
+
+            override fun exception(e: Throwable): InstepLogger = this
+
+            override fun context(key: String, value: Any): InstepLogger = this
+
+            override fun context(key: String, lazy: () -> String): InstepLogger = this
+
+            override fun debug() {}
+
+            override fun info() {}
+
+            override fun warn() {}
         }
 
-        fun info(lazy: () -> String, logger: String = "") {
-            this.logger?.apply {
-                if (enableInfo) {
-                    info(lazy(), logger)
-                }
-            }
+        fun getLogger(cls: Class<*>): InstepLogger {
+            return this.factory?.let { getLogger(cls) } ?: nullLogger
         }
-
-        fun warning(lazy: () -> String, logger: String = "") {
-            this.logger?.apply {
-                if (enableWarning) {
-                    warning(lazy(), logger)
-                }
-            }
-        }
-
-        fun debug(lazy: () -> String, cls: Class<*>) = debug(lazy, cls.name)
-        fun info(lazy: () -> String, cls: Class<*>) = info(lazy, cls.name)
-        fun warning(lazy: () -> String, cls: Class<*>) = warning(lazy, cls.name)
     }
+}
+
+interface InstepLoggerFactory {
+    fun getLogger(cls: Class<*>): InstepLogger
 }

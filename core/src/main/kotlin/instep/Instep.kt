@@ -50,14 +50,14 @@ object Instep {
      * Reflect class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> reflect(cls: Class<T>): JMirror<T> {
+    fun <T : Any> reflectFromClass(cls: Class<T>): JMirror<T> {
         make(Cache::class.java as Class<Cache<Any>>).let { cache ->
             return if (cache.containsKey(cls.name)) {
                 cache[cls.name] as JMirror<T>
             }
             else {
                 val m = JMirror(cls)
-                cache[cls.name!!] = m
+                cache[cls.name] = m
                 m
             }
         }
@@ -68,14 +68,14 @@ object Instep {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> reflect(instance: T): JMirror<T> {
-        return reflect(instance.javaClass)
+        return reflectFromClass(instance::class.java as Class<T>)
     }
 
     /**
      * Reflect class.
      */
     @Suppress("UNCHECKED_CAST")
-    fun <T : Any> kReflect(cls: KClass<T>): Mirror<T> {
+    fun <T : Any> kReflectFromClass(cls: KClass<T>): Mirror<T> {
         make(Cache::class.java as Class<Cache<Any>>).let { cache ->
             return if (cache.containsKey(cls.qualifiedName)) {
                 cache[cls.qualifiedName] as Mirror<T>
@@ -93,6 +93,6 @@ object Instep {
      */
     @Suppress("UNCHECKED_CAST")
     fun <T : Any> kReflect(instance: T): Mirror<T> {
-        return kReflect(instance.javaClass.kotlin)
+        return kReflectFromClass(instance::class as KClass<T>)
     }
 }

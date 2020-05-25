@@ -23,7 +23,7 @@ class D(override val name: String) : C(name) {
 object MirrorTest {
     @Test
     fun parentsOfClass() {
-        val parentsOfD = Instep.reflect(D::class.java).parents
+        val parentsOfD = Instep.reflectFromClass(D::class.java).parents
         assert(!parentsOfD.contains(Any::class.java), { "parents of class should not include 'Any'" })
     }
 

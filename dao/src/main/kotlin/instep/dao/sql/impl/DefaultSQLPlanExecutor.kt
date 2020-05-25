@@ -21,6 +21,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     val preparedStatementGenerator: PreparedStatementGenerator,
     val typeconvert: TypeConversion
 ) : SQLPlanExecutor<S> {
+    private val logger = InstepLogger.getLogger(DefaultSQLPlanExecutor::class.java)
 
     constructor() : this(
         Instep.make(ConnectionProvider::class.java),
@@ -140,7 +141,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                 if (typeconvert.canConvert(TableRow::class.java, cls)) return rows.map { row -> typeconvert.convert(row, cls) }
                 if (cls == TableRow::class.java) return rows as List<T>
 
-                val targetMirror = Instep.reflect(cls)
+                val targetMirror = Instep.reflectFromClass(cls)
                 val tableMirror = Instep.reflect(plan.from)
 
                 return rows.map { row ->
@@ -157,7 +158,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                                     p.setter.invoke(instance, it)
                                 }
                                 catch (e: IllegalArgumentException) {
-                                    InstepLogger.warning({ e.toString() }, InstepSQL::class.java)
+                                    logger.exception(e).warn()
                                 }
                             }
 
@@ -169,7 +170,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                 }
             }
             else {
-                val mirror = Instep.reflect(cls)
+                val mirror = Instep.reflectFromClass(cls)
                 val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
 
                 try {

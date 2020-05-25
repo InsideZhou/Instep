@@ -8,6 +8,8 @@ import microsoft.sql.DateTimeOffset
 import java.time.OffsetDateTime
 
 open class SQLServerDialect : SeparateCommentDialect() {
+    private val logger = InstepLogger.getLogger(SQLServerDialect::class.java)
+
     class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getOffsetDateTime(index: Int): OffsetDateTime? {
             return (rs.getObject(index) as? DateTimeOffset)?.offsetDateTime
@@ -102,11 +104,9 @@ open class SQLServerDialect : SeparateCommentDialect() {
 
     override fun createTable(tableName: String, tableComment: String, ddl: String, columns: List<Column<*>>): SQLPlan<*> {
         if (columns.isEmpty()) {
-            InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
+            logger.message("Table has no columns.").context("table", tableName).warn()
         }
 
-        val plan = InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
-
-        return plan
+        return InstepSQL.plan(ddl + definitionForColumns(*columns.toTypedArray()) + "\n)")
     }
 }

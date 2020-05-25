@@ -14,6 +14,8 @@ import java.time.*
 import java.util.*
 
 abstract class AbstractDialect : Dialect {
+    private val logger = InstepLogger.getLogger(Dialect::class.java)
+
     open class ResultSet(private val rs: java.sql.ResultSet) : java.sql.ResultSet by rs {
         open fun getInstant(index: Int): Instant? {
             return rs.getTimestamp(index)?.let(Timestamp::toInstant)
@@ -77,7 +79,7 @@ abstract class AbstractDialect : Dialect {
 
     protected open fun createTable(tableName: String, tableComment: String, ddl: String, columns: List<Column<*>>): SQLPlan<*> {
         if (columns.isEmpty()) {
-            InstepLogger.warning({ "Table $tableName has no columns." }, this.javaClass.name)
+            logger.message("Table has no columns.").context("table", tableName).warn()
         }
 
         var sql = ddl + definitionForColumns(*columns.toTypedArray()) + "\n)"

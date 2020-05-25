@@ -9,6 +9,8 @@ import java.sql.Connection as JdbcConnection
 
 @Suppress("unused")
 object TransactionTemplate {
+    private val logger = InstepLogger.getLogger(TransactionTemplate::class.java)
+
     @Throws(Exception::class)
     fun <R> run(runner: TransactionContext.() -> R): R {
         return template(null, runner)
@@ -53,7 +55,10 @@ object TransactionTemplate {
         }
         else {
             if (null != level && level < transactionContext.conn.transactionIsolation) {
-                InstepLogger.warning({ "nested transaction isolation $level is lesser then outer ${transactionContext.conn.transactionIsolation}" }, this.javaClass)
+                logger.message("nested transaction isolation level is lesser then outer.")
+                    .context("nested", level)
+                    .context("outer", transactionContext.conn.transactionIsolation)
+                    .warn()
             }
 
             transactionContext.depth += 1

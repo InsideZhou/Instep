@@ -4,7 +4,7 @@ package instep.servicecontainer
 /**
  * Register service and make service instance.
  */
-interface ServiceContainer<T> {
+interface ServiceContainer<T : Any> {
     /**
      * Fire on service binding. If event handler return null, service binding would be canceled.
      */
@@ -41,14 +41,14 @@ interface ServiceContainer<T> {
      * @param tag binding tagged by.
      */
     @Suppress("UNCHECKED_CAST")
-    fun bind(cls: Class<out T>, instance: T, tag: String = "") {
+    fun <E : T> bind(cls: Class<E>, instance: E, tag: String = "") {
         bind(ServiceBinding(cls, instance, tag))
     }
 
     /**
      * Bind instance to class. Instance which is not serializable will lose in (de)serialization.
      */
-    fun bind(binding: ServiceBinding<out T>)
+    fun <E : T> bind(binding: ServiceBinding<E>)
 
     /**
      * Remove binding.
@@ -69,12 +69,12 @@ interface ServiceContainer<T> {
     /**
      * Copy services only from other service container.
      */
-    fun copyServices(container: ServiceContainer<out T>)
+    fun <E : T> copyServices(container: ServiceContainer<E>)
 
     /**
      * Copy all from other service container.
      */
-    fun copy(container: ServiceContainer<out T>)
+    fun <E : T> copy(container: ServiceContainer<E>)
 }
 
-data class ServiceBinding<T>(val cls: Class<out T>, val instance: T, val tag: String = "")
+data class ServiceBinding<T>(val cls: Class<T>, val instance: T, val tag: String = "")
