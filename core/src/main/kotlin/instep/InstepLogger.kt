@@ -41,7 +41,7 @@ interface InstepLogger {
         }
 
         fun getLogger(cls: Class<*>): InstepLogger {
-            return this.factory?.let { getLogger(cls) } ?: nullLogger
+            return this.factory?.getLogger(cls) ?: nullLogger
         }
     }
 }

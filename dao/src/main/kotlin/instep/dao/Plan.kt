@@ -6,6 +6,8 @@ import instep.InstepLogger
  * Plan that is targeting relational database manipulated by SQL.
  */
 interface Plan<T : Plan<T>> {
+    val logger: InstepLogger
+
     val statement: String
 
     /**
@@ -15,13 +17,19 @@ interface Plan<T : Plan<T>> {
 
     @Suppress("UNCHECKED_CAST")
     fun debug(): T {
-        InstepLogger.getLogger(this.javaClass).message(statement).context("parameters") { parameterToLogFormat() }.debug()
+        logger.message(statement).context("parameters") { parameterToLogFormat() }.info()
         return this as T
     }
 
     @Suppress("UNCHECKED_CAST")
     fun info(): T {
-        InstepLogger.getLogger(this.javaClass).message(statement).context("parameters") { parameterToLogFormat() }.info()
+        logger.message(statement).context("parameters") { parameterToLogFormat() }.info()
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
+    fun warn(): T {
+        logger.message(statement).context("parameters") { parameterToLogFormat() }.warn()
         return this as T
     }
 

@@ -2,6 +2,8 @@ package instep.dao.sql
 
 import com.alibaba.druid.pool.DruidDataSource
 import instep.Instep
+import instep.InstepLogger
+import instep.InstepLoggerFactory
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.SQLServerDialect
@@ -33,7 +35,50 @@ object InstepSQLTest {
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
 
         Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
-        InstepSQL.toString()
+        Instep.bind(InstepLoggerFactory::class.java, object : InstepLoggerFactory {
+            override fun getLogger(cls: Class<*>): InstepLogger {
+                return object : InstepLogger {
+                    var msg = ""
+                    var context = mutableMapOf<String, Any>()
+                    var t: Throwable? = null
+
+                    override fun message(message: String): InstepLogger {
+                        msg = message
+                        return this
+                    }
+
+                    override fun exception(e: Throwable): InstepLogger {
+                        t = e
+                        return this
+                    }
+
+                    override fun context(key: String, value: Any): InstepLogger {
+                        context[key] = value
+                        return this
+                    }
+
+                    override fun context(key: String, lazy: () -> String): InstepLogger {
+                        context[key] = lazy.invoke()
+                        return this
+                    }
+
+                    override fun debug() {
+                        println(msg)
+                        println(context)
+                    }
+
+                    override fun info() {
+                        println(msg)
+                        println(context)
+                    }
+
+                    override fun warn() {
+                        System.err.println(msg)
+                        System.err.println(context)
+                    }
+                }
+            }
+        })
         TransactionTable.create().debug().execute()
     }
 

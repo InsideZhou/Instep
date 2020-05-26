@@ -1,5 +1,6 @@
 package instep.dao.sql
 
+import instep.InstepLogger
 import instep.dao.Plan
 import instep.dao.sql.impl.DefaultSQLPlan
 
@@ -10,6 +11,8 @@ interface SQLPlan<T : SQLPlan<T>> : Plan<T> {
 }
 
 abstract class SubSQLPlan<T : SQLPlan<T>> : SQLPlan<T> {
+    override val logger: InstepLogger = InstepLogger.getLogger(SQLPlan::class.java)
+
     override val subPlans: MutableList<SQLPlan<*>> = mutableListOf()
 
     override fun addSubPlan(plan: SQLPlan<*>): SQLPlan<*> {
