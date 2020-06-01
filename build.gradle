@@ -6,7 +6,7 @@ buildscript {
 
 subprojects {
     group = 'me.insidezhou.instep'
-    version = '2.0.5'
+    version = '2.0.6'
 
     apply plugin: 'java'
     apply plugin: 'java-library'

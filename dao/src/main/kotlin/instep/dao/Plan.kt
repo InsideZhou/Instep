@@ -17,7 +17,7 @@ interface Plan<T : Plan<T>> {
 
     @Suppress("UNCHECKED_CAST")
     fun debug(): T {
-        logger.message(statement).context("parameters") { parameterToLogFormat() }.info()
+        logger.message(statement).context("parameters") { parameterToLogFormat() }.debug()
         return this as T
     }
 
