@@ -11,7 +11,7 @@ import java.sql.ResultSet
 
 object Helper {
     fun <T : Any> resultSetToInstanceByInstanceFirst(rs: ResultSet, dialect: Dialect, mirror: JMirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
-        val instance = mirror.type.newInstance()
+        val instance = mirror.type.getDeclaredConstructor().newInstance()
         val resultSetDelegate = Instep.make(ResultSetDelegate::class.java).getDelegate(dialect, rs)
         val resultSetValueExtractor = Instep.make(ResultSetValueExtractor::class.java)
 
@@ -25,7 +25,7 @@ object Helper {
     }
 
     fun <T : Any> resultSetToInstanceByRowFirst(rs: ResultSet, dialect: Dialect, mirror: JMirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
-        val instance = mirror.type.newInstance()
+        val instance = mirror.type.getDeclaredConstructor().newInstance()
         val resultSetDelegate = Instep.make(ResultSetDelegate::class.java).getDelegate(dialect, rs)
         val resultSetValueExtractor = Instep.make(ResultSetValueExtractor::class.java)
 

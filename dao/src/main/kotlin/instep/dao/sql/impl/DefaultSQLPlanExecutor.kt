@@ -145,7 +145,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                 val tableMirror = Instep.reflect(plan.from)
 
                 return rows.map { row ->
-                    val instance = cls.newInstance()
+                    val instance = cls.getDeclaredConstructor().newInstance()
 
                     targetMirror.mutableProperties.forEach { p ->
                         tableMirror.readableProperties.find {
