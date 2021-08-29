@@ -1,5 +1,6 @@
 package instep.reflection
 
+import instep.util.capitalize
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
 import java.lang.reflect.Method
@@ -25,7 +26,7 @@ open class JMirror<T : Any>(val type: Class<T>) {
         type.declaredFields.map { f ->
             val getter = type.declaredMethods.find {
                 it.name == "get${f.name.capitalize()}" && it.returnType.isAssignableFrom(f.type) ||
-                    Boolean::class.java == f.type && it.name == "is${f.name.capitalize()}"
+                        Boolean::class.java == f.type && it.name == "is${f.name.capitalize()}"
             }
 
             val setter = type.declaredMethods.find {
@@ -62,17 +63,17 @@ open class JMirror<T : Any>(val type: Class<T>) {
     fun findFactoryMethodBy(cls: Class<*>): Method? {
         return type.declaredMethods.find {
             Modifier.isPublic(it.modifiers) &&
-                1 == it.parameterCount &&
-                it.parameterTypes[0].isAssignableFrom(cls) &&
-                type.isAssignableFrom(it.returnType)
+                    1 == it.parameterCount &&
+                    it.parameterTypes[0].isAssignableFrom(cls) &&
+                    type.isAssignableFrom(it.returnType)
         }
     }
 
     fun findFactoryConstructorBy(cls: Class<*>): Constructor<*>? {
         return type.declaredConstructors.find {
             Modifier.isPublic(it.modifiers) &&
-                1 == it.parameterCount &&
-                it.parameterTypes[0].isAssignableFrom(cls)
+                    1 == it.parameterCount &&
+                    it.parameterTypes[0].isAssignableFrom(cls)
         }
     }
 

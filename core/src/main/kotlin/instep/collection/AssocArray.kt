@@ -111,7 +111,7 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
 
     protected open fun generateKey(key: Any): AAKey {
         return when (key) {
-            is String -> AAKey(if (keyIgnoreCase) key.toUpperCase() else key)
+            is String -> AAKey(if (keyIgnoreCase) key.uppercase(Locale.getDefault()) else key)
             is Int -> AAKey(key)
             else -> throw UnsupportedOperationException("type of key must be Int or String.")
         }
