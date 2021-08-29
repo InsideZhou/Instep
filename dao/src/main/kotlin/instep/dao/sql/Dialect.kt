@@ -23,7 +23,9 @@ interface Dialect {
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 
-    val defaultInsertValue: String
+    val defaultValueForInsert: String
+    val returningClauseForInsert: Boolean
+
     val placeholderForUUIDType: String
     val placeholderForJSONType: String
 

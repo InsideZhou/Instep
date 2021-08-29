@@ -58,7 +58,8 @@ abstract class AbstractDialect : Dialect {
         }
     }
 
-    override val defaultInsertValue: String = "NULL"
+    override val defaultValueForInsert: String = "NULL"
+
     override val placeholderForJSONType: String = "?"
     override val placeholderForUUIDType: String = "?"
 
@@ -113,8 +114,7 @@ abstract class AbstractDialect : Dialect {
 
         if (column.nullable) {
             return InstepSQL.plan("$txt DROP NOT NULL")
-        }
-        else {
+        } else {
             return InstepSQL.plan("$txt SET NOT NULL")
         }
     }
@@ -124,8 +124,7 @@ abstract class AbstractDialect : Dialect {
 
         if (column.default.isBlank()) {
             return InstepSQL.plan("$txt DROP DEFAULT")
-        }
-        else {
+        } else {
             return InstepSQL.plan("$txt SET DEFAULT ${column.default}")
         }
     }
@@ -224,8 +223,7 @@ abstract class AbstractDialect : Dialect {
             is IntegerColumn ->
                 if (column.autoIncrement) {
                     definitionForAutoIncrementColumn(column)
-                }
-                else {
+                } else {
                     definitionForIntegerColumn(column)
                 }
             is FloatingColumn -> definitionForFloatingColumn(column)

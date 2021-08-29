@@ -11,34 +11,28 @@ import java.sql.Connection as JdbcConnection
 object TransactionTemplate {
     private val logger = InstepLogger.getLogger(TransactionTemplate::class.java)
 
-    @Throws(Exception::class)
     fun <R> run(runner: TransactionContext.() -> R): R {
         return template(null, runner)
     }
 
-    @Throws(Exception::class)
     fun <R> uncommitted(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
-    @Throws(Exception::class)
     fun <R> committed(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
     }
 
-    @Throws(Exception::class)
     fun <R> repeatable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
-    @Throws(Exception::class)
     fun <R> serializable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
     }
 
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
 
-    @Throws(Exception::class)
     @Suppress("UNCHECKED_CAST")
     fun <R> template(level: Int?, runner: TransactionContext.() -> R): R {
         var transactionContext = threadLocalTransactionContext.get()
@@ -81,15 +75,20 @@ object TransactionTemplate {
 
             return result
         }
-        catch (e: TransactionContext.AbortException) {
-            conn.rollback(sp)
-            if (null != e.cause) {
-                throw e.cause
-            }
-        }
         catch (e: Exception) {
             conn.rollback(sp)
-            throw e
+
+            if (e is TransactionContext.AbortException) {
+                if (null == e.cause) {
+                    return null as R
+                }
+                else {
+                    throw e
+                }
+            }
+            else {
+                throw TransactionContext.AbortException(e)
+            }
         }
         finally {
             if (transactionContext.depth > 0) {
@@ -100,8 +99,6 @@ object TransactionTemplate {
                 conn.close()
             }
         }
-
-        return null as R
     }
 }
 
@@ -124,8 +121,7 @@ class TransactionContext(val conn: JdbcConnection) {
         init {
             try {
                 Instep.make(Dialect::class.java)
-            }
-            catch (e: ServiceNotFoundException) {
+            } catch (e: ServiceNotFoundException) {
                 Instep.bind(Dialect::class.java, dialect)
             }
         }

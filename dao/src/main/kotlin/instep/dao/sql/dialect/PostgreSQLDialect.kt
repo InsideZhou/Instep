@@ -7,6 +7,7 @@ import instep.dao.sql.StringColumn
 
 
 open class PostgreSQLDialect : SeparateCommentDialect() {
+    override val returningClauseForInsert: Boolean = true
     override val offsetDateTimeSupported: Boolean = false
 
     override fun definitionForAutoIncrementColumn(column: IntegerColumn): String = when (column.type) {
@@ -15,10 +16,9 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
     }
 
     override val placeholderForJSONType: String = "?::JSONB"
-
     override val placeholderForUUIDType: String = "?::UUID"
 
-    override val defaultInsertValue = "DEFAULT"
+    override val defaultValueForInsert = "DEFAULT"
 
     override fun definitionForUUIDColumn(column: StringColumn): String = "UUID"
 

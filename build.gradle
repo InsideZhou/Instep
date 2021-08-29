@@ -1,12 +1,17 @@
 buildscript {
-    buildscript { scriptHandler ->
-        apply from: 'buildscript.gradle', to: scriptHandler
+    repositories {
+        maven { url "https://maven.aliyun.com/repository/public" }
+    }
+
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.17"
     }
 }
 
 subprojects {
     group = 'me.insidezhou.instep'
-    version = '2.0.6'
+    version = '2.1.0-SNAPSHOT'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -18,8 +23,7 @@ subprojects {
     apply plugin: 'signing'
 
     repositories {
-        mavenLocal()
-        jcenter()
+        maven { url "https://maven.aliyun.com/repository/public" }
     }
 
     dependencies {
@@ -38,7 +42,7 @@ subprojects {
     }
 
     task sourceJar(type: Jar) {
-        classifier = 'sources'
+        archiveClassifier.set('sources')
         from sourceSets.main.allSource
     }
 
@@ -48,7 +52,7 @@ subprojects {
     }
 
     task docJar(type: Jar, dependsOn: dokka) {
-        classifier = 'javadoc'
+        archiveClassifier.set('javadoc')
         from dokka.outputDirectory
     }
 
@@ -59,7 +63,7 @@ subprojects {
     publishing {
         publications {
             full(MavenPublication) {
-                artifactId jar.baseName
+                artifactId jar.archiveBaseName.get()
 
                 from components.java
 
@@ -95,7 +99,7 @@ subprojects {
             }
 
             simple(MavenPublication) {
-                artifactId jar.baseName
+                artifactId jar.archiveBaseName.get()
 
                 from components.java
 
@@ -112,8 +116,8 @@ subprojects {
                 url isSnapshot ? snapshotsRepoUrl : releasesRepoUrl
                 name 'sonatype'
                 credentials {
-                    username = ossrhUsername
-                    password = ossrhPassword
+                    username = project.findProperty("ossrhUsername")
+                    password = project.findProperty("ossrhPassword")
                 }
             }
         }

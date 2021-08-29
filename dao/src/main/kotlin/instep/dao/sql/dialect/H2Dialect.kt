@@ -7,6 +7,8 @@ import instep.dao.sql.IntegerColumn
 import instep.dao.sql.StringColumn
 
 open class H2Dialect : CommentInTableDefinitionDialect() {
+    override val returningClauseForInsert: Boolean = false
+
     override val offsetDateTimeSupported: Boolean = false
 
     override fun definitionForAutoIncrementColumn(column: IntegerColumn): String = "IDENTITY"

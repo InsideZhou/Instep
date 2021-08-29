@@ -65,7 +65,7 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
     fun addColumn() {
-        AccountTable.addColumn(AccountTable.boolean("verified").default("0")).debug().execute()
+        AccountTable.addColumn(AccountTable.boolean("verified").default("false")).debug().execute()
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"))

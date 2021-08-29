@@ -15,7 +15,7 @@ import java.time.format.DateTimeFormatter
 
 object InstepSQLTest {
     val stringGenerator = RandomStringGenerator()
-    val datasourceUrl: String = System.getProperty("instep.test.jdbc_url", "jdbc:hsqldb:mem:instep_orm")
+    val datasourceUrl: String = System.getenv("instep.test.jdbc_url") ?: "jdbc:hsqldb:mem:instep_orm"
     val dialect = Dialect.of(datasourceUrl)
     val datasource = DruidDataSource()
 
