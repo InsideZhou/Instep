@@ -5,7 +5,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.5.30"
-        classpath "org.jetbrains.dokka:dokka-gradle-plugin:0.9.17"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:1.5.0"
     }
 }
 
@@ -17,6 +17,7 @@ subprojects {
     apply plugin: 'java-library'
 
     apply plugin: 'kotlin'
+    apply plugin: "org.jetbrains.kotlin.jvm"
     apply plugin: 'org.jetbrains.dokka'
 
     apply plugin: 'maven-publish'
@@ -46,14 +47,9 @@ subprojects {
         from sourceSets.main.allSource
     }
 
-    dokka {
-        outputFormat = "javadoc"
-        outputDirectory = "$buildDir/javadoc"
-    }
-
-    task docJar(type: Jar, dependsOn: dokka) {
+    task docJar(type: Jar, dependsOn: dokkaJavadoc) {
         archiveClassifier.set('javadoc')
-        from dokka.outputDirectory
+        from dokkaJavadoc.outputDirectory
     }
 
     test {
@@ -104,6 +100,7 @@ subprojects {
                 from components.java
 
                 artifact sourceJar
+                artifact docJar
             }
         }
 
