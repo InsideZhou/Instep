@@ -8,7 +8,7 @@ import java.sql.Blob
 import java.sql.ResultSet
 import java.time.*
 
-@Suppress("unused")
+@Suppress("unused", "MemberVisibilityCanBePrivate")
 /**
  * A table row filled with data.
  */
@@ -29,28 +29,8 @@ class TableRow {
         return map[column] as Int
     }
 
-    @Suppress("unused")
-    fun getLong(column: IntegerColumn): Long {
-        return map[column] as Long
-    }
-
-    operator fun get(column: StringColumn): String {
-        return map[column] as String
-    }
-
-    fun getFloat(column: FloatingColumn): Float {
-        val value = map[column]
-        return when (value) {
-            is Double -> value.toFloat()
-            is Float -> value
-            is BigDecimal -> value.toFloat()
-            else -> throw UnsupportedOperationException("Converting $value to Double is not supported.")
-        }
-    }
-
     operator fun get(column: FloatingColumn): Double {
-        val value = map[column]
-        return when (value) {
+        return when (val value = map[column]) {
             is Double -> value
             is Float -> value.toDouble()
             is BigDecimal -> value.toDouble()
@@ -58,54 +38,12 @@ class TableRow {
         }
     }
 
-    fun getOffsetDateTime(column: DateTimeColumn): OffsetDateTime? {
-        return map[column]?.let {
-            when (it) {
-                is LocalDateTime -> OffsetDateTime.of(it, offset)
-                is Instant -> OffsetDateTime.ofInstant(it, offset)
-                is OffsetDateTime -> it
-                else -> throw UnsupportedOperationException("Converting $it to OffsetDateTime is not supported.")
-            }
-        }
+    operator fun get(column: StringColumn): String {
+        return map[column] as String
     }
 
-    fun getLocalDateTime(column: DateTimeColumn): LocalDateTime? {
-        return map[column]?.let {
-            when (it) {
-                is LocalDateTime -> it
-                is Instant -> LocalDateTime.ofInstant(it, offset)
-                is OffsetDateTime -> it.toLocalDateTime()
-                else -> throw UnsupportedOperationException("Converting $it to LocalDateTime is not supported.")
-            }
-        }
-    }
-
-    fun getLocalDate(column: DateTimeColumn): LocalDate? {
-        return map[column]?.let {
-            when (it) {
-                is LocalDate -> it
-                is LocalDateTime -> it.toLocalDate()
-                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalDate()
-                is OffsetDateTime -> it.toLocalDate()
-                else -> throw UnsupportedOperationException("Converting $it to LocalDate is not supported.")
-            }
-        }
-    }
-
-    fun getLocalTime(column: DateTimeColumn): LocalTime? {
-        return map[column]?.let {
-            when (it) {
-                is LocalTime -> it
-                is LocalDateTime -> it.toLocalTime()
-                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalTime()
-                is OffsetDateTime -> it.toLocalTime()
-                else -> throw UnsupportedOperationException("Converting $it to LocalTime is not supported.")
-            }
-        }
-    }
-
-    operator fun get(column: DateTimeColumn): Instant? {
-        return map[column]?.let {
+    operator fun get(column: DateTimeColumn): Instant {
+        return map[column].let {
             when (it) {
                 is LocalDateTime -> it.toInstant(offset)
                 is Instant -> it
@@ -116,12 +54,173 @@ class TableRow {
     }
 
     operator fun get(column: BinaryColumn): InputStream {
-        val value = map[column]
-        return when (value) {
+        return when (val value = map[column]) {
             is Blob -> value.binaryStream
             is ByteArray -> value.inputStream()
             else -> throw UnsupportedOperationException("Converting $value to InputStream is not supported.")
         }
+    }
+
+    fun getLong(column: IntegerColumn): Long {
+        return map[column] as Long
+    }
+
+    fun getFloat(column: FloatingColumn): Float {
+        return map[column] as Float
+    }
+
+    fun getBigDecimal(column: FloatingColumn): BigDecimal {
+        return map[column] as BigDecimal
+    }
+
+    fun getLocalDateTime(column: DateTimeColumn): LocalDateTime {
+        return map[column].let {
+            when (it) {
+                is LocalDateTime -> it
+                is Instant -> LocalDateTime.ofInstant(it, offset)
+                is OffsetDateTime -> it.toLocalDateTime()
+                else -> throw UnsupportedOperationException("Converting $it to LocalDateTime is not supported.")
+            }
+        }
+    }
+
+    fun getOffsetDateTime(column: DateTimeColumn): OffsetDateTime {
+        return map[column].let {
+            when (it) {
+                is LocalDateTime -> OffsetDateTime.of(it, offset)
+                is Instant -> OffsetDateTime.ofInstant(it, offset)
+                is OffsetDateTime -> it
+                else -> throw UnsupportedOperationException("Converting $it to OffsetDateTime is not supported.")
+            }
+        }
+    }
+
+    fun getLocalDate(column: DateTimeColumn): LocalDate {
+        return map[column].let {
+            when (it) {
+                is LocalDate -> it
+                is LocalDateTime -> it.toLocalDate()
+                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalDate()
+                is OffsetDateTime -> it.toLocalDate()
+                else -> throw UnsupportedOperationException("Converting $it to LocalDate is not supported.")
+            }
+        }
+    }
+
+    fun getLocalTime(column: DateTimeColumn): LocalTime {
+        return map[column].let {
+            when (it) {
+                is LocalTime -> it
+                is LocalDateTime -> it.toLocalTime()
+                is Instant -> LocalDateTime.ofInstant(it, offset).toLocalTime()
+                is OffsetDateTime -> it.toLocalTime()
+                else -> throw UnsupportedOperationException("Converting $it to LocalTime is not supported.")
+            }
+        }
+    }
+
+    fun getNullable(column: BooleanColumn): Boolean? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
+    }
+
+    fun getNullable(column: IntegerColumn): Int? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
+    }
+
+    fun getNullableLong(column: IntegerColumn): Long? {
+        if (null != map[column]) {
+            return getLong(column)
+        }
+
+        return null
+    }
+
+    fun getNullable(column: FloatingColumn): Double? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
+    }
+
+    fun getNullableFloat(column: FloatingColumn): Float? {
+        if (null != map[column]) {
+            return getFloat(column)
+        }
+
+        return null
+    }
+
+    fun getNullableBigDecimal(column: FloatingColumn): BigDecimal? {
+        if (null != map[column]) {
+            return getBigDecimal(column)
+        }
+
+        return null
+    }
+
+    fun getNullable(column: StringColumn): String? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
+    }
+
+    fun getNullable(column: DateTimeColumn): Instant? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
+    }
+
+    fun getNullableLocalDateTime(column: DateTimeColumn): LocalDateTime? {
+        if (null != map[column]) {
+            return getLocalDateTime(column)
+        }
+
+        return null
+    }
+
+    fun getNullableOffsetDateTime(column: DateTimeColumn): OffsetDateTime? {
+        if (null != map[column]) {
+            return getOffsetDateTime(column)
+        }
+
+        return null
+    }
+
+    fun getNullableLocalDate(column: DateTimeColumn): LocalDate? {
+        if (null != map[column]) {
+            return getLocalDate(column)
+        }
+
+        return null
+    }
+
+    fun getNullableLocalTime(column: DateTimeColumn): LocalTime? {
+        if (null != map[column]) {
+            return getLocalTime(column)
+        }
+
+        return null
+    }
+
+    fun getNullable(column: BinaryColumn): InputStream? {
+        if (null != map[column]) {
+            return get(column)
+        }
+
+        return null
     }
 
     operator fun set(column: Column<*>, value: Any?) {
@@ -138,8 +237,7 @@ class TableRow {
 
             val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
             table.columns.forEach { col ->
-                val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) }
-                if (null == info) return@forEach
+                val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) } ?: return@forEach
 
                 row[col] = when (col) {
                     is BooleanColumn -> rs.getBoolean(info.index)
@@ -178,4 +276,3 @@ class TableRow {
         }
     }
 }
-

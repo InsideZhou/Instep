@@ -31,6 +31,7 @@ object TableTest {
         var birthDate: LocalDate? = null
         var birthTime: LocalTime? = null
         var avatar = byteArrayOf()
+        var remark: String? = null
         var preferences = emptyMap<String, Any?>()
     }
 
@@ -55,7 +56,8 @@ object TableTest {
             AccountTable.datetime("birthday")
         }
         val avatar = AccountTable.lob("avatar")
-//        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
+        val remark = AccountTable.varchar("remark", 512)
+        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
     }
 
     @org.testng.annotations.Test
@@ -70,7 +72,7 @@ object TableTest {
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"))
     fun insertAccounts() {
-        val random = java.util.Random()
+        val random = Random()
         val total = random.ints(10, 100).findAny().orElse(100)
 
         for (index in 0..total) {
@@ -84,7 +86,7 @@ object TableTest {
                 .addValue(AccountTable.birthDate, birthDate)
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
-//                .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
+                .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
                 .debug()
                 .execute()
         }
@@ -183,6 +185,7 @@ object TableTest {
         assert(account.id == id)
         assert(account.birthDate == birthDate)
         assert(account.birthTime == birthTime)
+        assert(account.remark == null)
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
