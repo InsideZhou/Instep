@@ -1,5 +1,6 @@
 package instep.reflection
 
+import instep.Instep
 import instep.util.capitalize
 import java.lang.reflect.Constructor
 import java.lang.reflect.Field
@@ -45,19 +46,19 @@ open class JMirror<T : Any>(val type: Class<T>) {
         pickReadableProperties(properties).toSet()
     }
 
-    fun getPropertiesUntil(cls: Class<*>): Set<Property> {
+    fun getPropertiesTowards(cls: Class<*>): Set<Property> {
         val index = parents.indexOf(cls)
-        if (-1 == index) return emptySet()
+        if (-1 == index) return properties
 
-        return properties + parents.take(index).flatMap { JMirror(it as Class<*>).properties }
+        return properties + parents.take(index).flatMap { Instep.reflectFromClass(it as Class<*>).properties }
     }
 
     fun getMutablePropertiesUntil(cls: Class<*>): Set<MutableProperty> {
-        return pickMutableProperties(getPropertiesUntil(cls)).toSet()
+        return pickMutableProperties(getPropertiesTowards(cls)).toSet()
     }
 
     fun getReadablePropertiesUntil(cls: Class<*>): Set<ReadableProperty> {
-        return pickReadableProperties(getPropertiesUntil(cls)).toSet()
+        return pickReadableProperties(getPropertiesTowards(cls)).toSet()
     }
 
     fun findFactoryMethodBy(cls: Class<*>): Method? {

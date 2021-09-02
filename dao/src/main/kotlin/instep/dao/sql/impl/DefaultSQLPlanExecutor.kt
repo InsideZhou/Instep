@@ -147,8 +147,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                 return rows.map { row ->
                     val instance = cls.getDeclaredConstructor().newInstance()
 
-                    targetMirror.mutableProperties.forEach { p ->
-                        tableMirror.readableProperties.find {
+                    targetMirror.getMutablePropertiesUntil(Any::class.java).forEach { p ->
+                        tableMirror.getReadablePropertiesUntil(Table::class.java).find {
                             p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
                         }?.let {
                             val col = it.getter.invoke(plan.from) as Column<*>

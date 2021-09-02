@@ -11,7 +11,7 @@ buildscript {
 
 subprojects {
     group = 'me.insidezhou.instep'
-    version = '2.1.1'
+    version = '2.1.2-SNAPSHOT'
 
     apply plugin: 'java'
     apply plugin: 'java-library'
@@ -115,6 +115,18 @@ subprojects {
                 credentials {
                     username = project.findProperty("ossrhUsername")
                     password = project.findProperty("ossrhPassword")
+                }
+            }
+
+            maven {
+                url 'https://pkgs.dev.azure.com/insidezhou/_packaging/insidezhou/maven/v1'
+                name 'azure'
+                authentication {
+                    basic(BasicAuthentication)
+                }
+                credentials {
+                    username = project.findProperty("azureUsername")
+                    password = project.findProperty("azurePassword")
                 }
             }
         }

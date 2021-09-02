@@ -31,7 +31,7 @@ object MirrorTest {
     fun inheritedProperties() {
         val mirror = JMirror(D("ddd"))
         Assert.assertEquals(
-            mirror.getPropertiesUntil(B::class.java).map { it.field.name }.toSet(),
+            mirror.getPropertiesTowards(B::class.java).map { it.field.name }.toSet(),
             setOf(D::idOfD.name, D::idOfC.name, D::name.name)
         )
     }

@@ -35,29 +35,35 @@ object TableTest {
         var preferences = emptyMap<String, Any?>()
     }
 
-    object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}"), "账号表") {
-        val id = AccountTable.uuid("id").primary()
+    abstract class AbstractTable(tableName: String, tableComment: String, dialect: Dialect) : Table(tableName, tableComment, dialect) {
+        constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(Dialect::class.java))
+        constructor(tableName: String) : this(tableName, "")
+
+        val id = uuid("id").primary()
+    }
+
+    object AccountTable : AbstractTable("account_" + stringGenerator.generateByRegex("[a-z]{8}"), "账号表") {
         val type = varchar("type", 16).notnull().comment("账号类型")
-        val code = AccountTable.varchar("code", 16).unique()
-        val name = AccountTable.varchar("name", 256).notnull()
-        val balance = when (AccountTable.dialect) {
-            is MySQLDialect -> AccountTable.numeric("balance", 65, 2).notnull()
-            is PostgreSQLDialect -> AccountTable.numeric("balance", 1000, 2).notnull()
-            is SQLServerDialect -> AccountTable.numeric("balance", 38, 2).notnull()
-            else -> AccountTable.numeric("balance", Int.MAX_VALUE, 2).notnull()
+        val code = varchar("code", 16).unique()
+        val name = varchar("name", 256).notnull()
+        val balance = when (dialect) {
+            is MySQLDialect -> numeric("balance", 65, 2).notnull()
+            is PostgreSQLDialect -> numeric("balance", 1000, 2).notnull()
+            is SQLServerDialect -> numeric("balance", 38, 2).notnull()
+            else -> numeric("balance", Int.MAX_VALUE, 2).notnull()
         }
-        val createdAt = AccountTable.instant("created_at").notnull()
-        var birthDate = AccountTable.date("birth_date")
-        var birthTime = AccountTable.time("birth_time")
-        var birthday = if (AccountTable.dialect.offsetDateTimeSupported) {
-            AccountTable.offsetDateTime("birthday")
+        val createdAt = instant("created_at").notnull()
+        var birthDate = date("birth_date")
+        var birthTime = time("birth_time")
+        var birthday = if (dialect.offsetDateTimeSupported) {
+            offsetDateTime("birthday")
         }
         else {
-            AccountTable.datetime("birthday")
+            datetime("birthday")
         }
-        val avatar = AccountTable.lob("avatar")
-        val remark = AccountTable.varchar("remark", 512)
-        val preferences = AccountTable.json("preferences").default("'{}'::jsonb")
+        val avatar = lob("avatar")
+        val remark = varchar("remark", 512)
+        val preferences = json("preferences").default("'{}'::jsonb")
     }
 
     @org.testng.annotations.Test

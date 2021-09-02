@@ -153,7 +153,7 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         get() {
             val mirror = Instep.reflect(this)
 
-            return mirror.getPropertiesUntil(Table::class.java)
+            return mirror.getPropertiesTowards(Table::class.java)
                 .filter { Column::class.java.isAssignableFrom(it.field.type) }
                 .map {
                     if (null != it.getter) {
