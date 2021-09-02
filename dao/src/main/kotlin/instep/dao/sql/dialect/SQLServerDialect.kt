@@ -8,7 +8,7 @@ import microsoft.sql.DateTimeOffset
 import java.time.OffsetDateTime
 
 open class SQLServerDialect : SeparateCommentDialect() {
-    override val returningClauseForInsert: Boolean = false
+    override val returningClauseForInsert = ""
 
     private val logger = InstepLogger.getLogger(SQLServerDialect::class.java)
 

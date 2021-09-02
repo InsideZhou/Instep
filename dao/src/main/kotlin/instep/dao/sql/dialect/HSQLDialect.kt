@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 
 
 open class HSQLDialect : SeparateCommentDialect() {
-    override val returningClauseForInsert: Boolean = false
+    override val returningClauseForInsert = "*"
 
     open class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getOffsetDateTime(index: Int): OffsetDateTime? {

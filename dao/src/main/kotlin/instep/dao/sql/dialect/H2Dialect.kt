@@ -7,7 +7,7 @@ import instep.dao.sql.IntegerColumn
 import instep.dao.sql.StringColumn
 
 open class H2Dialect : CommentInTableDefinitionDialect() {
-    override val returningClauseForInsert: Boolean = false
+    override val returningClauseForInsert = ""
 
     override val offsetDateTimeSupported: Boolean = false
 

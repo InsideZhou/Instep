@@ -93,6 +93,7 @@ object TableTest {
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
                 .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
+                .returning()
                 .debug()
                 .execute()
         }

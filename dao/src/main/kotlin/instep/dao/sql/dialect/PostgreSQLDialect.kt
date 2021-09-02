@@ -7,7 +7,7 @@ import instep.dao.sql.StringColumn
 
 
 open class PostgreSQLDialect : SeparateCommentDialect() {
-    override val returningClauseForInsert: Boolean = true
+    override val returningClauseForInsert = "RETURNING *"
     override val offsetDateTimeSupported: Boolean = false
 
     override fun definitionForAutoIncrementColumn(column: IntegerColumn): String = when (column.type) {

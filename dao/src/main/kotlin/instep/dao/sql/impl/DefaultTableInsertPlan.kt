@@ -12,9 +12,11 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan, SubSQLPla
 
     private val typeConversion = Instep.make(TypeConversion::class.java)
 
-    override var returning: AssocArray = AssocArray()
+    private var returningRequired = false
+    private val returning: AssocArray = AssocArray()
 
     override fun returning(vararg columnOrAggregates: Any): TableInsertPlan {
+        this.returningRequired = true
         this.returning.add(*columnOrAggregates)
         return this
     }
@@ -74,12 +76,17 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan, SubSQLPla
             })"
 
             val returningColumns = returning.filterNotNull()
-            if (table.dialect.returningClauseForInsert && returningColumns.isNotEmpty()) {
-                txt += " RETURNING " + returningColumns.joinToString(",") {
-                    when (it) {
-                        is Column<*> -> it.name
-                        is Aggregate -> "${it.expression} AS ${it.alias}"
-                        else -> throw DaoException("Expression for RETURNING must be Column or Aggregate, now got ${it.javaClass.name}.")
+            if (returningRequired && table.dialect.returningClauseForInsert.isNotEmpty()) {
+                txt += if (returningColumns.isEmpty()) {
+                    " " + dialect.returningClauseForInsert
+                }
+                else {
+                    " RETURNING " + returningColumns.joinToString(",") {
+                        when (it) {
+                            is Column<*> -> it.name
+                            is Aggregate -> "${it.expression} AS ${it.alias}"
+                            else -> throw DaoException("Expression for RETURNING must be Column or Aggregate, now got ${it.javaClass.name}.")
+                        }
                     }
                 }
             }

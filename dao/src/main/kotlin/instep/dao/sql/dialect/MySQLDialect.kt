@@ -15,7 +15,7 @@ import java.time.LocalTime
 import java.util.*
 
 open class MySQLDialect : CommentInTableDefinitionDialect() {
-    override val returningClauseForInsert: Boolean = false
+    override val returningClauseForInsert = "*"
 
     open class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         private val calendar = Calendar.getInstance(TimeZone.getDefault())
