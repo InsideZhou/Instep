@@ -2,10 +2,7 @@ package instep.dao.sql.impl
 
 import instep.dao.sql.Dialect
 import instep.dao.sql.ResultSetDelegate
-import instep.dao.sql.dialect.AbstractDialect
-import instep.dao.sql.dialect.HSQLDialect
-import instep.dao.sql.dialect.MySQLDialect
-import instep.dao.sql.dialect.SQLServerDialect
+import instep.dao.sql.dialect.*
 import java.sql.ResultSet
 
 
@@ -15,6 +12,7 @@ open class DefaultResultSetDelegate : ResultSetDelegate {
             is HSQLDialect -> HSQLDialect.ResultSet(rs)
             is MySQLDialect -> MySQLDialect.ResultSet(rs)
             is SQLServerDialect -> SQLServerDialect.ResultSet(rs)
+            is PostgreSQLDialect -> PostgreSQLDialect.ResultSet(rs)
             else -> AbstractDialect.ResultSet(rs)
         }
     }
