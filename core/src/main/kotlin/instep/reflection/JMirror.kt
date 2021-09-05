@@ -23,7 +23,7 @@ open class JMirror<T : Any>(val type: Class<T>) {
         superClasses
     }
 
-    val properties: Set<Property> by lazy {
+    val declaredProperties: Set<Property> by lazy {
         type.declaredFields.map { f ->
             val getter = type.declaredMethods.find {
                 it.name == "get${f.name.capitalize()}" && it.returnType.isAssignableFrom(f.type) ||
@@ -38,6 +38,8 @@ open class JMirror<T : Any>(val type: Class<T>) {
         }.toSet()
     }
 
+    val properties: Set<Property> by lazy { getPropertiesUntil(Any::class.java) }
+
     val mutableProperties: Set<MutableProperty> by lazy {
         pickMutableProperties(properties).toSet()
     }
@@ -46,19 +48,19 @@ open class JMirror<T : Any>(val type: Class<T>) {
         pickReadableProperties(properties).toSet()
     }
 
-    fun getPropertiesTowards(cls: Class<*>): Set<Property> {
+    fun getPropertiesUntil(cls: Class<*>): Set<Property> {
         val index = parents.indexOf(cls)
-        if (-1 == index) return properties
+        if (-1 == index) return declaredProperties + parents.flatMap { Instep.reflectFromClass(it as Class<*>).declaredProperties }
 
-        return properties + parents.take(index).flatMap { Instep.reflectFromClass(it as Class<*>).properties }
+        return declaredProperties + parents.take(index).flatMap { Instep.reflectFromClass(it as Class<*>).declaredProperties }
     }
 
     fun getMutablePropertiesUntil(cls: Class<*>): Set<MutableProperty> {
-        return pickMutableProperties(getPropertiesTowards(cls)).toSet()
+        return pickMutableProperties(getPropertiesUntil(cls)).toSet()
     }
 
     fun getReadablePropertiesUntil(cls: Class<*>): Set<ReadableProperty> {
-        return pickReadableProperties(getPropertiesTowards(cls)).toSet()
+        return pickReadableProperties(getPropertiesUntil(cls)).toSet()
     }
 
     fun findFactoryMethodBy(cls: Class<*>): Method? {

@@ -7,13 +7,14 @@ import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
-open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan, SubSQLPlan<TableInsertPlan>() {
+open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, SubSQLPlan<TableInsertPlan>() {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     private val typeConversion = Instep.make(TypeConversion::class.java)
 
     private var returningRequired = false
     private val returning: AssocArray = AssocArray()
+
 
     override fun returning(vararg columnOrAggregates: Any): TableInsertPlan {
         this.returningRequired = true
@@ -31,11 +32,22 @@ open class DefaultTableInsertPlan(val table: Table) : TableInsertPlan, SubSQLPla
 
     override fun set(obj: Any): TableInsertPlan {
         val mirror = Instep.reflect(obj)
+        val tableMirror = Instep.reflect(table)
 
         mirror.readableProperties.forEach { p ->
-            table.columns.find { it.name == p.field.name }?.let {
-                setValue(it, p.getter.invoke(obj))
-            }
+            tableMirror.getPropertiesUntil(Table::class.java)
+                .find {
+                    p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                }?.let {
+                    val col = if (null != it.getter) {
+                        it.getter!!.invoke(table)
+                    }
+                    else {
+                        it.field.get(table)
+                    }
+
+                    setValue(col as Column<*>, p.getter.invoke(obj))
+                }
         }
 
         return this

@@ -130,57 +130,62 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                     val instanceOfT = typeconvert.convert(rs, ResultSet::class.java, cls)
                     result.add(instanceOfT)
                 }
+
+                return result
             }
-            else if (plan is TableSelectPlan) {
-                val rows = mutableListOf<TableRow>()
 
-                while (rs.next()) {
-                    rows.add(TableRow.createInstance(plan.from, connectionProvider.dialect, rs))
+            val table = when (plan) {
+                is TableSelectPlan -> {
+                    plan.from
                 }
+                is TableInsertPlan -> {
+                    plan.table
+                }
+                else -> {
+                    throw RuntimeException("Can't create instance of ${cls.name} from result row")
+                }
+            }
 
-                if (typeconvert.canConvert(TableRow::class.java, cls)) return rows.map { row -> typeconvert.convert(row, cls) }
-                if (cls == TableRow::class.java) return rows as List<T>
+            val rows = mutableListOf<TableRow>()
 
-                val targetMirror = Instep.reflectFromClass(cls)
-                val tableMirror = Instep.reflect(plan.from)
+            while (rs.next()) {
+                rows.add(TableRow.createInstance(table, connectionProvider.dialect, rs))
+            }
 
-                return rows.map { row ->
-                    val instance = cls.getDeclaredConstructor().newInstance()
+            if (typeconvert.canConvert(TableRow::class.java, cls)) return rows.map { row -> typeconvert.convert(row, cls) }
+            if (cls == TableRow::class.java) return rows as List<T>
 
-                    targetMirror.getMutablePropertiesUntil(Any::class.java).forEach { p ->
-                        tableMirror.getReadablePropertiesUntil(Table::class.java).find {
-                            p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
-                        }?.let {
-                            val col = it.getter.invoke(plan.from) as Column<*>
+            val targetMutableProperties = Instep.reflectFromClass(cls).getMutablePropertiesUntil(Any::class.java)
+            val tableProperties = Instep.reflect(table).getPropertiesUntil(Table::class.java)
 
-                            row[col]?.let {
-                                try {
-                                    p.setter.invoke(instance, it)
-                                }
-                                catch (e: IllegalArgumentException) {
-                                    logger.exception(e).warn()
-                                }
-                            }
+            return rows.map { row ->
+                val instance = cls.getDeclaredConstructor().newInstance()
 
-                            return@forEach
+                targetMutableProperties.forEach { p ->
+                    tableProperties.find {
+                        p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                    }?.let {
+                        val col = if (null != it.getter) {
+                            it.getter!!.invoke(table)
                         }
-                    }
+                        else {
+                            it.field.get(table)
+                        } as Column<*>
 
-                    return@map instance
-                }
-            }
-            else {
-                val mirror = Instep.reflectFromClass(cls)
-                val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
+                        row[col]?.let { value ->
+                            try {
+                                p.setter.invoke(instance, value)
+                            }
+                            catch (e: IllegalArgumentException) {
+                                logger.exception(e).warn()
+                            }
+                        }
 
-                try {
-                    while (rs.next()) {
-                        result.add(Helper.resultSetToInstanceByInstanceFirst(rs, connectionProvider.dialect, mirror, columnInfoSet))
+                        return@forEach
                     }
                 }
-                catch (e: Exception) {
-                    throw RuntimeException("Can't create instance of ${cls.name} from result row", e)
-                }
+
+                return@map instance
             }
         }
         catch (e: SQLException) {
@@ -189,8 +194,6 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         finally {
             conn.close()
         }
-
-        return result
     }
 
     companion object {

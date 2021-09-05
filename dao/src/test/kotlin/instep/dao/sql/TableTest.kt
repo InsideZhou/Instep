@@ -22,8 +22,11 @@ object TableTest {
         Admin("admin", "管理员"), User("user", "用户");
     }
 
-    class Account {
+    abstract class Model {
         var id = UUID.randomUUID().toString()
+    }
+
+    class Account : Model() {
         var type = AccountType.User
         var name = ""
         var balance: java.math.BigDecimal = java.math.BigDecimal.ZERO
@@ -148,6 +151,13 @@ object TableTest {
 
         laozi = AccountTable.select().where(AccountTable.id eq id).execute().single()
         assert(laozi[AccountTable.balance] == 7.88)
+
+        val zhuangzi = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).single()
+        zhuangzi.name = "zhuangzi"
+        AccountTable.update().set(zhuangzi).debug().executeUpdate()
+
+        laozi = AccountTable.select().where(AccountTable.id eq id).execute().single()
+        assert(laozi[AccountTable.name] == zhuangzi.name)
     }
 
     @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))

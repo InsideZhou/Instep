@@ -38,11 +38,24 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
 
     override fun set(obj: Any): TableUpdatePlan {
         val mirror = Instep.reflect(obj)
+        val tableMirror = Instep.reflect(table)
 
         mirror.readableProperties.forEach { p ->
-            table.columns.find { it.name == p.field.name }?.let {
-                params[it] = p.getter.invoke(obj)
-            }
+            tableMirror.getPropertiesUntil(Table::class.java)
+                .find {
+                    p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                }?.let {
+                    val col = if (null != it.getter) {
+                        it.getter!!.invoke(table)
+                    }
+                    else {
+                        it.field.get(table)
+                    } as Column<*>
+
+                    if (!col.primary) {
+                        params[col] = p.getter.invoke(obj)
+                    }
+                }
         }
 
         return this
