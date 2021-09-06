@@ -31,23 +31,49 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
     }
 
     override fun set(obj: Any): TableInsertPlan {
-        val mirror = Instep.reflect(obj)
         val tableMirror = Instep.reflect(table)
 
-        mirror.readableProperties.forEach { p ->
-            tableMirror.getPropertiesUntil(Table::class.java)
-                .find {
-                    p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
-                }?.let {
-                    val col = if (null != it.getter) {
-                        it.getter!!.invoke(table)
-                    }
-                    else {
-                        it.field.get(table)
-                    }
+        val map = (obj as? Map<*, *>)?.apply {
+            this.mapKeys { it.key?.toString() }
+                .filterKeys { !it.isNullOrBlank() }
+                .forEach { (k, v) ->
+                    tableMirror.getPropertiesUntil(Table::class.java)
+                        .find {
+                            k == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
+                        }?.let {
+                            val col = if (null != it.getter) {
+                                it.getter!!.invoke(table)
+                            }
+                            else {
+                                it.field.get(table)
+                            }
 
-                    setValue(col as Column<*>, p.getter.invoke(obj))
+                            setValue(col as Column<*>, v)
+                        }
                 }
+        }
+
+        if (null == map) {
+            Instep.reflect(obj).readableProperties.forEach { p ->
+                tableMirror.getPropertiesUntil(Table::class.java)
+                    .filter { Column::class.java.isAssignableFrom(it.field.type) }
+                    .find { p.field.name == it.field.name }
+                    ?.let {
+                        val col = if (null != it.getter) {
+                            it.getter!!.invoke(table)
+                        }
+                        else {
+                            it.field.get(table)
+                        }
+
+                        if (col is IntegerColumn && col.primary && col.autoIncrement) {
+                            setValue(col as Column<*>, Table.DefaultInsertValue)
+                        }
+                        else {
+                            setValue(col as Column<*>, p.getter.invoke(obj))
+                        }
+                    }
+            }
         }
 
         return this
@@ -65,7 +91,7 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
             var txt = "INSERT INTO ${table.tableName} "
             val columns = params.entries
 
-            txt += columns.map { it.key.name }.joinToString(",", "(", ")")
+            txt += columns.joinToString(",", "(", ")") { it.key.name }
 
             txt += "\nVALUES (${
                 columns.map {
