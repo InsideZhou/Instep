@@ -35,7 +35,7 @@ object InstepSQLTest {
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
 
         Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
-        Instep.bind(InstepLoggerFactory::class.java, object : InstepLoggerFactory {
+        val factory = object : InstepLoggerFactory {
             override fun getLogger(cls: Class<*>): InstepLogger {
                 return object : InstepLogger {
                     var msg = ""
@@ -78,7 +78,9 @@ object InstepSQLTest {
                     }
                 }
             }
-        })
+        }
+        Instep.bind(InstepLoggerFactory::class.java, factory)
+        InstepLogger.factory = factory
         TransactionTable.create().debug().execute()
     }
 

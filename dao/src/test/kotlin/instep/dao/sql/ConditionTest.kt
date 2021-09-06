@@ -1,4 +1,10 @@
+@file:Suppress("unused")
+
 package instep.dao.sql
+
+import org.testng.Assert
+import java.time.Duration
+import java.time.Instant
 
 
 object ConditionTest {
@@ -8,11 +14,13 @@ object ConditionTest {
     class Account {
         var id = 0L
         var name = ""
+        var createdAt: Instant? = Instant.EPOCH
     }
 
     object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}")) {
         val id = AccountTable.autoIncrementLong("id").primary()
         val name = AccountTable.varchar("name", 256).notnull()
+        val createdAt = instant("created_at")
     }
 
     init {
@@ -22,49 +30,62 @@ object ConditionTest {
     }
 
     private fun insertAccounts() {
+        val now = Instant.now()
+
         AccountTable.insert()
             .addValue(AccountTable.name, "abc")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(11))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "bcd")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(10))
             .execute()
 
 
         AccountTable.insert()
             .addValue(AccountTable.name, "cde")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(9))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "def")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(8))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "efg")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(7))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "fgh")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(6))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "ghi")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(5))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "hij")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(4))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "ijk")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(3))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "jkl")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(2))
             .execute()
 
         AccountTable.insert()
             .addValue(AccountTable.name, "lmn")
+            .addValue(AccountTable.createdAt, now - Duration.ofMinutes(1))
             .execute()
     }
 
@@ -83,10 +104,10 @@ object ConditionTest {
 
     @org.testng.annotations.Test
     fun startsWithTest() {
-        val a = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith  "a").executeScalar()
-        val i = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith  "i").executeScalar()
-        val de = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith  "de").executeScalar()
-        val mn = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith  "mn").executeScalar()
+        val a = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith "a").executeScalar()
+        val i = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith "i").executeScalar()
+        val de = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith "de").executeScalar()
+        val mn = AccountTable.select(AccountTable.id.count()).where(AccountTable.name startsWith "mn").executeScalar()
 
         assert(a == "1")
         assert(i == "1")
@@ -96,14 +117,22 @@ object ConditionTest {
 
     @org.testng.annotations.Test
     fun endsWithTest() {
-        val a = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith   "a").executeScalar()
-        val i = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith   "i").executeScalar()
-        val de = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith   "de").executeScalar()
-        val mn = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith   "mn").executeScalar()
+        val a = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith "a").executeScalar()
+        val i = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith "i").executeScalar()
+        val de = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith "de").executeScalar()
+        val mn = AccountTable.select(AccountTable.id.count()).where(AccountTable.name endsWith "mn").executeScalar()
 
         assert(a == "0")
         assert(i == "1")
         assert(de == "1")
         assert(mn == "1")
+    }
+
+    @org.testng.annotations.Test
+    fun beforeNowTest() {
+        val now = Instant.now()
+        val count = AccountTable.select(AccountTable.id.count()).where(AccountTable.createdAt lte now).debug().executeScalar(Long::class.java)
+
+        Assert.assertEquals(11L, count)
     }
 }

@@ -59,10 +59,10 @@ open class MySQLDialect : CommentInTableDefinitionDialect() {
         val calendar = Calendar.getInstance()
 
         when (value) {
-            is Instant -> stmt.setTimestamp(index, java.sql.Timestamp.from(value), calendar)
+            is Instant -> stmt.setTimestamp(index, Timestamp.from(value), calendar)
             is LocalDate -> stmt.setDate(index, java.sql.Date.valueOf(value), calendar)
-            is LocalTime -> stmt.setTime(index, java.sql.Time.valueOf(value), calendar)
-            is LocalDateTime -> stmt.setTimestamp(index, java.sql.Timestamp.valueOf(value), calendar)
+            is LocalTime -> stmt.setTime(index, Time.valueOf(value), calendar)
+            is LocalDateTime -> stmt.setTimestamp(index, Timestamp.valueOf(value), calendar)
             else -> super.setParameterForPreparedStatement(stmt, index, value)
         }
     }
