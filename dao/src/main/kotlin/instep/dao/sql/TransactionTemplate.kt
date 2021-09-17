@@ -11,28 +11,34 @@ import java.sql.Connection as JdbcConnection
 object TransactionTemplate {
     private val logger = InstepLogger.getLogger(TransactionTemplate::class.java)
 
+    @Throws(TransactionAbortException::class)
     fun <R> run(runner: TransactionContext.() -> R): R {
         return template(null, runner)
     }
 
+    @Throws(TransactionAbortException::class)
     fun <R> uncommitted(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_UNCOMMITTED, runner)
     }
 
+    @Throws(TransactionAbortException::class)
     fun <R> committed(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_READ_COMMITTED, runner)
     }
 
+    @Throws(TransactionAbortException::class)
     fun <R> repeatable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_REPEATABLE_READ, runner)
     }
 
+    @Throws(TransactionAbortException::class)
     fun <R> serializable(runner: TransactionContext.() -> R): R {
         return template(JdbcConnection.TRANSACTION_SERIALIZABLE, runner)
     }
 
     val threadLocalTransactionContext = object : ThreadLocal<TransactionContext>() {}
 
+    @Throws(TransactionAbortException::class)
     @Suppress("UNCHECKED_CAST")
     fun <R> template(level: Int?, runner: TransactionContext.() -> R): R {
         var transactionContext = threadLocalTransactionContext.get()
@@ -78,7 +84,7 @@ object TransactionTemplate {
         catch (e: Exception) {
             conn.rollback(sp)
 
-            if (e is TransactionContext.AbortException) {
+            if (e is TransactionAbortException) {
                 if (null == e.cause) {
                     return null as R
                 }
@@ -87,7 +93,7 @@ object TransactionTemplate {
                 }
             }
             else {
-                throw TransactionContext.AbortException(e)
+                throw TransactionAbortException(e)
             }
         }
         finally {
@@ -107,15 +113,13 @@ class TransactionContext(val conn: JdbcConnection) {
     var depth = 0
 
     fun abort() {
-        throw AbortException(null)
+        throw TransactionAbortException(null)
     }
 
     @Suppress("unused")
     fun abort(cause: Exception) {
-        throw AbortException(cause)
+        throw TransactionAbortException(cause)
     }
-
-    class AbortException(cause: Exception?) : Exception(cause)
 
     class ConnectionProvider(val ds: DataSource, override val dialect: Dialect) : IConnectionProvider {
         init {
@@ -161,3 +165,6 @@ class TransactionContext(val conn: JdbcConnection) {
         }
     }
 }
+
+
+class TransactionAbortException(cause: Exception?) : Exception(cause)
