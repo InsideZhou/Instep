@@ -60,8 +60,8 @@ abstract class AbstractDialect : Dialect {
 
     override val defaultValueForInsert: String = "NULL"
 
-    override val placeholderForJSONType: String = "?"
-    override val placeholderForUUIDType: String = "?"
+    override val parameterForJSONType: String = "?"
+    override val parameterForUUIDType: String = "?"
 
     override val pagination: Pagination = StandardPagination()
     override val offsetDateTimeSupported: Boolean = true

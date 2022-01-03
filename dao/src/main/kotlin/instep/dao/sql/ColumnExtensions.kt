@@ -12,38 +12,38 @@ infix fun BooleanColumn.eq(value: Boolean): Condition = Condition.eq(name, value
 infix fun BooleanColumn.notEQ(value: Boolean): Condition = Condition.notEQ(name, value)
 
 infix fun StringColumn.eq(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.eq(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.eq(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.eq(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.eq(name, value, dialect.parameterForJSONType)
     else -> Condition.eq(name, value)
 }
 
 infix fun StringColumn.notEQ(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.notEQ(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.notEQ(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.notEQ(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.notEQ(name, value, dialect.parameterForJSONType)
     else -> Condition.notEQ(name, value)
 }
 
 infix fun StringColumn.startsWith(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.startsWith(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.startsWith(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.startsWith(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.startsWith(name, value, dialect.parameterForJSONType)
     else -> Condition.startsWith(name, value)
 }
 
 infix fun StringColumn.endsWith(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.endsWith(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.endsWith(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.endsWith(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.endsWith(name, value, dialect.parameterForJSONType)
     else -> Condition.endsWith(name, value)
 }
 
 infix fun StringColumn.contains(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.contains(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.contains(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.contains(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.contains(name, value, dialect.parameterForJSONType)
     else -> Condition.contains(name, value)
 }
 
 infix fun StringColumn.inArray(value: Array<String>): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.inArray(name, value, dialect.placeholderForUUIDType)
-    StringColumnType.JSON -> Condition.inArray(name, value, dialect.placeholderForJSONType)
+    StringColumnType.UUID -> Condition.inArray(name, value, dialect.parameterForUUIDType)
+    StringColumnType.JSON -> Condition.inArray(name, value, dialect.parameterForJSONType)
     else -> Condition.inArray(name, value)
 }
 

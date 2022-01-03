@@ -26,8 +26,8 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
         else -> "SERIAL"
     }
 
-    override val placeholderForJSONType: String = "?::JSONB"
-    override val placeholderForUUIDType: String = "?::UUID"
+    override val parameterForJSONType: String = "?::JSONB"
+    override val parameterForUUIDType: String = "?::UUID"
 
     override val defaultValueForInsert = "DEFAULT"
 

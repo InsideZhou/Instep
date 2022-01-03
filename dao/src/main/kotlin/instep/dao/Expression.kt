@@ -28,6 +28,7 @@ class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false)
          * Normalizer must be changed together while changing placeholder.
          */
         var rule = Rule(Regex("""(?<!\\)\$\{(\w+)\}"""), Regex("""\\$"""), "$")
+        var parameter = "?"
     }
 
     data class Rule(val placeholder: Regex, val normalizer: Regex, val replacement: String) {

@@ -78,8 +78,8 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
 
                 when (column) {
                     is StringColumn -> when (column.type) {
-                        StringColumnType.UUID -> "${it.key.name}=${table.dialect.placeholderForUUIDType}"
-                        StringColumnType.JSON -> "${it.key.name}=${table.dialect.placeholderForJSONType}"
+                        StringColumnType.UUID -> "${it.key.name}=${table.dialect.parameterForUUIDType}"
+                        StringColumnType.JSON -> "${it.key.name}=${table.dialect.parameterForJSONType}"
                         else -> standardSetClause
                     }
                     is NumberColumn -> when (value) {
@@ -96,7 +96,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                     val column = table.primaryKey
 
                     if (column is StringColumn && column.type == StringColumnType.UUID) {
-                        txt += "WHERE ${table.primaryKey!!.name}=${table.dialect.placeholderForUUIDType}"
+                        txt += "WHERE ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
                     }
                     else {
                         txt += "WHERE ${table.primaryKey!!.name}=?"
@@ -116,7 +116,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                 val column = table.primaryKey
 
                 if (column is StringColumn && column.type == StringColumnType.UUID) {
-                    txt += " AND ${table.primaryKey!!.name}=${table.dialect.placeholderForUUIDType}"
+                    txt += " AND ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
                 }
                 else {
                     txt += " AND ${table.primaryKey!!.name}=?"

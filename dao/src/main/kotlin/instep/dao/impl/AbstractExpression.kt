@@ -5,9 +5,12 @@ import instep.dao.Expression
 import instep.dao.PlaceHolder
 import instep.dao.PlaceHolderRemainingException
 
-@Suppress("UNCHECKED_CAST")
+@Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
 abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expression<T> {
+    @Suppress("RemoveRedundantQualifierName")
     val rule = PlaceHolder.rule.copy()
+    val parameterPlaceHolder = PlaceHolder.parameter
+
     private val params = AssocArray()
 
     init {
@@ -22,12 +25,11 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         get() {
             var index = 0
 
-            return rule.normalize(rule.placeholder.replace(txt) { _ ->
-                val param = params[index++]
-                when (param) {
+            return rule.normalize(rule.placeholder.replace(txt) {
+                when (val param = params[index++]) {
                     is Expression<*> -> param.expression
-                    is PlaceHolder -> if (param.ignore) "" else "?"
-                    else -> "?"
+                    is PlaceHolder -> if (param.ignore) "" else parameterPlaceHolder
+                    else -> parameterPlaceHolder
                 }
             })
         }
@@ -51,13 +53,15 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
     }
 
     fun addParameters(vararg parameters: Any?): T {
-        val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
+        if (parameters.isNotEmpty()) {
+            val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
 
-        if (remainingPlaceHolderCount > 0) {
-            throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
+            if (remainingPlaceHolderCount > 0) {
+                throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
+            }
+
+            params.add(*parameters)
         }
-
-        params.add(*parameters)
 
         return this as T
     }

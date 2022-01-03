@@ -48,11 +48,11 @@ open class SQLServerDialect : SeparateCommentDialect() {
 
     class Pagination : StandardPagination() {
         override fun statement(statement: String, limit: Int, offset: Int): String {
-            if (limit <= 0) {
-                return if (offset > 0) "$statement\n OFFSET ? ROWS" else statement
+            return if (limit <= 0) {
+                if (offset > 0) "$statement\n OFFSET ? ROWS" else statement
             }
             else {
-                return if (offset > 0) "$statement\nOFFSET ? ROWS\nFETCH NEXT ? ROWS ONLY" else "$statement\nOFFSET 0 ROWS\nFETCH NEXT ? ROWS ONLY"
+                if (offset > 0) "$statement\nOFFSET ? ROWS\nFETCH NEXT ? ROWS ONLY" else "$statement\nOFFSET 0 ROWS\nFETCH NEXT ? ROWS ONLY"
             }
         }
     }
