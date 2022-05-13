@@ -1,12 +1,8 @@
 package instep.dao.sql.dialect
 
-import instep.dao.sql.BinaryColumn
-import instep.dao.sql.IntegerColumn
-import instep.dao.sql.IntegerColumnType
-import instep.dao.sql.StringColumn
-import microsoft.sql.DateTimeOffset
+import instep.dao.PlaceHolder
+import instep.dao.sql.*
 import java.sql.Blob
-import java.time.OffsetDateTime
 import javax.sql.rowset.serial.SerialBlob
 
 
@@ -14,7 +10,7 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
     class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getBlob(columnIndex: Int): Blob? {
             val stream = rs.getBinaryStream(columnIndex) ?: return null
-            return SerialBlob(stream.readAllBytes())
+            return SerialBlob(stream.readBytes())
         }
     }
 

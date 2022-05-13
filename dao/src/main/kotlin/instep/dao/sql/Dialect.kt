@@ -24,11 +24,13 @@ interface Dialect {
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 
-    fun eqCondition(column: Column<*>, value: Any): Condition
-    fun notEQCondition(column: Column<*>, value: Any): Condition
+    fun eq(column: Column<*>, value: Any): Condition
+    fun notEQ(column: Column<*>, value: Any): Condition
 
-    fun isNullCondition(column: Column<*>, value: Any): Condition
-    fun notNullCondition(column: Column<*>, value: Any): Condition
+    fun isNull(column: Column<*>): Condition
+    fun isNotNull(column: Column<*>): Condition
+    fun isNull(column: String): Condition
+    fun isNotNull(column: String): Condition
 
     fun <T : Number> lt(column: NumberColumn<*>, value: T): Condition
     fun <T : Number> lte(column: NumberColumn<*>, value: T): Condition
@@ -44,12 +46,24 @@ interface Dialect {
     fun <T : Temporal> gt(column: DateTimeColumn, value: T): Condition
     fun <T : Temporal> gte(column: DateTimeColumn, value: T): Condition
 
+    fun <T : Number> eq(column: String, value: T): Condition
+    fun <T : Number> lt(column: String, value: T): Condition
+    fun <T : Number> lte(column: String, value: T): Condition
+    fun <T : Number> gt(column: String, value: T): Condition
+    fun <T : Number> gte(column: String, value: T): Condition
+
+    fun eq(column: StringColumn, value: String): Condition
+    fun notEQ(column: StringColumn, value: String): Condition
     fun contains(column: StringColumn, value: String): Condition
     fun startsWith(column: StringColumn, value: String): Condition
     fun endsWith(column: StringColumn, value: String): Condition
 
+    fun notInArray(column: StringColumn, value: Array<String>): Condition
+    fun <T : Number> notInArray(column: NumberColumn<*>, value: Array<T>): Condition
+    fun notInArray(column: IntegerColumn, value: Array<Enum<*>>): Condition
+
     fun inArray(column: StringColumn, value: Array<String>): Condition
-    fun inArray(column: NumberColumn<*>, value: Array<Number>): Condition
+    fun <T : Number> inArray(column: NumberColumn<*>, value: Array<T>): Condition
     fun inArray(column: IntegerColumn, value: Array<Enum<*>>): Condition
 
     val defaultValueForInsert: String

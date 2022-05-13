@@ -1,0 +1,13 @@
+plugins {
+    id 'groovy-gradle-plugin'
+}
+
+repositories {
+    gradlePluginPortal()
+    maven { url "https://maven.aliyun.com/repository/public" }
+}
+
+dependencies {
+    implementation 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.6.21'
+    implementation 'org.jetbrains.dokka:dokka-gradle-plugin:1.6.21'
+}

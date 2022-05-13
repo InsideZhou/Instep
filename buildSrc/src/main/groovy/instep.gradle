@@ -1,0 +1,125 @@
+plugins {
+    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+
+    id "org.jetbrains.kotlin.jvm"
+    id 'org.jetbrains.dokka'
+}
+
+group = 'me.insidezhou.instep'
+version = '3.0.0-SNAPSHOT'
+
+repositories {
+    maven { url "https://maven.aliyun.com/repository/public" }
+}
+
+dependencies {
+    testImplementation 'org.testng:testng:6.9.13'
+}
+
+jar {
+    baseName "$rootProject.name-$project.name"
+}
+
+tasks.withType(JavaCompile) {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
+    options.encoding = "UTF-8"
+}
+
+task sourceJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from sourceSets.main.allSource
+}
+
+task docJar(type: Jar, dependsOn: dokkaJavadoc) {
+    archiveClassifier.set('javadoc')
+    from dokkaJavadoc.outputDirectory
+}
+
+test {
+    useTestNG()
+}
+
+publishing {
+    publications {
+        full(MavenPublication) {
+            artifactId jar.archiveBaseName.get()
+
+            from components.java
+
+            artifact sourceJar
+            artifact docJar
+
+            pom {
+                name = 'Instep'
+                description = 'Tools are designed for more easier coding.'
+                url = 'https://github.com/InsideZhou/Instep'
+
+                scm {
+                    connection = 'scm:git:git://github.com/InsideZhou/Instep.git'
+                    developerConnection = 'scm:git:ssh://github.com/InsideZhou/Instep.git'
+                    url = 'https://github.com/InsideZhou/Instep'
+
+                }
+
+                licenses {
+                    license {
+                        name = 'The 2-Clause BSD License'
+                        url = 'https://opensource.org/licenses/BSD-2-Clause'
+                    }
+                }
+
+                developers {
+                    developer {
+                        name = 'Inside Zhou'
+                        email = 'inside@insidezhou.me'
+                    }
+                }
+            }
+        }
+
+        simple(MavenPublication) {
+            artifactId jar.archiveBaseName.get()
+
+            from components.java
+
+            artifact sourceJar
+        }
+    }
+
+    repositories {
+        maven {
+            def isSnapshot = version.endsWith("SNAPSHOT")
+            def releasesRepoUrl = 'https://oss.sonatype.org/service/local/staging/deploy/maven2/'
+            def snapshotsRepoUrl = 'https://oss.sonatype.org/content/repositories/snapshots/'
+
+            url isSnapshot ? snapshotsRepoUrl : releasesRepoUrl
+            name 'sonatype'
+            credentials {
+                username = project.findProperty("ossrhUsername")
+                password = project.findProperty("ossrhPassword")
+            }
+        }
+
+        maven {
+            url 'https://pkgs.dev.azure.com/insidezhou/_packaging/insidezhou/maven/v1'
+            name 'azure'
+            authentication {
+                basic(BasicAuthentication)
+            }
+            credentials {
+                username = project.findProperty("azureUsername")
+                password = project.findProperty("azurePassword")
+            }
+        }
+    }
+}
+
+signing {
+    useGpgCmd()
+    sign publishing.publications.full
+}

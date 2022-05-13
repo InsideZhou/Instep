@@ -5,47 +5,20 @@ package instep.dao.sql
 import instep.Instep
 import java.time.temporal.Temporal
 
-val dialect = Instep.make(Dialect::class.java)
-
-
-infix fun BooleanColumn.eq(value: Boolean): Condition = Condition.eq(name, value)
-infix fun BooleanColumn.notEQ(value: Boolean): Condition = Condition.notEQ(name, value)
-
-infix fun StringColumn.eq(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.eq(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.eq(name, value, dialect.parameterForJSONType)
-    else -> Condition.eq(name, value)
+internal object PackageObject {
+    val dialect = Instep.make(Dialect::class.java)
 }
 
-infix fun StringColumn.notEQ(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.notEQ(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.notEQ(name, value, dialect.parameterForJSONType)
-    else -> Condition.notEQ(name, value)
-}
+infix fun BooleanColumn.eq(value: Boolean): Condition = PackageObject.dialect.eq(this, value)
+infix fun BooleanColumn.notEQ(value: Boolean): Condition = PackageObject.dialect.notEQ(this, value)
 
-infix fun StringColumn.startsWith(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.startsWith(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.startsWith(name, value, dialect.parameterForJSONType)
-    else -> Condition.startsWith(name, value)
-}
+infix fun StringColumn.eq(value: String): Condition = PackageObject.dialect.eq(this, value)
+infix fun StringColumn.notEQ(value: String): Condition = PackageObject.dialect.notEQ(this, value)
+infix fun StringColumn.startsWith(value: String): Condition = PackageObject.dialect.startsWith(this, value)
+infix fun StringColumn.endsWith(value: String): Condition = PackageObject.dialect.endsWith(this, value)
+infix fun StringColumn.contains(value: String): Condition = PackageObject.dialect.contains(this, value)
+infix fun StringColumn.inArray(value: Array<String>): Condition = PackageObject.dialect.inArray(this, value)
 
-infix fun StringColumn.endsWith(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.endsWith(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.endsWith(name, value, dialect.parameterForJSONType)
-    else -> Condition.endsWith(name, value)
-}
-
-infix fun StringColumn.contains(value: String): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.contains(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.contains(name, value, dialect.parameterForJSONType)
-    else -> Condition.contains(name, value)
-}
-
-infix fun StringColumn.inArray(value: Array<String>): Condition = when (this.type) {
-    StringColumnType.UUID -> Condition.inArray(name, value, dialect.parameterForUUIDType)
-    StringColumnType.JSON -> Condition.inArray(name, value, dialect.parameterForJSONType)
-    else -> Condition.inArray(name, value)
-}
 
 infix fun StringColumn.eq(value: Enum<*>): Condition = eq(value.name)
 infix fun StringColumn.notEQ(value: Enum<*>): Condition = notEQ(value.name)
@@ -55,29 +28,29 @@ infix fun StringColumn.contains(value: Enum<*>): Condition = contains(value.name
 infix fun StringColumn.inArray(value: Array<Enum<*>>): Condition = inArray(value.map { it.name }.toTypedArray())
 
 
-infix fun <T : Enum<*>> IntegerColumn.eq(value: T): Condition = Condition.eq(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.notEQ(value: T): Condition = Condition.notEQ(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.gt(value: T): Condition = Condition.gt(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.gte(value: T): Condition = Condition.gte(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.lt(value: T): Condition = Condition.lt(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.lte(value: T): Condition = Condition.lte(name, value.ordinal)
-infix fun <T : Enum<*>> IntegerColumn.inArray(value: Array<T>): Condition = Condition.inArray(name, value.map { it.ordinal }.toTypedArray())
+infix fun <T : Enum<*>> IntegerColumn.eq(value: T): Condition = PackageObject.dialect.eq(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.notEQ(value: T): Condition = PackageObject.dialect.notEQ(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.gt(value: T): Condition = PackageObject.dialect.gt(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.gte(value: T): Condition = PackageObject.dialect.gte(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.lt(value: T): Condition = PackageObject.dialect.lt(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.lte(value: T): Condition = PackageObject.dialect.lte(this, value.ordinal)
+infix fun <T : Enum<*>> IntegerColumn.inArray(value: Array<T>): Condition = PackageObject.dialect.inArray(this, value.map { it.ordinal }.toTypedArray())
 
-infix fun <T : Number> NumberColumn<*>.eq(value: T): Condition = Condition.eq(name, value)
-infix fun <T : Number> NumberColumn<*>.notEQ(value: T): Condition = Condition.notEQ(name, value)
-infix fun <T : Number> NumberColumn<*>.gt(value: T): Condition = Condition.gt(name, value)
-infix fun <T : Number> NumberColumn<*>.gte(value: T): Condition = Condition.gte(name, value)
-infix fun <T : Number> NumberColumn<*>.lt(value: T): Condition = Condition.lt(name, value)
-infix fun <T : Number> NumberColumn<*>.lte(value: T): Condition = Condition.lte(name, value)
-infix fun <T : Number> NumberColumn<*>.inArray(value: Array<T>): Condition = Condition.inArray(name, value)
+infix fun <T : Number> NumberColumn<*>.eq(value: T): Condition = PackageObject.dialect.eq(this, value)
+infix fun <T : Number> NumberColumn<*>.notEQ(value: T): Condition = PackageObject.dialect.notEQ(this, value)
+infix fun <T : Number> NumberColumn<*>.gt(value: T): Condition = PackageObject.dialect.gt(this, value)
+infix fun <T : Number> NumberColumn<*>.gte(value: T): Condition = PackageObject.dialect.gte(this, value)
+infix fun <T : Number> NumberColumn<*>.lt(value: T): Condition = PackageObject.dialect.lt(this, value)
+infix fun <T : Number> NumberColumn<*>.lte(value: T): Condition = PackageObject.dialect.lte(this, value)
+infix fun <T : Number> NumberColumn<*>.inArray(value: Array<T>): Condition = PackageObject.dialect.inArray(this, value)
 
 
-infix fun <T : Temporal> DateTimeColumn.eq(value: T): Condition = Condition.eq(name, value)
-infix fun <T : Temporal> DateTimeColumn.notEQ(value: T): Condition = Condition.notEQ(name, value)
-infix fun <T : Temporal> DateTimeColumn.gt(value: T): Condition = Condition.gt(name, value)
-infix fun <T : Temporal> DateTimeColumn.gte(value: T): Condition = Condition.gte(name, value)
-infix fun <T : Temporal> DateTimeColumn.lt(value: T): Condition = Condition.lt(name, value)
-infix fun <T : Temporal> DateTimeColumn.lte(value: T): Condition = Condition.lte(name, value)
+infix fun <T : Temporal> DateTimeColumn.eq(value: T): Condition = PackageObject.dialect.eq(this, value)
+infix fun <T : Temporal> DateTimeColumn.notEQ(value: T): Condition = PackageObject.dialect.notEQ(this, value)
+infix fun <T : Temporal> DateTimeColumn.gt(value: T): Condition = PackageObject.dialect.gt(this, value)
+infix fun <T : Temporal> DateTimeColumn.gte(value: T): Condition = PackageObject.dialect.gte(this, value)
+infix fun <T : Temporal> DateTimeColumn.lt(value: T): Condition = PackageObject.dialect.lt(this, value)
+infix fun <T : Temporal> DateTimeColumn.lte(value: T): Condition = PackageObject.dialect.lte(this, value)
 
 
 fun Column<*>.count(): Aggregate {
@@ -129,8 +102,8 @@ fun DateTimeColumn.min(): Aggregate {
     }
 }
 
-fun Column<*>.isNull(): Condition = Condition.isNull(name)
-fun Column<*>.notNull(): Condition = Condition.isNotNull(name)
+fun Column<*>.isNull(): Condition = PackageObject.dialect.isNull(this)
+fun Column<*>.notNull(): Condition = PackageObject.dialect.isNotNull(this)
 
 @JvmOverloads
 fun Column<*>.asc(nullFirst: Boolean = false): OrderBy {

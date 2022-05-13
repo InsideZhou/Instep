@@ -2,7 +2,7 @@ package instep.dao
 
 import instep.Instep
 import instep.dao.impl.AbstractExpression
-import instep.dao.sql.Condition
+import instep.dao.sql.Dialect
 import instep.dao.sql.InstepSQL
 import org.testng.Assert
 import org.testng.annotations.Test
@@ -14,6 +14,7 @@ object ExpressionTest {
 
     @Test
     fun placeholder() {
+        val dialect = Instep.make(Dialect::class.java)
         val factory = Instep.make(ExpressionFactory::class.java)
         val expression = factory.createInstance("name = \${name} AND age >= \${age} AND \${condition}")
         assert(expression.parameters.isNotEmpty())
@@ -22,10 +23,10 @@ object ExpressionTest {
         expression.addParameter("name", "ZhangFei")
 
         if (expression is AbstractExpression) {
-            Assert.assertThrows(PlaceHolderRemainingException::class.java, { expression.addParameters(18) })
+            Assert.assertThrows(PlaceHolderRemainingException::class.java) { expression.addParameters(18) }
         }
 
-        val condition = Condition.isNotNull("army").and(Condition.gte("elite", 100))
+        val condition = dialect.isNotNull("army").and(dialect.gte("elite", 100))
         expression.addExpression("condition", condition)
         assert(expression.parameters.size == 3)
 

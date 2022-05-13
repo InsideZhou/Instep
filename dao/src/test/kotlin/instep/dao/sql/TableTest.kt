@@ -12,6 +12,7 @@ import java.util.*
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val datasource = InstepSQLTest.datasource
+    val dialect = InstepSQLTest.dialect
 
     val birthDate = LocalDate.of(1993, 6, 6)
     val birthTime = LocalTime.of(6, 6)

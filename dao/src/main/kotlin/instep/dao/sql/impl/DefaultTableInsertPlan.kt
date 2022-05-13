@@ -116,7 +116,7 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
             val returningColumns = returning.filterNotNull()
             if (returningRequired && table.dialect.returningClauseForInsert.isNotEmpty()) {
                 txt += if (returningColumns.isEmpty()) {
-                    " " + dialect.returningClauseForInsert
+                    " " + PackageObject.dialect.returningClauseForInsert
                 }
                 else {
                     " RETURNING " + returningColumns.joinToString(",") {

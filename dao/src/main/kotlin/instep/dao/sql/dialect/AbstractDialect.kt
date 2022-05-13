@@ -11,8 +11,10 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.*
 import java.time.*
+import java.time.temporal.Temporal
 import java.util.*
 
+@Suppress("MemberVisibilityCanBePrivate")
 abstract class AbstractDialect : Dialect {
     private val logger = InstepLogger.getLogger(Dialect::class.java)
 
@@ -114,7 +116,8 @@ abstract class AbstractDialect : Dialect {
 
         if (column.nullable) {
             return InstepSQL.plan("$txt DROP NOT NULL")
-        } else {
+        }
+        else {
             return InstepSQL.plan("$txt SET NOT NULL")
         }
     }
@@ -124,7 +127,8 @@ abstract class AbstractDialect : Dialect {
 
         if (column.default.isBlank()) {
             return InstepSQL.plan("$txt DROP DEFAULT")
-        } else {
+        }
+        else {
             return InstepSQL.plan("$txt SET DEFAULT ${column.default}")
         }
     }
@@ -145,12 +149,12 @@ abstract class AbstractDialect : Dialect {
             is Float -> stmt.setFloat(index, value)
             is Double -> stmt.setDouble(index, value)
             is ByteArray -> stmt.setBytes(index, value)
-            is Instant -> stmt.setTimestamp(index, java.sql.Timestamp.from(value))
+            is Instant -> stmt.setTimestamp(index, Timestamp.from(value))
             is LocalDate -> stmt.setDate(index, java.sql.Date.valueOf(value))
-            is LocalTime -> stmt.setTime(index, java.sql.Time.valueOf(value))
-            is LocalDateTime -> stmt.setTimestamp(index, java.sql.Timestamp.valueOf(value))
+            is LocalTime -> stmt.setTime(index, Time.valueOf(value))
+            is LocalDateTime -> stmt.setTimestamp(index, Timestamp.valueOf(value))
             is OffsetDateTime -> value.toZonedDateTime().apply {
-                stmt.setTimestamp(index, java.sql.Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(zone)))
+                stmt.setTimestamp(index, Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(zone)))
             }
             is InputStream -> stmt.setBinaryStream(index, value)
             is Reader -> stmt.setCharacterStream(index, value)
@@ -160,7 +164,7 @@ abstract class AbstractDialect : Dialect {
 
     protected open fun definitionForBooleanColumn(column: BooleanColumn): String = "BOOLEAN"
 
-    abstract protected fun definitionForAutoIncrementColumn(column: IntegerColumn): String
+    protected abstract fun definitionForAutoIncrementColumn(column: IntegerColumn): String
 
     protected open fun definitionForJSONColumn(column: StringColumn): String {
         throw NotImplementedError("JSON Column is not supported by ${this.javaClass.simpleName}")
@@ -223,7 +227,8 @@ abstract class AbstractDialect : Dialect {
             is IntegerColumn ->
                 if (column.autoIncrement) {
                     definitionForAutoIncrementColumn(column)
-                } else {
+                }
+                else {
                     definitionForIntegerColumn(column)
                 }
             is FloatingColumn -> definitionForFloatingColumn(column)
@@ -252,6 +257,236 @@ abstract class AbstractDialect : Dialect {
     }
 
     protected open fun definitionForColumns(vararg columns: Column<*>): String {
-        return columns.map { definitionForColumn(it) }.joinToString(",\n")
+        return columns.joinToString(",\n") { definitionForColumn(it) }
+    }
+
+    override fun eq(column: Column<*>, value: Any): Condition {
+        return eq(column.name, value)
+    }
+
+    override fun notEQ(column: Column<*>, value: Any): Condition {
+        return notEQ(column.name, value)
+    }
+
+    override fun isNull(column: Column<*>): Condition {
+        return isNull(column.name)
+    }
+
+    override fun isNotNull(column: Column<*>): Condition {
+        return isNotNull(column.name)
+    }
+
+    override fun isNull(column: String): Condition {
+        return Condition("$column IS NULL")
+    }
+
+    override fun isNotNull(column: String): Condition {
+        return Condition("$column IS NOT NULL")
+    }
+
+    override fun <T : Number> lt(column: NumberColumn<*>, value: T): Condition {
+        return lt(column.name, value)
+    }
+
+    override fun <T : Number> lte(column: NumberColumn<*>, value: T): Condition {
+        return lte(column.name, value)
+    }
+
+    override fun <T : Enum<*>> lt(column: IntegerColumn, value: T): Condition {
+        return lt(column.name, value)
+    }
+
+    override fun <T : Enum<*>> lte(column: IntegerColumn, value: T): Condition {
+        return lte(column.name, value)
+    }
+
+    override fun <T : Temporal> lt(column: DateTimeColumn, value: T): Condition {
+        return lt(column.name, value)
+    }
+
+    override fun <T : Temporal> lte(column: DateTimeColumn, value: T): Condition {
+        return lte(column.name, value)
+    }
+
+    override fun <T : Number> gt(column: NumberColumn<*>, value: T): Condition {
+        return gt(column.name, value)
+    }
+
+    override fun <T : Number> gte(column: NumberColumn<*>, value: T): Condition {
+        return gte(column.name, value)
+    }
+
+    override fun <T : Enum<*>> gt(column: IntegerColumn, value: T): Condition {
+        return gt(column.name, value)
+    }
+
+    override fun <T : Enum<*>> gte(column: IntegerColumn, value: T): Condition {
+        return gte(column.name, value)
+    }
+
+    override fun <T : Temporal> gt(column: DateTimeColumn, value: T): Condition {
+        return gt(column.name, value)
+    }
+
+    override fun <T : Temporal> gte(column: DateTimeColumn, value: T): Condition {
+        return gte(column.name, value)
+    }
+
+    override fun <T : Number> eq(column: String, value: T): Condition {
+        return eq(column, value as Any)
+    }
+
+    override fun <T : Number> lt(column: String, value: T): Condition {
+        return lt(column, value)
+    }
+
+    override fun <T : Number> lte(column: String, value: T): Condition {
+        return lte(column, value as Any)
+    }
+
+    override fun <T : Number> gt(column: String, value: T): Condition {
+        return gt(column, value as Any)
+    }
+
+    override fun <T : Number> gte(column: String, value: T): Condition {
+        return gte(column, value as Any)
+    }
+
+    override fun eq(column: StringColumn, value: String): Condition {
+        return when (column.type) {
+            StringColumnType.UUID -> {
+                val condition = Condition("${column.name} = $parameterForUUIDType")
+                condition.addParameters(value)
+                return condition
+            }
+            else -> eq(column.name, value)
+        }
+    }
+
+    override fun notEQ(column: StringColumn, value: String): Condition {
+        return when (column.type) {
+            StringColumnType.UUID -> {
+                val condition = Condition("${column.name} <> $parameterForUUIDType")
+                condition.addParameters(value)
+                return condition
+            }
+            else -> notEQ(column.name, value)
+        }
+    }
+
+    override fun contains(column: StringColumn, value: String): Condition {
+        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
+        condition.addParameters("%$value%")
+        return condition
+    }
+
+    override fun startsWith(column: StringColumn, value: String): Condition {
+        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
+        condition.addParameters("$value%")
+        return condition
+    }
+
+    override fun endsWith(column: StringColumn, value: String): Condition {
+        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
+        condition.addParameters("%$value")
+        return condition
+    }
+
+    override fun notInArray(column: StringColumn, value: Array<String>): Condition {
+        return when (column.type) {
+            StringColumnType.UUID -> notInArray(column.name, value, parameterForUUIDType)
+            else -> notInArray(column.name, value, PlaceHolder.parameter)
+        }
+    }
+
+    override fun <T : Number> notInArray(column: NumberColumn<*>, value: Array<T>): Condition {
+        return notInArray(column.name, value, PlaceHolder.parameter)
+    }
+
+    override fun notInArray(column: IntegerColumn, value: Array<Enum<*>>): Condition {
+        return notInArray(column.name, value, PlaceHolder.parameter)
+    }
+
+    override fun inArray(column: StringColumn, value: Array<String>): Condition {
+        return when (column.type) {
+            StringColumnType.UUID -> inArray(column.name, value, parameterForUUIDType)
+            else -> inArray(column.name, value, PlaceHolder.parameter)
+        }
+    }
+
+    override fun <T : Number> inArray(column: NumberColumn<*>, value: Array<T>): Condition {
+        return inArray(column.name, value, PlaceHolder.parameter)
+    }
+
+    override fun inArray(column: IntegerColumn, value: Array<Enum<*>>): Condition {
+        return inArray(column.name, value, PlaceHolder.parameter)
+    }
+
+    @Suppress("DuplicatedCode")
+    protected fun notInArray(column: String, values: Array<*>, placeholder: String): Condition {
+        val builder = StringBuilder("$column NOT IN (")
+
+        values.forEach { _ ->
+            builder.append("$placeholder,")
+        }
+
+        builder.deleteCharAt(builder.length - 1)
+        builder.append(")")
+
+        val condition = Condition(builder.toString())
+        condition.addParameters(*values)
+        return condition
+    }
+
+    @Suppress("DuplicatedCode")
+    protected fun inArray(column: String, values: Array<*>, placeholder: String): Condition {
+        val builder = StringBuilder("$column IN (")
+
+        values.forEach { _ ->
+            builder.append("$placeholder,")
+        }
+
+        builder.deleteCharAt(builder.length - 1)
+        builder.append(")")
+
+        val condition = Condition(builder.toString())
+        condition.addParameters(*values)
+        return condition
+    }
+
+    protected fun eq(column: String, value: Any): Condition {
+        val condition = Condition("$column = ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
+    }
+
+    protected fun notEQ(column: String, value: Any): Condition {
+        val condition = Condition("$column <> ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
+    }
+
+    protected fun lt(column: String, value: Any): Condition {
+        val condition = Condition("$column < ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
+    }
+
+    protected fun lte(column: String, value: Any): Condition {
+        val condition = Condition("$column <= ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
+    }
+
+    protected fun gt(column: String, value: Any): Condition {
+        val condition = Condition("$column > ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
+    }
+
+    protected fun gte(column: String, value: Any): Condition {
+        val condition = Condition("$column >= ${PlaceHolder.parameter}")
+        condition.addParameters(value)
+        return condition
     }
 }
