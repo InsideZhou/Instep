@@ -4,12 +4,11 @@ interface WhereClause<out T> {
     var where: Condition?
 
     fun where(vararg conditions: Condition): T {
-        if (null == where) {
-            where = conditions.reduce(Condition::and)
+        where = if (null == where) {
+            conditions.reduce(Condition::and)
         }
         else {
-            val cond = where
-            cond?.andGroup(conditions.reduce(Condition::and))
+            where!!.andGroup(conditions.reduce(Condition::and))
         }
 
         @Suppress("unchecked_cast") return this as T

@@ -98,12 +98,11 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
     }
 
     override fun having(vararg conditions: Condition): TableSelectPlan {
-        if (null == having) {
-            having = conditions.reduce(Condition::and)
+        having = if (null == having) {
+            conditions.reduce(Condition::and)
         }
         else {
-            val cond = having
-            cond?.andGroup(conditions.reduce(Condition::and))
+            having!!.andGroup(conditions.reduce(Condition::and))
         }
 
         return this
