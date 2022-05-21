@@ -10,7 +10,7 @@ import instep.dao.DaoException
 @Suppress("unused", "FoldInitializerAndIfToElvis", "MemberVisibilityCanBePrivate")
 abstract class Table(val tableName: String, val tableComment: String, val dialect: Dialect) {
 
-    constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(Dialect::class.java))
+    constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(ConnectionProvider::class.java).dialect)
     constructor(tableName: String) : this(tableName, "")
 
     /**

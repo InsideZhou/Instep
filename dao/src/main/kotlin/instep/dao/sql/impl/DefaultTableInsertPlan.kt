@@ -1,3 +1,4 @@
+
 package instep.dao.sql.impl
 
 import instep.Instep
@@ -7,6 +8,7 @@ import instep.dao.sql.*
 import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
+@Suppress("MemberVisibilityCanBePrivate")
 open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, SubSQLPlan<TableInsertPlan>() {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
@@ -116,7 +118,7 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
             val returningColumns = returning.filterNotNull()
             if (returningRequired && table.dialect.returningClauseForInsert.isNotEmpty()) {
                 txt += if (returningColumns.isEmpty()) {
-                    " " + PackageObject.dialect.returningClauseForInsert
+                    " " + Package.dialect.returningClauseForInsert
                 }
                 else {
                     " RETURNING " + returningColumns.joinToString(",") {

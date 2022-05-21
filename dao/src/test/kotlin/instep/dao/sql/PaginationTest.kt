@@ -1,17 +1,13 @@
 package instep.dao.sql
 
-import instep.Instep
-
 
 object PaginationTest {
-    val datasource = InstepSQLTest.datasource
-    val dialect = Instep.make(Dialect::class.java)
-
     init {
+        InstepSQLTest
+
         TableTest.createAccountTable()
         TableTest.insertAccounts()
     }
-
 
     @org.testng.annotations.Test
     fun createAccountTable() {

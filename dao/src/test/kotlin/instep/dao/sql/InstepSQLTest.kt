@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate")
+
 package instep.dao.sql
 
 import com.alibaba.druid.pool.DruidDataSource
@@ -7,6 +9,7 @@ import instep.InstepLoggerFactory
 import instep.dao.sql.dialect.HSQLDialect
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.SQLServerDialect
+import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.Assert
 import org.testng.annotations.Test
@@ -34,7 +37,7 @@ object InstepSQLTest {
         datasource.isTestWhileIdle = true
         datasource.maxPoolPreparedStatementPerConnectionSize = 16
 
-        Instep.bind(ConnectionProvider::class.java, TransactionContext.ConnectionProvider(datasource, dialect))
+        Instep.bind(ConnectionProvider::class.java, DefaultConnectionProvider(datasource, dialect))
         val factory = object : InstepLoggerFactory {
             override fun getLogger(cls: Class<*>): InstepLogger {
                 return object : InstepLogger {

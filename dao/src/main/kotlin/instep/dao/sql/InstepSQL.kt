@@ -17,98 +17,93 @@ object InstepSQL {
         return Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<SQLPlan<*>>
     }
 
-    fun transaction(): TransactionTemplate {
-        return TransactionTemplate
+    fun transaction(): TransactionRunner {
+        return Instep.make(TransactionRunner::class.java)
     }
 
     @Throws(TransactionAbortException::class)
-    fun <R> transaction(runner: TransactionContext.() -> R): R {
-        return TransactionTemplate.run(runner)
+    fun <R> transaction(action: TransactionContext.() -> R): R {
+        val runner = Instep.make(TransactionRunner::class.java)
+        return runner.run(null, action)
     }
 
     init {
         try {
             Instep.make(ResultSetValueExtractor::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(ResultSetValueExtractor::class.java, DefaultResultSetValueExtractor())
         }
 
         try {
             Instep.make(ResultSetDelegate::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(ResultSetDelegate::class.java, DefaultResultSetDelegate())
         }
 
         try {
             Instep.make(ColumnInfoSetGenerator::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(ColumnInfoSetGenerator::class.java, DefaultColumnInfoSetGenerator())
         }
 
         try {
             Instep.make(PreparedStatementGenerator::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(PreparedStatementGenerator::class.java, DefaultPreparedStatementGenerator())
         }
 
         try {
             Instep.make(SQLPlanFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(SQLPlanFactory::class.java, SQLPlanFactory.Companion)
         }
 
         try {
             Instep.make(SQLPlanExecutor::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
-            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor<SQLPlan<*>>())
+        } catch (e: ServiceNotFoundException) {
+            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
         }
 
         try {
             Instep.make(ExpressionFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(ExpressionFactory::class.java, ExpressionFactory.Companion)
         }
 
         try {
             Instep.make(SQLPlanExecutor::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
-            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor<SQLPlan<*>>())
+        } catch (e: ServiceNotFoundException) {
+            Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
         }
 
         try {
             Instep.make(TableSelectPlanFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(TableSelectPlanFactory::class.java, TableSelectPlanFactory.Companion)
         }
 
         try {
             Instep.make(TableInsertPlanFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(TableInsertPlanFactory::class.java, TableInsertPlanFactory.Companion)
         }
 
         try {
             Instep.make(TableUpdatePlanFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(TableUpdatePlanFactory::class.java, TableUpdatePlanFactory.Companion)
         }
 
         try {
             Instep.make(TableDeletePlanFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlanFactory.Companion)
+        }
+
+        try {
+            Instep.make(TransactionRunner::class.java)
+        } catch (e: ServiceNotFoundException) {
+            Instep.bind(TransactionRunner::class.java, DefaultTransactionRunner())
         }
     }
 }

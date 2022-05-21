@@ -2,6 +2,7 @@ package instep.dao
 
 import instep.Instep
 import instep.dao.impl.AbstractExpression
+import instep.dao.sql.ConnectionProvider
 import instep.dao.sql.Dialect
 import instep.dao.sql.InstepSQL
 import org.testng.Assert
@@ -14,7 +15,7 @@ object ExpressionTest {
 
     @Test
     fun placeholder() {
-        val dialect = Instep.make(Dialect::class.java)
+        val dialect = Instep.make(ConnectionProvider::class.java).dialect
         val factory = Instep.make(ExpressionFactory::class.java)
         val expression = factory.createInstance("name = \${name} AND age >= \${age} AND \${condition}")
         assert(expression.parameters.isNotEmpty())

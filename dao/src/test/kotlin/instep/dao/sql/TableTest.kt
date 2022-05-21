@@ -1,3 +1,5 @@
+@file:Suppress("MemberVisibilityCanBePrivate", "unused")
+
 package instep.dao.sql
 
 import instep.Instep
@@ -8,15 +10,15 @@ import org.testng.Assert
 import java.time.*
 import java.util.*
 
-@Suppress("unused")
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
-    val datasource = InstepSQLTest.datasource
-    val dialect = InstepSQLTest.dialect
+    val birthDate: LocalDate = LocalDate.of(1993, 6, 6)
+    val birthTime: LocalTime = LocalTime.of(6, 6)
+    val birthday: OffsetDateTime = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
 
-    val birthDate = LocalDate.of(1993, 6, 6)
-    val birthTime = LocalTime.of(6, 6)
-    val birthday = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
+    init {
+        InstepSQLTest
+    }
 
     @Suppress("UNUSED_PARAMETER")
     enum class AccountType(code: String, desc: String) {
@@ -40,10 +42,10 @@ object TableTest {
     }
 
     abstract class AbstractTable(tableName: String, tableComment: String, dialect: Dialect) : Table(tableName, tableComment, dialect) {
-        constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(Dialect::class.java))
+        constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(ConnectionProvider::class.java).dialect)
         constructor(tableName: String) : this(tableName, "")
 
-        val id = uuid("id").primary()
+        val id = this.uuid("id").primary()
     }
 
     object AccountTable : AbstractTable("account_" + stringGenerator.generateByRegex("[a-z]{8}"), "账号表") {
@@ -75,12 +77,12 @@ object TableTest {
         AccountTable.create().debug().execute()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"), priority = 1)
+    @org.testng.annotations.Test(dependsOnMethods = ["createAccountTable"], priority = 1)
     fun addColumn() {
         AccountTable.addColumn(AccountTable.boolean("verified").default("false")).debug().execute()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("createAccountTable"))
+    @org.testng.annotations.Test(dependsOnMethods = ["createAccountTable"])
     fun insertAccounts() {
         val random = Random()
         val total = random.ints(10, 100).findAny().orElse(100)
@@ -103,13 +105,13 @@ object TableTest {
         }
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
     fun maxAccountId() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
+    @org.testng.annotations.Test(dependsOnMethods = ["maxAccountId"])
     fun updateAccounts() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -161,7 +163,7 @@ object TableTest {
         assert(laozi[AccountTable.name] == zhuangzi.name)
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("maxAccountId"))
+    @org.testng.annotations.Test(dependsOnMethods = ["maxAccountId"])
     fun deleteAccounts() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -170,31 +172,31 @@ object TableTest {
         assert(null == AccountTable[id])
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
     fun datetime() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
 
-        Assert.assertThrows(UnsupportedOperationException::class.java, { account[AccountTable.birthDate] })
-        Assert.assertThrows(UnsupportedOperationException::class.java, { account[AccountTable.birthTime] })
+        Assert.assertThrows(UnsupportedOperationException::class.java) { account[AccountTable.birthDate] }
+        Assert.assertThrows(UnsupportedOperationException::class.java) { account[AccountTable.birthTime] }
 
         assert(account.getLocalDate(AccountTable.birthDate) == birthDate)
         assert(account.getLocalTime(AccountTable.birthTime) == birthTime)
 
-        if (dialect.offsetDateTimeSupported) {
+        if (AccountTable.dialect.offsetDateTimeSupported) {
             assert(account.getOffsetDateTime(AccountTable.birthday) == OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC))
         }
         else {
             assert(account.getOffsetDateTime(AccountTable.birthday) == OffsetDateTime.of(birthDate, birthTime, OffsetDateTime.now().offset))
         }
 
-        Assert.assertThrows(UnsupportedOperationException::class.java, { account.getLocalDateTime(AccountTable.birthDate) })
-        Assert.assertThrows(UnsupportedOperationException::class.java, { account.getLocalDateTime(AccountTable.birthTime) })
+        Assert.assertThrows(UnsupportedOperationException::class.java) { account.getLocalDateTime(AccountTable.birthDate) }
+        Assert.assertThrows(UnsupportedOperationException::class.java) { account.getLocalDateTime(AccountTable.birthTime) }
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
     fun rowToInstance() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -206,7 +208,7 @@ object TableTest {
         assert(account.remark == null)
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = arrayOf("insertAccounts"))
+    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
     fun randomRow() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val idMax = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()

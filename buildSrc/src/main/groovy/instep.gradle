@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'me.insidezhou.instep'
-version = '3.0.0-SNAPSHOT'
+version = '3.0.0-r0-SNAPSHOT'
 
 repositories {
     maven { url "https://maven.aliyun.com/repository/public" }
@@ -28,6 +28,13 @@ tasks.withType(JavaCompile) {
     targetCompatibility = JavaVersion.VERSION_1_8
 
     options.encoding = "UTF-8"
+}
+
+compileKotlin {
+    kotlinOptions {
+        useIR = true
+        jvmTarget = JavaVersion.VERSION_1_8
+    }
 }
 
 task sourceJar(type: Jar) {

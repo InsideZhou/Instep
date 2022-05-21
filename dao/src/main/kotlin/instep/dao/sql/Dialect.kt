@@ -1,6 +1,5 @@
 package instep.dao.sql
 
-import instep.Instep
 import instep.dao.DaoException
 import instep.dao.sql.dialect.*
 import java.sql.PreparedStatement
@@ -99,8 +98,6 @@ interface Dialect {
             else {
                 throw DaoException("cannot infer dialect for datasource $url")
             }
-
-            Instep.bind(Dialect::class.java, dialect)
 
             return dialect
         }
