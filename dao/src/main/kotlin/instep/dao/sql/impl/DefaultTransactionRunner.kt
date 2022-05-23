@@ -47,26 +47,25 @@ open class DefaultTransactionRunner : TransactionRunner {
                 conn.releaseSavepoint(sp)
             }
             else {
-                Package.threadLocalTransactionContext.set(null)
                 conn.commit()
             }
 
             return result
-        } catch (e: Exception) {
+        }
+        catch (e: TransactionAbortException) {
             conn.rollback(sp)
 
-            if (e is TransactionAbortException) {
-                if (null == e.cause) {
-                    @Suppress("UNCHECKED_CAST")
-                    return null as R
-                }
-                else {
-                    throw e
-                }
+            if (null == e.cause) {
+                @Suppress("UNCHECKED_CAST")
+                return null as R
             }
             else {
-                throw TransactionAbortException(e)
+                throw e
             }
+        }
+        catch (e: Exception) {
+            conn.rollback(sp)
+            throw TransactionAbortException(e)
         }
         finally {
             if (transactionContext.depth > 0) {
@@ -80,7 +79,7 @@ open class DefaultTransactionRunner : TransactionRunner {
     }
 }
 
-class DefaultTransactionContext(override val conn: Connection) : TransactionContext {
+class DefaultTransactionContext(val conn: Connection) : TransactionContext {
     var depth = 0
     private val kvStore: MemoryCache<Any?> = MemoryCache()
 
