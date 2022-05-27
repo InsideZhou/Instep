@@ -9,7 +9,7 @@ plugins {
 }
 
 group = 'me.insidezhou.instep'
-version = '3.0.0.000-SNAPSHOT'
+version = '3.0.0.001-SNAPSHOT'
 
 repositories {
     maven { url "https://maven.aliyun.com/repository/public" }

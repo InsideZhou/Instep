@@ -20,6 +20,10 @@ abstract class SubSQLPlan<T : SQLPlan<T>> : SQLPlan<T> {
 
         return this
     }
+
+    override fun toString(): String {
+        return """${statement}\n${parameterToLogFormat()}"""
+    }
 }
 
 interface SQLPlanFactory<out T : SQLPlan<*>> {

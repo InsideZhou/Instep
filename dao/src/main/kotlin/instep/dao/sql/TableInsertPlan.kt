@@ -13,10 +13,10 @@ interface TableInsertPlan : SQLPlan<TableInsertPlan> {
 }
 
 interface TableInsertPlanFactory<out T : TableInsertPlan> {
-    fun createInstance(table: Table, dialect: Dialect): T
+    fun createInstance(table: Table): T
 
     companion object : TableInsertPlanFactory<TableInsertPlan> {
-        override fun createInstance(table: Table, dialect: Dialect): TableInsertPlan {
+        override fun createInstance(table: Table): TableInsertPlan {
             return DefaultTableInsertPlan(table)
         }
     }

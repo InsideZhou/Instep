@@ -199,7 +199,7 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
 
     open fun insert(): TableInsertPlan {
         val factory = Instep.make(TableInsertPlanFactory::class.java)
-        return factory.createInstance(this, dialect)
+        return factory.createInstance(this)
     }
 
     open fun select(vararg columnOrAggregates: Any): TableSelectPlan {

@@ -3,7 +3,6 @@ package instep.dao
 import instep.Instep
 import instep.dao.impl.AbstractExpression
 import instep.dao.sql.ConnectionProvider
-import instep.dao.sql.Dialect
 import instep.dao.sql.InstepSQL
 import org.testng.Assert
 import org.testng.annotations.Test

@@ -100,10 +100,10 @@ object InstepSQL {
             Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlanFactory.Companion)
         }
 
-        try {
-            Instep.make(TransactionRunner::class.java)
-        } catch (e: ServiceNotFoundException) {
-            Instep.bind(TransactionRunner::class.java, DefaultTransactionRunner())
+        runCatching {
+            Instep.make(ConnectionProvider::class.java)
+        }.onSuccess {
+            Instep.bind(TransactionRunner::class.java, it.transactionRunner)
         }
     }
 }
