@@ -5,32 +5,34 @@ import instep.InstepLogger
 import instep.collection.AssocArray
 import instep.dao.sql.*
 import instep.typeconversion.Converter
+import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
+import instep.util.path
+import instep.util.snakeToCamelCase
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
-import java.sql.Types
-import java.time.OffsetDateTime
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneOffset
 
 @Suppress("MemberVisibilityCanBePrivate", "UNCHECKED_CAST")
 open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     val connectionProvider: ConnectionProvider,
-    val resultSetValueExtractor: ResultSetValueExtractor,
+    val resultSetColumnValueExtractor: ResultSetColumnValueExtractor,
     val resultSetDelegate: ResultSetDelegate,
-    val columnInfoSetGenerator: ColumnInfoSetGenerator,
     val preparedStatementGenerator: PreparedStatementGenerator,
-    val typeconvert: TypeConversion
+    val typeconvert: TypeConversion,
 ) : SQLPlanExecutor<S> {
-    private val logger = InstepLogger.getLogger(DefaultSQLPlanExecutor::class.java)
-
     constructor() : this(
         Instep.make(ConnectionProvider::class.java),
-        Instep.make(ResultSetValueExtractor::class.java),
+        Instep.make(ResultSetColumnValueExtractor::class.java),
         Instep.make(ResultSetDelegate::class.java),
-        Instep.make(ColumnInfoSetGenerator::class.java),
         Instep.make(PreparedStatementGenerator::class.java),
-        Instep.make(TypeConversion::class.java)
+        Instep.make(TypeConversion::class.java),
     )
+
+    private val logger = InstepLogger.getLogger(DefaultSQLPlanExecutor::class.java)
 
     override fun execute(plan: S) {
         val conn = connectionProvider.getConnection()
@@ -45,12 +47,11 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                     execute(it as S)
                 }
             }
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
-            conn.close()
+            connectionProvider.releaseConnection(conn)
         }
     }
 
@@ -62,12 +63,11 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             if (!rs.next() || rs.wasNull()) return ""
 
             return rs.getString(1)
-        }
-        catch (e: SQLException) {
+        } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
-            conn.close()
+            connectionProvider.releaseConnection(conn)
         }
     }
 
@@ -78,15 +78,14 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         try {
             val rs = executeResultSet(conn, plan)
 
-            if (!rs.next() || rs.getString(1)?.isBlank() != false || rs.wasNull()) return null
+            if (!rs.next()) return null
 
-            return resultSetValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T
-        }
-        catch (e: SQLException) {
+            return resultSetColumnValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T
+        } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
-            conn.close()
+            connectionProvider.releaseConnection(conn)
         }
     }
 
@@ -94,14 +93,12 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     override fun executeUpdate(plan: S): Int {
         val conn = connectionProvider.getConnection()
         try {
-            val stmt = preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan)
-            return stmt.executeUpdate()
-        }
-        catch (e: SQLException) {
+            return preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan).executeUpdate()
+        } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
-            conn.close()
+            connectionProvider.releaseConnection(conn)
         }
     }
 
@@ -113,130 +110,101 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                 stmt.executeUpdate()
                 stmt.generatedKeys
             }
+
             else -> stmt.executeQuery()
         }
     }
 
     @Suppress("UNCHECKED_CAST")
     override fun <T : Any> execute(plan: S, cls: Class<T>): List<T> {
-        val result = mutableListOf<T>()
-
         val conn = connectionProvider.getConnection()
-        try {
+        val dataRows = try {
             val rs = executeResultSet(conn, plan)
+            val dataRows = mutableListOf<AssocArray>()
 
-            if (typeconvert.canConvert(ResultSet::class.java, cls)) {
+            typeconvert.getConverter(ResultSet::class.java, AssocArray::class.java)!!.let { converter ->
                 while (rs.next()) {
-                    val instanceOfT = typeconvert.convert(rs, ResultSet::class.java, cls)
-                    result.add(instanceOfT)
-                }
-
-                return result
-            }
-
-            val table = when (plan) {
-                is TableSelectPlan -> {
-                    plan.from
-                }
-                is TableInsertPlan -> {
-                    plan.table
-                }
-                else -> {
-                    throw RuntimeException("Can't create instance of ${cls.name} from result row")
+                    dataRows.add(converter.convert(rs))
                 }
             }
 
-            val rows = mutableListOf<TableRow>()
-
-            while (rs.next()) {
-                rows.add(TableRow.createInstance(table, connectionProvider.dialect, rs))
-            }
-
-            if (typeconvert.canConvert(TableRow::class.java, cls)) return rows.map { row -> typeconvert.convert(row, cls) }
-            if (cls == TableRow::class.java) return rows as List<T>
-
-            val targetMutableProperties = Instep.reflectFromClass(cls).getMutablePropertiesUntil(Any::class.java)
-            val tableProperties = Instep.reflect(table).getPropertiesUntil(Table::class.java)
-
-            return rows.map { row ->
-                val instance = cls.getDeclaredConstructor().newInstance()
-
-                targetMutableProperties.forEach { p ->
-                    tableProperties.find {
-                        p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
-                    }?.let {
-                        val col = if (null != it.getter) {
-                            it.getter!!.invoke(table)
-                        }
-                        else {
-                            it.field.get(table)
-                        } as Column<*>
-
-                        row[col]?.let { value ->
-                            try {
-                                p.setter.invoke(instance, value)
-                            }
-                            catch (e: IllegalArgumentException) {
-                                logger.exception(e).warn()
-                            }
-                        }
-
-                        return@forEach
-                    }
-                }
-
-                return@map instance
-            }
-        }
-        catch (e: SQLException) {
+            dataRows
+        } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
-            conn.close()
+            connectionProvider.releaseConnection(conn)
         }
-    }
 
-    companion object {
-        init {
-            val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
-            val typeconvert = Instep.make(TypeConversion::class.java)
+        if (cls.isAssignableFrom(AssocArray::class.java)) {
+            return dataRows.map { it as T }
+        }
 
-            if (!typeconvert.canConvert(ResultSet::class.java, AssocArray::class.java)) {
-                typeconvert.register(object : Converter<ResultSet, AssocArray> {
-                    override fun <T : ResultSet> convert(instance: T): AssocArray {
-                        val array = AssocArray(true)
+        typeconvert.getConverter(AssocArray::class.java, cls)?.let { converter ->
+            return dataRows.map { converter.convert(it) }
+        }
 
-                        columnInfoSetGenerator.generate(instance.metaData).forEach { item ->
-                            when (item.type) {
-                                Types.TINYINT -> array[item.label] = instance.getByte(item.index)
-                                Types.SMALLINT -> array[item.label] = instance.getShort(item.index)
-                                Types.INTEGER -> array[item.label] = instance.getInt(item.index)
-                                Types.BIGINT -> array[item.label] = instance.getLong(item.index)
-                                Types.DECIMAL -> array[item.label] = instance.getBigDecimal(item.index)
-                                Types.FLOAT -> array[item.label] = instance.getFloat(item.index)
-                                Types.DOUBLE -> array[item.label] = instance.getDouble(item.index)
-                                Types.DATE -> array[item.label] = instance.getDate(item.index).toLocalDate()
-                                Types.TIME -> array[item.label] = instance.getTime(item.index).toLocalTime()
-                                Types.TIMESTAMP -> array[item.label] = instance.getTimestamp(item.index).toLocalDateTime()
-                                Types.TIMESTAMP_WITH_TIMEZONE -> array[item.label] = instance.getObject(item.index, OffsetDateTime::class.java)
-                                Types.BINARY -> array[item.label] = instance.getBytes(item.index)
-                                Types.CHAR, Types.VARCHAR, Types.LONGVARCHAR -> array[item.label] = instance.getString(item.index)
-                                Types.NCHAR, Types.NVARCHAR, Types.LONGNVARCHAR -> array[item.label] = instance.getNString(item.index)
-                                Types.CLOB -> array[item.label] = instance.getClob(item.index)
-                                Types.BLOB -> array[item.label] = instance.getBlob(item.index)
-                                else -> array[item.label] = instance.getObject(item.index)
-                            }
-                        }
+        if (TableRow::class.java.isAssignableFrom(cls)) {
+            when (plan) {
+                is TableSelectPlan -> return dataRows.map { TableRow.createInstance(it, plan.from, connectionProvider.dialect) } as List<T>
+                is TableInsertPlan -> return dataRows.map { TableRow.createInstance(it, plan.table, connectionProvider.dialect) } as List<T>
+                else -> Unit
+            }
+        }
 
-                        return array
+        val targetMutableProperties = Instep.reflectFromClass(cls).getMutablePropertiesUntil(Any::class.java)
+        return dataRows.map instance@{ row ->
+            val instance = cls.getDeclaredConstructor().newInstance()
+
+            row.entries.filter { null != it.second }.forEach { pair ->
+                val property = targetMutableProperties.find { it.field.name.equals(pair.first.toString().snakeToCamelCase()) } ?: return@forEach
+                val setterType = property.setter.parameterTypes.first()
+                val value = pair.second!!
+                val path = instance.javaClass.path(property.field)
+
+                logger.message("setting value to target by setter")
+                    .context("property", path)
+                    .context("property_type", setterType.name)
+                    .context("value", value)
+                    .trace()
+
+                property.setter.getAnnotationsByType(ConverterEligible::class.java)
+                    .firstNotNullOfOrNull { converterEligible ->
+                        (typeconvert.getConverter(converterEligible.type.java, setterType, path) as? Converter<Any, Any>)
+                    }
+                    ?.let { converter ->
+                        property.setter.invoke(instance, converter.convert(value))
+                        return@forEach
                     }
 
-                    override val from: Class<ResultSet>
-                        get() = ResultSet::class.java
-                    override val to: Class<AssocArray>
-                        get() = AssocArray::class.java
-                })
+                (typeconvert.getConverter(value.javaClass, setterType) as? Converter<Any, Any>)?.let { converter ->
+                    property.setter.invoke(instance, converter.convert(value))
+                    return@forEach
+                }
+
+                when (value) {
+                    is String -> {
+                        when {
+                            setterType.isEnum -> {
+                                property.setter.invoke(instance, setterType.enumConstants.first { it.toString() == value })
+                            }
+
+                            else -> property.setter.invoke(instance, value)
+                        }
+                    }
+
+                    is LocalDateTime -> {
+                        when (setterType) {
+                            Instant::class.java -> property.setter.invoke(instance, value.toInstant(ZoneOffset.UTC))
+                            else -> property.setter.invoke(instance, value)
+                        }
+                    }
+
+                    else -> property.setter.invoke(instance, value)
+                }
             }
+
+            return@instance instance as T
         }
     }
 }

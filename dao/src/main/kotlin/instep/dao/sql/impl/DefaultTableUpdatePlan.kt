@@ -3,11 +3,12 @@ package instep.dao.sql.impl
 import instep.Instep
 import instep.dao.DaoException
 import instep.dao.sql.*
-import instep.typeconversion.JsonType
+import instep.typeconversion.Converter
+import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
 
 open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPlan<TableUpdatePlan>() {
-    protected val params = mutableMapOf<Column<*>, Any?>()
+    protected open val params = mutableMapOf<Column<*>, Any?>()
 
     override var where: Condition? = null
 
@@ -18,7 +19,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
         assertColumnBelongToMe(column)
         params[column] = StepValue(value)
 
-        return this;
+        return this
     }
 
     private fun assertColumnBelongToMe(column: Column<*>) {
@@ -36,6 +37,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
         return this
     }
 
+    @Suppress("UNCHECKED_CAST")
     override fun set(obj: Any): TableUpdatePlan {
         val mirror = Instep.reflect(obj)
         val tableMirror = Instep.reflect(table)
@@ -53,7 +55,23 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                     } as Column<*>
 
                     if (!col.primary) {
-                        params[col] = p.getter.invoke(obj)
+                        val value = p.getter.invoke(obj)
+                        if (null == value) {
+                            params[col] = null
+                            return@forEach
+                        }
+
+                        val getterType = p.getter.returnType
+                        p.getter.getAnnotationsByType(ConverterEligible::class.java)
+                            .firstNotNullOfOrNull { converterEligible ->
+                                (typeConversion.getConverter(getterType, converterEligible.type.java, table.path(col)) as? Converter<Any, Any>)
+                            }
+                            ?.let { converter ->
+                                params[col] = converter.convert(value)
+                                return@forEach
+                            }
+
+                        params[col] = value
                     }
                 }
         }
@@ -70,43 +88,49 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
 
     override val statement: String
         get() {
-            var txt = "UPDATE ${table.tableName} SET ${params.entries.map {
-                val column = it.key
-                val value = it.value
+            var txt = "UPDATE ${table.tableName} SET ${
+                params.entries.joinToString(",") {
+                    val column = it.key
+                    val value = it.value
 
-                val standardSetClause = "${it.key.name}=?"
+                    val standardSetClause = "${it.key.name}=?"
 
-                when (column) {
-                    is StringColumn -> when (column.type) {
-                        StringColumnType.UUID -> "${it.key.name}=${table.dialect.parameterForUUIDType}"
-                        StringColumnType.JSON -> "${it.key.name}=${table.dialect.parameterForJSONType}"
+                    when (column) {
+                        is StringColumn -> when (column.type) {
+                            StringColumnType.UUID -> "${it.key.name}=${table.dialect.parameterForUUIDType}"
+                            StringColumnType.JSON -> "${it.key.name}=${table.dialect.parameterForJSONType}"
+                            else -> standardSetClause
+                        }
+
+                        is NumberColumn -> when (value) {
+                            is StepValue -> "${it.key.name}=(${it.key.name} + ?)"
+                            else -> standardSetClause
+                        }
+
+                        is ArbitraryColumn -> "${it.key.name}=${it.value}"
+
                         else -> standardSetClause
                     }
-                    is NumberColumn -> when (value) {
-                        is StepValue -> "${it.key.name}=(${it.key.name} + ?)"
-                        else -> standardSetClause
-                    }
-                    else -> standardSetClause
+
                 }
-
-            }.joinToString(",")} "
+            } "
 
             if (null == where) {
                 pkValue?.let {
                     val column = table.primaryKey
 
-                    if (column is StringColumn && column.type == StringColumnType.UUID) {
-                        txt += "WHERE ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
+                    txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
+                        "WHERE ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
                     }
                     else {
-                        txt += "WHERE ${table.primaryKey!!.name}=?"
+                        "WHERE ${table.primaryKey!!.name}=?"
                     }
                 }
 
                 return txt
             }
 
-            where!!.expression.let {
+            where!!.text.let {
                 if (it.isNotBlank()) {
                     txt += "WHERE $it"
                 }
@@ -115,11 +139,11 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
             pkValue?.let {
                 val column = table.primaryKey
 
-                if (column is StringColumn && column.type == StringColumnType.UUID) {
-                    txt += " AND ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
+                txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
+                    " AND ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
                 }
                 else {
-                    txt += " AND ${table.primaryKey!!.name}=?"
+                    " AND ${table.primaryKey!!.name}=?"
                 }
             }
 
@@ -128,30 +152,29 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
 
     override val parameters: List<Any?>
         get() {
-            var result = params.map {
-                val column = it.key
-                val value = it.value
+            val result = params
+                .map {
+                    val column = it.key
+                    val value = it.value
 
-                when {
-                    (column is StringColumn &&
-                        column.type == StringColumnType.JSON &&
-                        null != value &&
-                        value !is String) ->
-                        if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
-                            typeConversion.convert(value, JsonType::class.java).value
-                        }
-                        else {
-                            value.toString()
+                    when {
+                        (column is StringColumn && column.type == StringColumnType.JSON && null != value && value !is String) -> {
+                            typeConversion.getConverter(value.javaClass, String::class.java)?.convert(value)
+                                ?: value.toString()
                         }
 
-                    value is StepValue -> value.step
+                        column is ArbitraryColumn -> Unit
 
-                    else -> value
+                        value is StepValue -> value.step
+
+                        else -> value
+                    }
                 }
-            }.toList()
+                .filterNot { it is Unit }
+                .toMutableList()
 
-            where?.let { result += it.parameters }
-            pkValue?.let { result += it }
+            where?.let { result.addAll(it.parameters) }
+            pkValue?.let { result.add(it) }
 
             return result
         }

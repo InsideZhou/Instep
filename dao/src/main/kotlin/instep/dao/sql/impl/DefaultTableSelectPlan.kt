@@ -22,7 +22,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     val whereTxt: String
         get() {
-            val txt = where?.expression?.let {
+            val txt = where?.text?.let {
                 if (it.isNotBlank()) {
                     "\nWHERE $it"
                 }
@@ -36,7 +36,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     val groupByTxt get() = groupBy.joinToString(",") { it.name }
 
-    val havingTxt get() = having?.let { "\nHAVING  ${it.expression}" } ?: ""
+    val havingTxt get() = having?.let { "\nHAVING  ${it.text}" } ?: ""
 
     val orderByTxt: String
         get() {

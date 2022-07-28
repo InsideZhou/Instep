@@ -8,7 +8,6 @@ import instep.servicecontainer.ServiceContainer
 import instep.servicecontainer.impl.MemoryServiceContainer
 import instep.typeconversion.DefaultTypeConversion
 import instep.typeconversion.TypeConversion
-import instep.typeconversion.TypeConversionException
 import kotlin.reflect.KClass
 
 @Suppress("unused")
@@ -34,16 +33,6 @@ object Instep {
     @JvmOverloads
     fun <T : Any> make(cls: Class<T>, tag: String = ""): T {
         return serviceContainer.make(cls, tag)
-    }
-
-    /**
-     * @see TypeConversion.convert
-     */
-    @Throws(TypeConversionException::class)
-    fun <From : Any, To, T : From> convert(instance: T, from: Class<From>, to: Class<To>): To {
-        make(TypeConversion::class.java).let {
-            return it.convert(instance, from, to)
-        }
     }
 
     /**

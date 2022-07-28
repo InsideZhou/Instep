@@ -3,7 +3,7 @@ package instep.dao
 import instep.dao.impl.DefaultExpression
 
 interface Expression<T : Expression<T>> {
-    val expression: String
+    val text: String
     val parameters: List<Any?>
 
     fun addParameter(placeholderName: String, parameter: Any?): T

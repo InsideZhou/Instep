@@ -2,22 +2,107 @@
 
 package instep.dao.sql
 
+import com.fasterxml.jackson.core.type.TypeReference
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule
 import instep.Instep
 import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
 import instep.dao.sql.dialect.SQLServerDialect
+import instep.typeconversion.Converter
+import instep.typeconversion.ConverterEligible
+import instep.typeconversion.TypeConversion
+import instep.util.path
+import org.postgresql.jdbc.PgArray
+import org.postgresql.util.PGobject
 import org.testng.Assert
+import org.testng.annotations.AfterClass
+import org.testng.annotations.BeforeClass
+import org.testng.annotations.Test
 import java.time.*
 import java.util.*
+import kotlin.reflect.jvm.javaField
 
+@Suppress("UNCHECKED_CAST")
 object TableTest {
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
     val birthDate: LocalDate = LocalDate.of(1993, 6, 6)
     val birthTime: LocalTime = LocalTime.of(6, 6)
     val birthday: OffsetDateTime = OffsetDateTime.of(birthDate, birthTime, ZoneOffset.UTC)
+    val objectMapper = ObjectMapper()
 
     init {
         InstepSQLTest
+        objectMapper.registerModule(JavaTimeModule())
+
+        kotlin.runCatching { Instep.make(TypeConversion::class.java) }.onSuccess {
+            it.register(object : Converter<UUID, String> {
+                override val from = UUID::class.java
+                override val to = String::class.java
+
+                override fun <T : UUID> convert(instance: T): String {
+                    return instance.toString()
+                }
+            })
+
+            it.register(object : Converter<PGobject, Map<String, Any?>> {
+                override val from = PGobject::class.java
+                override val to = Map::class.java as Class<Map<String, Any?>>
+
+                override fun <T : PGobject> convert(instance: T): Map<String, Any?> {
+                    return objectMapper.readValue(instance.value, object : TypeReference<Map<String, Any?>>() {})
+                }
+            }, Account::class.java.path(Account::preferences.javaField!!))
+
+            it.register(object : Converter<Map<String, Any?>, String> {
+                override val from = Map::class.java as Class<Map<String, Any?>>
+                override val to = String::class.java
+
+                override fun <T : Map<String, Any?>> convert(instance: T): String {
+                    return objectMapper.writeValueAsString(instance)
+                }
+            }, AccountTable.path(AccountTable.preferences))
+
+            it.register(object : Converter<PgArray, List<String>> {
+                override val from = PgArray::class.java
+                override val to = List::class.java as Class<List<String>>
+
+                override fun <T : PgArray> convert(instance: T): List<String> {
+                    return (instance.array as? Array<String>)?.let { array ->
+                        arrayListOf(*array)
+                    } ?: arrayListOf()
+                }
+            }, Account::class.java.path(Account::tags.javaField!!))
+
+            it.register(object : Converter<List<String>, String> {
+                override val from = List::class.java as Class<List<String>>
+                override val to = String::class.java
+
+                override fun <T : List<String>> convert(instance: T): String {
+                    return instance.joinToString(separator = ",", prefix = "'{", postfix = "}'::text[]") { txt ->
+                        "\"" + txt + "\""
+                    }
+                }
+            }, AccountTable.path(AccountTable.tags))
+
+            it.register(object : Converter<PGobject, List<AccountLog>> {
+                override val from = PGobject::class.java
+                override val to = List::class.java as Class<List<AccountLog>>
+
+                override fun <T : PGobject> convert(instance: T): List<AccountLog> {
+                    return objectMapper.readValue(instance.value, object : TypeReference<List<AccountLog>>() {})
+                }
+            }, Account::class.java.path(Account::logs.javaField!!))
+
+            it.register(object : Converter<List<AccountLog>, String> {
+                override val from = List::class.java as Class<List<AccountLog>>
+                override val to = String::class.java
+
+                override fun <T : List<AccountLog>> convert(instance: T): String {
+                    return "'${objectMapper.writeValueAsString(instance)}'::jsonb"
+                }
+            }, AccountTable.path(AccountTable.logs))
+        }
     }
 
     @Suppress("UNUSED_PARAMETER")
@@ -38,7 +123,28 @@ object TableTest {
         var birthTime: LocalTime? = null
         var avatar = byteArrayOf()
         var remark: String? = null
+
         var preferences = emptyMap<String, Any?>()
+            @ConverterEligible(String::class)
+            get
+            @ConverterEligible(PGobject::class)
+            set
+
+        var tags = emptyList<String>()
+            @ConverterEligible(String::class)
+            get
+            @ConverterEligible(PgArray::class)
+            set
+
+        var logs = emptyList<AccountLog>()
+            @ConverterEligible(String::class)
+            get
+            @ConverterEligible(PGobject::class)
+            set
+    }
+
+    data class AccountLog(var recordTime: Instant, var description: String) {
+        constructor() : this(Instant.now(), "")
     }
 
     abstract class AbstractTable(tableName: String, tableComment: String, dialect: Dialect) : Table(tableName, tableComment, dialect) {
@@ -69,20 +175,28 @@ object TableTest {
         }
         val avatar = lob("avatar")
         val remark = varchar("remark", 512)
+
         val preferences = json("preferences").default("'{}'::jsonb")
+        val tags = arbitrary("tags", "text[]").default("'{}'::text[]")
+        val logs = arbitrary("logs", "jsonb").default("'[]'::jsonb")
     }
 
-    @org.testng.annotations.Test
-    fun createAccountTable() {
+    @BeforeClass
+    fun init() {
         AccountTable.create().debug().execute()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["createAccountTable"], priority = 1)
+    @AfterClass()
+    fun cleanUp() {
+        AccountTable.drop().execute()
+    }
+
+    @Test
     fun addColumn() {
         AccountTable.addColumn(AccountTable.boolean("verified").default("false")).debug().execute()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["createAccountTable"])
+    @Test
     fun insertAccounts() {
         val random = Random()
         val total = random.ints(10, 100).findAny().orElse(100)
@@ -99,19 +213,21 @@ object TableTest {
                 .addValue(AccountTable.birthTime, birthTime)
                 .addValue(AccountTable.birthday, birthday)
                 .addValue(AccountTable.preferences, """{"a":1,"b":2}""")
+                .addValue(AccountTable.tags, """'{"a","b","c"}'::text[]""")
+                .addValue(AccountTable.logs, """'[{"recordTime":"${Instant.now()}","description":"你根本不是司机"}]'::jsonb""")
                 .returning()
                 .debug()
                 .execute()
         }
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun maxAccountId() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["maxAccountId"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun updateAccounts() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -126,7 +242,6 @@ object TableTest {
         var laozi = AccountTable[id]!!
         assert(laozi[AccountTable.name] == "laozi")
         assert(laozi[AccountTable.balance] == 3.33)
-
 
         AccountTable.update()
             .set(AccountTable.name, "dao de jing")
@@ -163,7 +278,7 @@ object TableTest {
         assert(laozi[AccountTable.name] == zhuangzi.name)
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["maxAccountId"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun deleteAccounts() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -172,7 +287,7 @@ object TableTest {
         assert(null == AccountTable[id])
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun datetime() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
@@ -196,19 +311,19 @@ object TableTest {
         Assert.assertThrows(UnsupportedOperationException::class.java) { account.getLocalDateTime(AccountTable.birthTime) }
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun rowToInstance() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).single()
         assert(account.id == id)
-        assert(account.birthDate == birthDate)
+        Assert.assertEquals(account.birthDate, birthDate)
         assert(account.birthTime == birthTime)
         assert(account.remark == null)
     }
 
-    @org.testng.annotations.Test(dependsOnMethods = ["insertAccounts"])
+    @Test(dependsOnMethods = ["insertAccounts"])
     fun randomRow() {
         val latest = AccountTable.select(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val idMax = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()

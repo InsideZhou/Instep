@@ -12,13 +12,15 @@ import instep.dao.sql.dialect.SQLServerDialect
 import instep.dao.sql.impl.DefaultConnectionProvider
 import net.moznion.random.string.RandomStringGenerator
 import org.testng.Assert
+import org.testng.annotations.AfterClass
+import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 object InstepSQLTest {
     val stringGenerator = RandomStringGenerator()
-    val datasourceUrl: String = System.getenv("instep.test.jdbc_url") ?: "jdbc:hsqldb:mem:instep_orm"
+    val datasourceUrl: String = System.getenv("instep.test.jdbc_url")
     val dialect = Dialect.of(datasourceUrl)
     val datasource = DruidDataSource()
 
@@ -65,6 +67,11 @@ object InstepSQLTest {
                         return this
                     }
 
+                    override fun trace() {
+                        println(msg)
+                        println(context)
+                    }
+
                     override fun debug() {
                         println(msg)
                         println(context)
@@ -79,12 +86,26 @@ object InstepSQLTest {
                         System.err.println(msg)
                         System.err.println(context)
                     }
+
+                    override fun error() {
+                        System.err.println(msg)
+                        System.err.println(context)
+                    }
                 }
             }
         }
         Instep.bind(InstepLoggerFactory::class.java, factory)
         InstepLogger.factory = factory
+    }
+
+    @BeforeClass
+    fun init() {
         TransactionTable.create().debug().execute()
+    }
+
+    @AfterClass()
+    fun cleanUp() {
+        TransactionTable.drop().execute()
     }
 
     @Test

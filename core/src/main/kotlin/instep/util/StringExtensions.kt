@@ -12,3 +12,9 @@ fun String.capitalize(locale: Locale? = null): String {
         }
     }
 }
+
+fun String.snakeToCamelCase(locale: Locale? = null): String {
+    return "_([a-zA-Z\\d])".toRegex().replace(this) {
+        it.groupValues[1].uppercase(locale ?: Locale.getDefault())
+    }
+}

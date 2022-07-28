@@ -27,7 +27,7 @@ open class DefaultTableDeletePlan(val table: Table, val params: MutableMap<Colum
                 return txt
             }
 
-            where!!.expression.let {
+            where!!.text.let {
                 if (it.isNotBlank()) {
                     txt += "WHERE $it"
                 }

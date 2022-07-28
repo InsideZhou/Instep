@@ -1,6 +1,8 @@
 package instep.dao.sql
 
 import org.testng.Assert
+import org.testng.annotations.AfterClass
+import org.testng.annotations.BeforeClass
 import java.time.Instant
 import java.util.*
 
@@ -15,7 +17,10 @@ object PaginationTest {
 
     init {
         InstepSQLTest
+    }
 
+    @BeforeClass
+    fun init() {
         PaginationTable.create().debug().execute()
 
         val random = Random()
@@ -31,6 +36,11 @@ object PaginationTest {
                 .debug()
                 .execute()
         }
+    }
+
+    @AfterClass()
+    fun cleanUp() {
+        PaginationTable.drop().execute()
     }
 
     @org.testng.annotations.Test

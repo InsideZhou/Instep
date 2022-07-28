@@ -4,6 +4,7 @@ import instep.dao.DaoException
 import instep.dao.sql.dialect.*
 import java.sql.PreparedStatement
 import java.time.temporal.Temporal
+import java.util.*
 
 /**
  * SQL dialect.
@@ -13,13 +14,17 @@ interface Dialect {
     fun createTableIfNotExists(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*>
     fun renameTable(tableName: String, newName: String): SQLPlan<*>
 
-    fun addColumn(tableName: String, column: Column<*>): SQLPlan<*>
-    fun dropColumn(tableName: String, column: Column<*>): SQLPlan<*>
+    fun dropTable(tableName: String): SQLPlan<*>
+    fun dropTableIfExists(tableName: String): SQLPlan<*>
 
-    fun renameColumn(tableName: String, column: Column<*>, oldName: String): SQLPlan<*>
 
-    fun alterColumnNotNull(tableName: String, column: Column<*>): SQLPlan<*>
-    fun alterColumnDefault(tableName: String, column: Column<*>): SQLPlan<*>
+    fun addColumn(column: Column<*>): SQLPlan<*>
+    fun dropColumn(column: Column<*>): SQLPlan<*>
+
+    fun renameColumn(column: Column<*>, oldName: String): SQLPlan<*>
+
+    fun alterColumnNotNull(column: Column<*>): SQLPlan<*>
+    fun alterColumnDefault(column: Column<*>): SQLPlan<*>
 
     fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?)
 
@@ -80,6 +85,8 @@ interface Dialect {
          * Infer dialect with given datasource url.
          */
         fun of(url: String): Dialect {
+            Objects.requireNonNull(url)
+
             val dialect = if (url.startsWith("jdbc:hsqldb", true)) {
                 HSQLDialect()
             }

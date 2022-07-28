@@ -1,3 +1,5 @@
+@file:Suppress("SortModifiers")
+
 package instep.collection
 
 import java.util.*
@@ -5,7 +7,7 @@ import java.util.*
 /**
  * Associative array.
  */
-@Suppress("unused")
+@Suppress("MemberVisibilityCanBePrivate", "unused")
 open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
     constructor(entries: Array<out Pair<Any, Any?>>, keyIgnoreCase: Boolean = false) : this(keyIgnoreCase) {
         addPairs(entries)
@@ -46,7 +48,7 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
         return elements.all { ele -> map.containsValue(ele) }
     }
 
-    operator override fun contains(element: Any?): Boolean {
+    override operator fun contains(element: Any?): Boolean {
         return map.containsValue(element)
     }
 
@@ -79,7 +81,6 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
 
         return exists.count()
     }
-
 
     operator open fun get(key: Any): Any? {
         return map[generateKey(key)]

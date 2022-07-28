@@ -3,6 +3,8 @@
 package instep.dao.sql
 
 import org.testng.Assert
+import org.testng.annotations.AfterClass
+import org.testng.annotations.BeforeClass
 import java.time.Duration
 import java.time.Instant
 
@@ -23,10 +25,15 @@ object ConditionTest {
         val createdAt = instant("created_at")
     }
 
-    init {
+    @BeforeClass
+    fun init() {
         AccountTable.create().execute()
-
         insertAccounts()
+    }
+
+    @AfterClass()
+    fun cleanUp() {
+        AccountTable.drop().execute()
     }
 
     private fun insertAccounts() {

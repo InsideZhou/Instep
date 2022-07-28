@@ -13,6 +13,8 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(ConnectionProvider::class.java).dialect)
     constructor(tableName: String) : this(tableName, "")
 
+    open fun path(column: Column<*>): String = "${tableName}.${column.name}"
+
     /**
      * for java interop.
      */
@@ -21,11 +23,11 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun boolean(name: String): BooleanColumn {
-        return BooleanColumn(name)
+        return BooleanColumn(name, this)
     }
 
     open fun char(name: String, length: Int): StringColumn {
-        return StringColumn(name, StringColumnType.Char, length)
+        return StringColumn(name, this, StringColumnType.Char, length)
     }
 
     /**
@@ -36,32 +38,32 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun varchar(name: String, length: Int): StringColumn {
-        return StringColumn(name, StringColumnType.Varchar, length)
+        return StringColumn(name, this, StringColumnType.Varchar, length)
     }
 
     @JvmOverloads
     open fun text(name: String, length: Int = 0): StringColumn {
-        return StringColumn(name, StringColumnType.Text, length)
+        return StringColumn(name, this, StringColumnType.Text, length)
     }
 
     open fun uuid(name: String): StringColumn {
-        return StringColumn(name, StringColumnType.UUID)
+        return StringColumn(name, this, StringColumnType.UUID)
     }
 
     open fun json(name: String): StringColumn {
-        return StringColumn(name, StringColumnType.JSON)
+        return StringColumn(name, this, StringColumnType.JSON)
     }
 
     open fun tinyInt(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Tiny)
+        return IntegerColumn(name, this, IntegerColumnType.Tiny)
     }
 
     open fun smallInt(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Small)
+        return IntegerColumn(name, this, IntegerColumnType.Small)
     }
 
     open fun int(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Int)
+        return IntegerColumn(name, this, IntegerColumnType.Int)
     }
 
     /**
@@ -72,7 +74,7 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun long(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Long)
+        return IntegerColumn(name, this, IntegerColumnType.Long)
     }
 
     /**
@@ -83,19 +85,19 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun autoIncrement(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Int).apply {
+        return IntegerColumn(name, this, IntegerColumnType.Int).apply {
             autoIncrement = true
         }
     }
 
     open fun autoIncrementLong(name: String): IntegerColumn {
-        return IntegerColumn(name, IntegerColumnType.Long).apply {
+        return IntegerColumn(name, this, IntegerColumnType.Long).apply {
             autoIncrement = true
         }
     }
 
     open fun float(name: String): FloatingColumn {
-        return FloatingColumn(name, FloatingColumnType.Float)
+        return FloatingColumn(name, this, FloatingColumnType.Float)
     }
 
     /**
@@ -106,7 +108,7 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun double(name: String): FloatingColumn {
-        return FloatingColumn(name, FloatingColumnType.Double)
+        return FloatingColumn(name, this, FloatingColumnType.Double)
     }
 
     /**
@@ -117,52 +119,54 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     }
 
     open fun numeric(name: String, precision: Int, scale: Int): FloatingColumn {
-        return FloatingColumn(name, FloatingColumnType.Numeric, precision, scale)
+        return FloatingColumn(name, this, FloatingColumnType.Numeric, precision, scale)
     }
 
     open fun date(name: String): DateTimeColumn {
-        return DateTimeColumn(name, DateTimeColumnType.Date)
+        return DateTimeColumn(name, this, DateTimeColumnType.Date)
     }
 
     open fun time(name: String): DateTimeColumn {
-        return DateTimeColumn(name, DateTimeColumnType.Time)
+        return DateTimeColumn(name, this, DateTimeColumnType.Time)
     }
 
     open fun datetime(name: String): DateTimeColumn {
-        return DateTimeColumn(name, DateTimeColumnType.DateTime)
+        return DateTimeColumn(name, this, DateTimeColumnType.DateTime)
     }
 
     open fun offsetDateTime(name: String): DateTimeColumn {
-        return DateTimeColumn(name, DateTimeColumnType.OffsetDateTime)
+        return DateTimeColumn(name, this, DateTimeColumnType.OffsetDateTime)
     }
 
     open fun instant(name: String): DateTimeColumn {
-        return DateTimeColumn(name, DateTimeColumnType.Instant)
+        return DateTimeColumn(name, this, DateTimeColumnType.Instant)
     }
 
     open fun bytes(name: String, length: Int): BinaryColumn {
-        return BinaryColumn(name, BinaryColumnType.Varying, length)
+        return BinaryColumn(name, this, BinaryColumnType.Varying, length)
     }
 
     @JvmOverloads
     open fun lob(name: String, length: Int = 0): BinaryColumn {
-        return BinaryColumn(name, BinaryColumnType.BLOB, length)
+        return BinaryColumn(name, this, BinaryColumnType.BLOB, length)
+    }
+
+    open fun arbitrary(name: String, definition: String): ArbitraryColumn {
+        return ArbitraryColumn(name, this, definition)
     }
 
     val columns: List<Column<*>>
         get() {
             val mirror = Instep.reflect(this)
 
-            return mirror.getPropertiesUntil(Table::class.java)
-                .filter { Column::class.java.isAssignableFrom(it.field.type) }
-                .map {
-                    if (null != it.getter) {
-                        it.getter!!.invoke(this)
-                    }
-                    else {
-                        it.field.get(this)
-                    } as Column<*>
+            return mirror.getPropertiesUntil(Table::class.java).filter { Column::class.java.isAssignableFrom(it.field.type) }.map {
+                if (null != it.getter) {
+                    it.getter!!.invoke(this)
                 }
+                else {
+                    it.field.get(this)
+                } as Column<*>
+            }
         }
 
     val primaryKey: Column<*>?
@@ -173,28 +177,33 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         return if (checkExists) dialect.createTableIfNotExists(tableName, tableComment, columns) else dialect.createTable(tableName, tableComment, columns)
     }
 
+    @JvmOverloads
+    open fun drop(checkExists: Boolean = true): SQLPlan<*> {
+        return if (checkExists) dialect.dropTableIfExists(tableName) else dialect.dropTable(tableName)
+    }
+
     open fun rename(name: String): SQLPlan<*> {
         return dialect.renameTable(tableName, name)
     }
 
     open fun addColumn(column: Column<*>): SQLPlan<*> {
-        return dialect.addColumn(tableName, column)
+        return dialect.addColumn(column)
     }
 
     open fun dropColumn(column: Column<*>): SQLPlan<*> {
-        return dialect.dropColumn(tableName, column)
+        return dialect.dropColumn(column)
     }
 
     open fun renameColumn(column: Column<*>, oldName: String): SQLPlan<*> {
-        return dialect.renameColumn(tableName, column, oldName)
+        return dialect.renameColumn(column, oldName)
     }
 
     open fun alterColumnNotNull(column: Column<*>): SQLPlan<*> {
-        return dialect.alterColumnNotNull(tableName, column)
+        return dialect.alterColumnNotNull(column)
     }
 
     open fun alterColumnDefault(column: Column<*>): SQLPlan<*> {
-        return dialect.alterColumnDefault(tableName, column)
+        return dialect.alterColumnDefault(column)
     }
 
     open fun insert(): TableInsertPlan {

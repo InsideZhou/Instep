@@ -24,14 +24,14 @@ open class Condition constructor(txt: String, vararg parameters: Any?) : Abstrac
     }
 
     private fun joinCondition(condition: Condition, word: String, grouping: Boolean = false): Condition {
-        if (condition.expression.isBlank()) return this
-        if (this.expression.isBlank()) return condition
+        if (condition.text.isBlank()) return this
+        if (this.text.isBlank()) return condition
 
         val newCondition = if (grouping) {
-            Condition("${this.expression} $word (${condition.expression})")
+            Condition("${this.text} $word (${condition.text})")
         }
         else {
-            Condition("${this.expression} $word ${condition.expression}")
+            Condition("${this.text} $word ${condition.text}")
         }
 
         newCondition.addParameters(*this.parameters.toTypedArray())

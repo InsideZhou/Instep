@@ -30,6 +30,6 @@ object ExpressionTest {
         expression.addExpression("condition", condition)
         assert(expression.parameters.size == 3)
 
-        assert(expression.expression == "name = ? AND age >= ? AND army IS NOT NULL AND elite >= ?")
+        assert(expression.text == "name = ? AND age >= ? AND army IS NOT NULL AND elite >= ?")
     }
 }

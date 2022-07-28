@@ -2,6 +2,7 @@ package instep.dao.sql
 
 import instep.ImpossibleBranch
 import instep.Instep
+import instep.collection.AssocArray
 import java.io.InputStream
 import java.math.BigDecimal
 import java.sql.Blob
@@ -228,10 +229,54 @@ class TableRow {
     }
 
     companion object {
-        val resultSetDelegate = Instep.make(ResultSetDelegate::class.java)
-        val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
+        fun createInstance(assocArray: AssocArray, table: Table, dialect: Dialect): TableRow {
+            val row = TableRow()
+            table.columns.forEach { col ->
+                val entry = assocArray.entries.find { col.name.equals(it.first.toString(), ignoreCase = true) } ?: return@forEach
+
+                row[col] = when (col) {
+                    is BooleanColumn -> entry.second as? Boolean
+
+                    is IntegerColumn -> when (col.type) {
+                        IntegerColumnType.Long -> entry.second as? Long
+                        IntegerColumnType.Int -> entry.second as? Int
+                        IntegerColumnType.Small -> entry.second as? Short
+                        IntegerColumnType.Tiny -> entry.second as? Byte
+                    }
+
+                    is StringColumn -> entry.second as? String
+
+                    is FloatingColumn -> when (col.type) {
+                        FloatingColumnType.Float -> entry.second as? Float
+                        FloatingColumnType.Double -> entry.second as? Double
+                        else -> entry.second as? BigDecimal
+                    }
+
+                    is DateTimeColumn -> when (col.type) {
+                        DateTimeColumnType.Date -> entry.second as? LocalDate
+                        DateTimeColumnType.Time -> entry.second as? LocalTime
+                        DateTimeColumnType.DateTime -> entry.second as? LocalDateTime
+                        DateTimeColumnType.OffsetDateTime -> entry.second as? OffsetDateTime
+                        DateTimeColumnType.Instant -> (entry.second as? LocalDateTime)?.toInstant(ZoneOffset.UTC)
+                    }
+
+                    is BinaryColumn -> when (col.type) {
+                        BinaryColumnType.BLOB -> entry.second as? Blob
+                        BinaryColumnType.Varying -> entry.second as? ByteArray
+                    }
+
+                    is ArbitraryColumn -> entry.second
+
+                    else -> throw ImpossibleBranch()
+                }
+            }
+
+            return row
+        }
 
         fun <T : Table> createInstance(table: T, dialect: Dialect, resultSet: ResultSet): TableRow {
+            val resultSetDelegate = Instep.make(ResultSetDelegate::class.java)
+            val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
             val row = TableRow()
             val rs = resultSetDelegate.getDelegate(dialect, resultSet)
 
@@ -240,18 +285,58 @@ class TableRow {
                 val info = columnInfoSet.find { it.label.equals(col.name, ignoreCase = true) } ?: return@forEach
 
                 row[col] = when (col) {
-                    is BooleanColumn -> rs.getBoolean(info.index)
+                    is BooleanColumn -> {
+                        val b = rs.getBoolean(info.index)
+                        if (rs.wasNull()) {
+                            null
+                        }
+                        else {
+                            b
+                        }
+                    }
 
                     is IntegerColumn -> when (col.type) {
-                        IntegerColumnType.Long -> rs.getLong(info.index)
-                        else -> rs.getInt(info.index)
+                        IntegerColumnType.Long -> {
+                            val num = rs.getLong(info.index)
+                            if (0L == num && rs.wasNull()) {
+                                null
+                            }
+                            else {
+                                num
+                            }
+                        }
+                        else -> {
+                            val num = rs.getInt(info.index)
+                            if (0 == num && rs.wasNull()) {
+                                null
+                            }
+                            else {
+                                num
+                            }
+                        }
                     }
 
                     is StringColumn -> rs.getString(info.index)
 
                     is FloatingColumn -> when (col.type) {
-                        FloatingColumnType.Float -> rs.getFloat(info.index)
-                        FloatingColumnType.Double -> rs.getDouble(info.index)
+                        FloatingColumnType.Float -> {
+                            val num = rs.getFloat(info.index)
+                            if (0f == num && rs.wasNull()) {
+                                null
+                            }
+                            else {
+                                num
+                            }
+                        }
+                        FloatingColumnType.Double -> {
+                            val num = rs.getDouble(info.index)
+                            if (0.0 == num && rs.wasNull()) {
+                                null
+                            }
+                            else {
+                                num
+                            }
+                        }
                         else -> rs.getBigDecimal(info.index)
                     }
 
@@ -266,6 +351,10 @@ class TableRow {
                     is BinaryColumn -> when (col.type) {
                         BinaryColumnType.BLOB -> rs.getBlob(info.index)
                         else -> rs.getBytes(info.index)
+                    }
+
+                    is ArbitraryColumn -> {
+                        rs.getObject(info.index)
                     }
 
                     else -> throw ImpossibleBranch()

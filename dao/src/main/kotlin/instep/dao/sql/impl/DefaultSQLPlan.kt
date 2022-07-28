@@ -15,12 +15,12 @@ class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultS
 
     override val statement: String
         get() {
-            return superExpression.expression
+            return superExpression.text
         }
 
-    override val expression: String
+    override val text: String
         get() {
-            return superExpression.expression
+            return superExpression.text
         }
 
     override fun addParameter(placeholderName: String, parameter: Any?): DefaultSQLPlan {

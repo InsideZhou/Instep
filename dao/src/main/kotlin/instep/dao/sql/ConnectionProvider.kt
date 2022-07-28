@@ -7,4 +7,8 @@ interface ConnectionProvider {
     val transactionRunner: TransactionRunner
 
     fun getConnection(): Connection
+
+    fun releaseConnection(conn: Connection) {
+        conn.close()
+    }
 }

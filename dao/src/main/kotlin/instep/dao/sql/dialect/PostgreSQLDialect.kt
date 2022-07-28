@@ -1,12 +1,20 @@
 package instep.dao.sql.dialect
 
-import instep.dao.PlaceHolder
-import instep.dao.sql.*
+import instep.Instep
+import instep.dao.sql.BinaryColumn
+import instep.dao.sql.IntegerColumn
+import instep.dao.sql.IntegerColumnType
+import instep.dao.sql.StringColumn
+import instep.typeconversion.TypeConversion
+import org.postgresql.util.PGobject
 import java.sql.Blob
+import java.sql.PreparedStatement
 import javax.sql.rowset.serial.SerialBlob
 
 
 open class PostgreSQLDialect : SeparateCommentDialect() {
+    val typeconvert = Instep.make(TypeConversion::class.java)
+
     class ResultSet(private val rs: java.sql.ResultSet) : AbstractDialect.ResultSet(rs) {
         override fun getBlob(columnIndex: Int): Blob? {
             val stream = rs.getBinaryStream(columnIndex) ?: return null
@@ -32,4 +40,15 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
     override fun definitionForJSONColumn(column: StringColumn): String = "JSONB"
 
     override fun definitionForBinaryColumn(column: BinaryColumn): String = "BYTEA"
+
+    override fun setParameterForPreparedStatement(stmt: PreparedStatement, index: Int, value: Any?) {
+        value?.let {
+            typeconvert.getConverter(value.javaClass, PGobject::class.java)?.let { converter ->
+                stmt.setObject(index, converter.convert(value))
+                return
+            }
+        }
+
+        super.setParameterForPreparedStatement(stmt, index, value)
+    }
 }

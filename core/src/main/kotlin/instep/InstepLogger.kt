@@ -12,15 +12,16 @@ interface InstepLogger {
     fun context(key: String, value: Any): InstepLogger
     fun context(key: String, lazy: () -> String): InstepLogger
 
+    fun trace()
     fun debug()
     fun info()
     fun warn()
+    fun error()
 
     companion object {
         var factory = try {
             Instep.make(InstepLoggerFactory::class.java)
-        }
-        catch (e: ServiceNotFoundException) {
+        } catch (e: ServiceNotFoundException) {
             null
         }
 
@@ -33,11 +34,15 @@ interface InstepLogger {
 
             override fun context(key: String, lazy: () -> String): InstepLogger = this
 
+            override fun trace() {}
+
             override fun debug() {}
 
             override fun info() {}
 
             override fun warn() {}
+
+            override fun error() {}
         }
 
         fun getLogger(cls: Class<*>): InstepLogger {

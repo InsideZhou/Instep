@@ -21,13 +21,13 @@ abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expressi
         }
     }
 
-    override val expression: String
+    override val text: String
         get() {
             var index = 0
 
             return rule.normalize(rule.placeholder.replace(txt) {
                 when (val param = params[index++]) {
-                    is Expression<*> -> param.expression
+                    is Expression<*> -> param.text
                     is PlaceHolder -> if (param.ignore) "" else parameterPlaceHolder
                     else -> parameterPlaceHolder
                 }

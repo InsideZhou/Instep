@@ -1,9 +1,13 @@
 package instep.dao.sql
 
 import instep.Instep
+import instep.collection.AssocArray
+import instep.dao.Expression
 import instep.dao.ExpressionFactory
 import instep.dao.sql.impl.*
 import instep.servicecontainer.ServiceNotFoundException
+import instep.typeconversion.TypeConversion
+import java.sql.ResultSet
 
 @Suppress("unused")
 object InstepSQL {
@@ -27,11 +31,22 @@ object InstepSQL {
         return runner.run(null, action)
     }
 
+    @Throws(TransactionAbortException::class)
+    fun <R> transaction(action: TransactionContext.() -> Unit) {
+        val runner = Instep.make(TransactionRunner::class.java)
+        return runner.run(null, action)
+    }
+
+    fun expression(txt: String): Expression<*> {
+        val factory = Instep.make(ExpressionFactory::class.java)
+        return factory.createInstance(txt)
+    }
+
     init {
         try {
-            Instep.make(ResultSetValueExtractor::class.java)
+            Instep.make(ResultSetColumnValueExtractor::class.java)
         } catch (e: ServiceNotFoundException) {
-            Instep.bind(ResultSetValueExtractor::class.java, DefaultResultSetValueExtractor())
+            Instep.bind(ResultSetColumnValueExtractor::class.java, DefaultResultSetColumnValueExtractor())
         }
 
         try {
@@ -104,6 +119,12 @@ object InstepSQL {
             Instep.make(ConnectionProvider::class.java)
         }.onSuccess {
             Instep.bind(TransactionRunner::class.java, it.transactionRunner)
+        }
+
+        runCatching {
+            Instep.make(TypeConversion::class.java)
+        }.onSuccess {
+            it.getConverter(ResultSet::class.java, AssocArray::class.java) ?: it.register(ResultSetToAssocArrayConverter())
         }
     }
 }

@@ -60,13 +60,13 @@ open class SQLServerDialect : SeparateCommentDialect() {
     override val pagination: instep.dao.sql.Pagination
         get() = Pagination()
 
-    override fun addColumn(tableName: String, column: Column<*>): SQLPlan<*> {
+    override fun addColumn(column: Column<*>): SQLPlan<*> {
         val columnDefinition = definitionForColumns(column)
-        return InstepSQL.plan("ALTER TABLE $tableName ADD $columnDefinition")
+        return InstepSQL.plan("ALTER TABLE ${column.table.tableName} ADD $columnDefinition")
     }
 
-    override fun dropColumn(tableName: String, column: Column<*>): SQLPlan<*> {
-        return InstepSQL.plan("ALTER TABLE $tableName DROP ${column.name}")
+    override fun dropColumn(column: Column<*>): SQLPlan<*> {
+        return InstepSQL.plan("ALTER TABLE ${column.table.tableName} DROP ${column.name}")
     }
 
     override fun definitionForBooleanColumn(column: BooleanColumn): String = "BIT"

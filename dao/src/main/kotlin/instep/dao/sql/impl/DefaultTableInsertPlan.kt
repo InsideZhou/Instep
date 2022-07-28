@@ -1,11 +1,9 @@
-
 package instep.dao.sql.impl
 
 import instep.Instep
 import instep.collection.AssocArray
 import instep.dao.DaoException
 import instep.dao.sql.*
-import instep.typeconversion.JsonType
 import instep.typeconversion.TypeConversion
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -102,13 +100,16 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
                     if (it.value == Table.DefaultInsertValue) {
                         return@map table.dialect.defaultValueForInsert
                     }
-                    else if (col is StringColumn) {
-                        if (col.type == StringColumnType.UUID) {
+
+                    when (col) {
+                        is StringColumn -> if (col.type == StringColumnType.UUID) {
                             return@map table.dialect.parameterForUUIDType
                         }
                         else if (col.type == StringColumnType.JSON) {
                             return@map table.dialect.parameterForJSONType
                         }
+
+                        is ArbitraryColumn -> return@map it.value?.toString()
                     }
 
                     "?"
@@ -139,21 +140,15 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
             val column = it.key
             val value = it.value
 
-            if (column is StringColumn &&
-                column.type == StringColumnType.JSON &&
-                null != value &&
-                value !is String
-            ) {
+            when {
+                (column is StringColumn && column.type == StringColumnType.JSON && null != value && value !is String) -> {
+                    typeConversion.getConverter(value.javaClass, String::class.java)?.convert(value)
+                        ?: value.toString()
+                }
 
-                if (typeConversion.canConvert(value.javaClass, JsonType::class.java)) {
-                    typeConversion.convert(value, JsonType::class.java).value
-                }
-                else {
-                    value.toString()
-                }
+                column is ArbitraryColumn -> Unit
+
+                else -> value
             }
-            else {
-                value
-            }
-        }
+        }.filterNot { it is Unit }
 }

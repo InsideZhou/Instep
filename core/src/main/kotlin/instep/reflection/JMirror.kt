@@ -63,15 +63,6 @@ open class JMirror<T : Any>(val type: Class<T>) {
         return pickReadableProperties(getPropertiesUntil(cls)).toSet()
     }
 
-    fun findFactoryMethodBy(cls: Class<*>): Method? {
-        return type.declaredMethods.find {
-            Modifier.isPublic(it.modifiers) &&
-                    1 == it.parameterCount &&
-                    it.parameterTypes[0].isAssignableFrom(cls) &&
-                    type.isAssignableFrom(it.returnType)
-        }
-    }
-
     fun findFactoryConstructorBy(cls: Class<*>): Constructor<*>? {
         return type.declaredConstructors.find {
             Modifier.isPublic(it.modifiers) &&

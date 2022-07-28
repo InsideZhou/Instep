@@ -9,10 +9,11 @@ plugins {
 }
 
 group = 'me.insidezhou.instep'
-version = '3.0.0'
+version = '3.1.0-SNAPSHOT'
 
 repositories {
     maven { url "https://maven.aliyun.com/repository/public" }
+    mavenCentral()
 }
 
 dependencies {
@@ -34,6 +35,7 @@ compileKotlin {
     kotlinOptions {
         useIR = true
         jvmTarget = JavaVersion.VERSION_1_8
+        freeCompilerArgs = ['-Xjvm-default=all']
     }
 }
 
