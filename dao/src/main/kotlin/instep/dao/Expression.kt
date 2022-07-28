@@ -20,6 +20,15 @@ interface ExpressionFactory {
     }
 }
 
+interface Alias<out T> {
+    var alias: String
+
+    fun alias(alias: String): T {
+        this.alias = alias
+        @Suppress("unchecked_cast") return this as T
+    }
+}
+
 class PlaceHolder(val index: Int, val name: String, var ignore: Boolean = false) {
     companion object {
 

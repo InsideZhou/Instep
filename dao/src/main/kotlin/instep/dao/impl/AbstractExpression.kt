@@ -6,10 +6,10 @@ import instep.dao.PlaceHolder
 import instep.dao.PlaceHolderRemainingException
 
 @Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
-abstract class AbstractExpression<T : Expression<T>>(val txt: String) : Expression<T> {
+abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : Expression<T> {
     @Suppress("RemoveRedundantQualifierName")
-    val rule = PlaceHolder.rule.copy()
-    val parameterPlaceHolder = PlaceHolder.parameter
+    protected val rule = PlaceHolder.rule.copy()
+    protected val parameterPlaceHolder = PlaceHolder.parameter
 
     private val params = AssocArray()
 

@@ -10,7 +10,7 @@ import instep.typeconversion.TypeConversion
 open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPlan<TableUpdatePlan>() {
     protected open val params = mutableMapOf<Column<*>, Any?>()
 
-    override var where: Condition? = null
+    override var where: Condition = Condition.empty
 
     private var pkValue: Any? = null
     private val typeConversion = Instep.make(TypeConversion::class.java)
@@ -115,7 +115,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                 }
             } "
 
-            if (null == where) {
+            if (where.text.isBlank()) {
                 pkValue?.let {
                     val column = table.primaryKey
 
@@ -130,11 +130,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                 return txt
             }
 
-            where!!.text.let {
-                if (it.isNotBlank()) {
-                    txt += "WHERE $it"
-                }
-            }
+            txt += where.text
 
             pkValue?.let {
                 val column = table.primaryKey

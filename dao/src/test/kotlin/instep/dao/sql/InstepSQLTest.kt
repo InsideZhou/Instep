@@ -138,6 +138,6 @@ object InstepSQLTest {
         }
         assert(TransactionTable[2] == null)
 
-        assert(TransactionTable.select(TransactionTable.id.count()).distinct().executeScalar().toInt() == 1)
+        assert(TransactionTable.selectExpression(TransactionTable.id.count()).distinct().executeScalar().toInt() == 1)
     }
 }

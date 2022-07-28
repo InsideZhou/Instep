@@ -9,7 +9,6 @@ import instep.dao.DaoException
  */
 @Suppress("unused", "FoldInitializerAndIfToElvis", "MemberVisibilityCanBePrivate")
 abstract class Table(val tableName: String, val tableComment: String, val dialect: Dialect) {
-
     constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(ConnectionProvider::class.java).dialect)
     constructor(tableName: String) : this(tableName, "")
 
@@ -211,9 +210,14 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         return factory.createInstance(this)
     }
 
-    open fun select(vararg columnOrAggregates: Any): TableSelectPlan {
+    open fun select(vararg columns: Column<*>): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
-        return factory.createInstance(this).select(*columnOrAggregates)
+        return factory.createInstance(this).select(*columns)
+    }
+
+    open fun selectExpression(vararg columnExpressions: ColumnExpression): TableSelectPlan {
+        val factory = Instep.make(TableSelectPlanFactory::class.java)
+        return factory.createInstance(this).selectExpression(*columnExpressions)
     }
 
     open fun update(): TableUpdatePlan {
@@ -285,12 +289,14 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
                             }
                             plan.where(pk as NumberColumn eq key).execute()
                         }
+
                         else -> plan.set(obj).whereKey(key).execute()
                     }
 
                     return
                 }
             }
+
             is String -> {
                 val existsRow = this[key]
                 if (null != existsRow) {
@@ -303,12 +309,14 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
                             }
                             plan.where(pk as StringColumn eq key).execute()
                         }
+
                         else -> plan.set(obj).whereKey(key).execute()
                     }
 
                     return
                 }
             }
+
             else -> throw ImpossibleBranch()
         }
 
@@ -324,6 +332,7 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
 
                 plan.execute()
             }
+
             else -> plan.set(obj).execute()
         }
     }

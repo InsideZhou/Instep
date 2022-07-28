@@ -49,19 +49,19 @@ infix fun <T : Temporal> DateTimeColumn.lt(value: T): Condition = this.table.dia
 infix fun <T : Temporal> DateTimeColumn.lte(value: T): Condition = this.table.dialect.lte(this, value)
 
 
-fun Column<*>.count() = "count(${name}) AS ${name}_count"
+fun Column<*>.count() = ColumnExpression("count(${name})", this, "${name}_count")
 
-fun NumberColumn<*>.sum() = "sum(${name}) AS ${name}_sum"
+fun NumberColumn<*>.sum() =ColumnExpression("sum(${name})", this, "${name}_sum")
 
-fun NumberColumn<*>.avg() = "avg(${name}) AS ${name}_avg"
+fun NumberColumn<*>.avg() = ColumnExpression("avg(${name})", this, "${name}_avg")
 
-fun NumberColumn<*>.max() = "max(${name}) AS ${name}_max"
+fun NumberColumn<*>.max() = ColumnExpression("max(${name})", this, "${name}_max")
 
-fun NumberColumn<*>.min() = "min(${name}) AS ${name}_min"
+fun NumberColumn<*>.min() = ColumnExpression("min(${name})", this, "${name}_min")
 
-fun DateTimeColumn.max() = "max(${name}) AS ${name}_max"
+fun DateTimeColumn.max() = ColumnExpression("max(${name})", this, "${name}_max")
 
-fun DateTimeColumn.min() = "min(${name}) AS ${name}_min"
+fun DateTimeColumn.min() = ColumnExpression("min(${name})", this, "${name}_min")
 
 fun Column<*>.isNull(): Condition = this.table.dialect.isNull(this)
 fun Column<*>.notNull(): Condition = this.table.dialect.isNotNull(this)

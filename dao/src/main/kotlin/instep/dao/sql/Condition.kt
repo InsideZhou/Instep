@@ -43,5 +43,7 @@ open class Condition constructor(txt: String, vararg parameters: Any?) : Abstrac
     companion object {
         const val AND = "AND"
         const val OR = "OR"
+
+        val empty = Condition("")
     }
 }

@@ -1,5 +1,8 @@
 package instep.dao.sql
 
+import instep.dao.Alias
+import instep.dao.impl.AbstractExpression
+
 @Suppress("UNCHECKED_CAST")
 abstract class Column<T : Column<T>>(val name: String, val table: Table) {
     var primary = false
@@ -53,7 +56,9 @@ class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : N
 
 class BooleanColumn(name: String, table: Table) : Column<BooleanColumn>(name, table)
 class StringColumn(name: String, table: Table, val type: StringColumnType, val length: Int = 256) : Column<StringColumn>(name, table)
-class FloatingColumn(name: String, table: Table, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) : NumberColumn<FloatingColumn>(name, table)
+class FloatingColumn(name: String, table: Table, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) :
+    NumberColumn<FloatingColumn>(name, table)
+
 class DateTimeColumn(name: String, table: Table, val type: DateTimeColumnType) : Column<DateTimeColumn>(name, table)
 class BinaryColumn(name: String, table: Table, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(name, table)
 class ArbitraryColumn(name: String, table: Table, val definition: String) : Column<ArbitraryColumn>(name, table)
@@ -79,4 +84,8 @@ enum class DateTimeColumnType {
 
 enum class BinaryColumnType {
     Varying, BLOB
+}
+
+class ColumnExpression(txt: String, val column: Column<*>?, override var alias: String) : AbstractExpression<ColumnExpression>(txt), Alias<ColumnExpression> {
+    constructor(column: Column<*>) : this(column.name, column, "")
 }
