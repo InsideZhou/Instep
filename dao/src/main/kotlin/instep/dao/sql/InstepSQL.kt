@@ -22,18 +22,18 @@ object InstepSQL {
     }
 
     fun transaction(): TransactionRunner {
-        return Instep.make(TransactionRunner::class.java)
+        return Instep.make(ConnectionProvider::class.java).transactionRunner
     }
 
     @Throws(TransactionAbortException::class)
     fun <R> transaction(action: TransactionContext.() -> R): R {
-        val runner = Instep.make(TransactionRunner::class.java)
+        val runner = Instep.make(ConnectionProvider::class.java).transactionRunner
         return runner.run(null, action)
     }
 
     @Throws(TransactionAbortException::class)
     fun <R> transaction(action: TransactionContext.() -> Unit) {
-        val runner = Instep.make(TransactionRunner::class.java)
+        val runner = Instep.make(ConnectionProvider::class.java).transactionRunner
         return runner.run(null, action)
     }
 
@@ -113,12 +113,6 @@ object InstepSQL {
             Instep.make(TableDeletePlanFactory::class.java)
         } catch (e: ServiceNotFoundException) {
             Instep.bind(TableDeletePlanFactory::class.java, TableDeletePlanFactory.Companion)
-        }
-
-        runCatching {
-            Instep.make(ConnectionProvider::class.java)
-        }.onSuccess {
-            Instep.bind(TransactionRunner::class.java, it.transactionRunner)
         }
 
         runCatching {

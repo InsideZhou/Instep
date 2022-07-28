@@ -11,7 +11,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
             select.filterNotNull().joinToString(",") {
                 when (it) {
                     is Column<*> -> it.name
-                    is Aggregate -> "${it.expression} AS ${it.alias}"
+                    is String -> it
                     else -> throw DaoException("Expression for SELECT must be Column or Aggregate, now got ${it.javaClass.name}.")
                 }
             }

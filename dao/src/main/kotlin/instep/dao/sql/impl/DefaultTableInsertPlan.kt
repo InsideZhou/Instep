@@ -125,7 +125,7 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
                     " RETURNING " + returningColumns.joinToString(",") {
                         when (it) {
                             is Column<*> -> it.name
-                            is Aggregate -> "${it.expression} AS ${it.alias}"
+                            is String -> it
                             else -> throw DaoException("Expression for RETURNING must be Column or Aggregate, now got ${it.javaClass.name}.")
                         }
                     }

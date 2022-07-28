@@ -24,13 +24,15 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     val preparedStatementGenerator: PreparedStatementGenerator,
     val typeconvert: TypeConversion,
 ) : SQLPlanExecutor<S> {
-    constructor() : this(
-        Instep.make(ConnectionProvider::class.java),
+    constructor(connectionProvider: ConnectionProvider) : this(
+        connectionProvider,
         Instep.make(ResultSetColumnValueExtractor::class.java),
         Instep.make(ResultSetDelegate::class.java),
         Instep.make(PreparedStatementGenerator::class.java),
         Instep.make(TypeConversion::class.java),
     )
+
+    constructor() : this(Instep.make(ConnectionProvider::class.java))
 
     private val logger = InstepLogger.getLogger(DefaultSQLPlanExecutor::class.java)
 
