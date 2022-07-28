@@ -169,7 +169,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                 .filterNot { it is Unit }
                 .toMutableList()
 
-            where?.let { result.addAll(it.parameters) }
+            where.let { result.addAll(it.parameters) }
             pkValue?.let { result.add(it) }
 
             return result

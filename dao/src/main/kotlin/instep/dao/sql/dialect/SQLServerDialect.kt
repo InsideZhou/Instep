@@ -23,7 +23,7 @@ open class SQLServerDialect : SeparateCommentDialect() {
     }
 
     class SelectPlan(from: Table) : DefaultTableSelectPlan(from) {
-        val noOrderByButRowsLimited get() = orderBy.isEmpty() && limit > 0
+        private val noOrderByButRowsLimited get() = orderBy.isEmpty() && limit > 0
 
         override val selectWords get() = if (noOrderByButRowsLimited) "${super.selectWords} TOP $limit" else super.selectWords
 
@@ -35,13 +35,7 @@ open class SQLServerDialect : SeparateCommentDialect() {
 
         override val parameters: List<Any?>
             get() {
-                var params = where?.parameters ?: emptyList()
-
-                val havingParams = having?.parameters
-                if (null != havingParams) {
-                    params = params + havingParams
-                }
-
+                val params = where.parameters + having.parameters
                 return if (noOrderByButRowsLimited) params else from.dialect.pagination.parameters(params, limit, offset)
             }
     }
