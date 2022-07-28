@@ -86,6 +86,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
         return this
     }
 
+    @Suppress("DuplicatedCode")
     override val statement: String
         get() {
             var txt = "UPDATE ${table.tableName} SET ${
@@ -113,34 +114,23 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                     }
 
                 }
-            } "
+            }"
 
-            if (where.text.isBlank()) {
-                pkValue?.let {
-                    val column = table.primaryKey
+            if (where.text.isBlank() && null == pkValue) return txt
 
-                    txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
-                        "WHERE ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
-                    }
-                    else {
-                        "WHERE ${table.primaryKey!!.name}=?"
-                    }
-                }
+            txt += " WHERE ${where.text}"
+            if (null == pkValue) return txt
 
-                return txt
+            if (where.text.isNotBlank()) {
+                txt += " AND "
             }
 
-            txt += where.text
-
-            pkValue?.let {
-                val column = table.primaryKey
-
-                txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
-                    " AND ${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
-                }
-                else {
-                    " AND ${table.primaryKey!!.name}=?"
-                }
+            val column = table.primaryKey
+            txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
+                "${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
+            }
+            else {
+                "${table.primaryKey!!.name}=?"
             }
 
             return txt

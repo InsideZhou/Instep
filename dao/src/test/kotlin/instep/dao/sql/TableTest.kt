@@ -283,7 +283,7 @@ object TableTest {
         val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
-        AccountTable.delete().where(AccountTable.id eq id).executeUpdate()
+        AccountTable.delete().where(AccountTable.id eq id).debug().executeUpdate()
         assert(null == AccountTable[id])
     }
 
