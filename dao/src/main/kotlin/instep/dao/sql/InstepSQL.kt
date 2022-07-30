@@ -5,6 +5,7 @@ import instep.collection.AssocArray
 import instep.dao.Expression
 import instep.dao.ExpressionFactory
 import instep.dao.sql.impl.*
+import instep.reflection.JMirror
 import instep.servicecontainer.ServiceNotFoundException
 import instep.typeconversion.TypeConversion
 import java.sql.ResultSet
@@ -40,6 +41,34 @@ object InstepSQL {
     fun expression(txt: String): Expression<*> {
         val factory = Instep.make(ExpressionFactory::class.java)
         return factory.createInstance(txt)
+    }
+
+    fun <T : Any> resultSetToInstanceByInstanceFirst(rs: ResultSet, dialect: Dialect, mirror: JMirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
+        val instance = mirror.type.getDeclaredConstructor().newInstance()
+        val resultSetDelegate = Instep.make(ResultSetDelegate::class.java).getDelegate(dialect, rs)
+        val resultSetColumnValueExtractor = Instep.make(ResultSetColumnValueExtractor::class.java)
+
+        mirror.mutableProperties.forEach { p ->
+            columnInfoSet.filter { p.field.name.equals(it.label, true) }.forEach columnLoop@{ col ->
+                p.setter.invoke(instance, resultSetColumnValueExtractor.extract(p.field.type, resultSetDelegate, col.index))
+            }
+        }
+
+        return instance
+    }
+
+    fun <T : Any> resultSetToInstanceByRowFirst(rs: ResultSet, dialect: Dialect, mirror: JMirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
+        val instance = mirror.type.getDeclaredConstructor().newInstance()
+        val resultSetDelegate = Instep.make(ResultSetDelegate::class.java).getDelegate(dialect, rs)
+        val resultSetColumnValueExtractor = Instep.make(ResultSetColumnValueExtractor::class.java)
+
+        columnInfoSet.forEach { col ->
+            mirror.mutableProperties.forEach { p ->
+                p.setter.invoke(instance, resultSetColumnValueExtractor.extract(p.field.type, resultSetDelegate, col.index))
+            }
+        }
+
+        return instance
     }
 
     init {
@@ -118,7 +147,7 @@ object InstepSQL {
         runCatching {
             Instep.make(TypeConversion::class.java)
         }.onSuccess {
-            it.getConverter(ResultSet::class.java, AssocArray::class.java) ?: it.register(ResultSetToAssocArrayConverter())
+            it.getConverter(ResultSet::class.java, AssocArray::class.java) ?: it.register(ResultSetToDataRowConverter())
         }
     }
 }

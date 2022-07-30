@@ -1,0 +1,1163 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. See https://docs.gradle.org/7.4.2/userguide/gradle_daemon.html#sec:disabling_the_daemon.
+Daemon will be stopped at the end of the build 
+> Task :buildSrc:extractPluginRequests UP-TO-DATE
+> Task :buildSrc:generatePluginAdapters UP-TO-DATE
+> Task :buildSrc:compileJava UP-TO-DATE
+> Task :buildSrc:compileGroovy NO-SOURCE
+> Task :buildSrc:compileGroovyPlugins UP-TO-DATE
+> Task :buildSrc:pluginDescriptors UP-TO-DATE
+> Task :buildSrc:processResources UP-TO-DATE
+> Task :buildSrc:classes UP-TO-DATE
+> Task :buildSrc:jar UP-TO-DATE
+> Task :buildSrc:assemble UP-TO-DATE
+> Task :buildSrc:pluginUnderTestMetadata UP-TO-DATE
+> Task :buildSrc:compileTestJava NO-SOURCE
+> Task :buildSrc:compileTestGroovy NO-SOURCE
+> Task :buildSrc:processTestResources NO-SOURCE
+> Task :buildSrc:testClasses UP-TO-DATE
+> Task :buildSrc:test NO-SOURCE
+> Task :buildSrc:validatePlugins UP-TO-DATE
+> Task :buildSrc:check UP-TO-DATE
+> Task :buildSrc:build UP-TO-DATE
+
+> Task :dao:dependencies
+
+------------------------------------------------------------
+Project ':dao'
+------------------------------------------------------------
+
+annotationProcessor - Annotation processors and their dependencies for source set 'main'.
+No dependencies
+
+api - API dependencies for compilation 'main' (target  (jvm)). (n)
+\--- project core (n)
+
+apiDependenciesMetadata
+\--- project :core
+
+apiElements - API elements for main. (n)
+No dependencies
+
+apiElements-published (n)
+No dependencies
+
+archives - Configuration for archive artifacts. (n)
+No dependencies
+
+compileClasspath - Compile classpath for compilation 'main' (target  (jvm)).
++--- project :core
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    \--- org.jetbrains:annotations:13.0
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
+\--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
+
+compileOnly - Compile only dependencies for compilation 'main' (target  (jvm)). (n)
+No dependencies
+
+compileOnlyApi - Compile only API dependencies for source set 'main'. (n)
+No dependencies
+
+compileOnlyDependenciesMetadata
+No dependencies
+
+default - Configuration for default artifacts. (n)
+No dependencies
+
+dokkaGfmPartialPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaGfmPartialRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaGfmPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaGfmRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaHtmlPartialPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaHtmlPartialRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaHtmlPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaHtmlRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJavadocPartialPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJavadocPartialRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJavadocPlugin
++--- org.jetbrains.dokka:dokka-base:1.6.21
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    |    |    \--- org.jetbrains:annotations:13.0
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+|    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+|    +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+|    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+|    |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+|    |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+|    |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+|    |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+|    |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+|    |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+|    +--- org.jsoup:jsoup:1.14.3
+|    +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+|    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+|    |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+|    |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+|    |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+|    |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+|    |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+|    |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+|    |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+|    |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+|    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+|    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+|    |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+|    +--- org.freemarker:freemarker:2.3.31
+|    +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+|    |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+|    \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+|         +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+|         +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+|         \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+\--- org.jetbrains.dokka:javadoc-plugin:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21 (*)
+     +--- com.soywiz.korlibs.korte:korte-jvm:2.4.6
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.5.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.31 -> 1.6.21
+     +--- org.jetbrains.dokka:dokka-base:1.6.21 (*)
+     +--- org.jetbrains.dokka:kotlin-as-java-plugin:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21 (*)
+     |    \--- org.jetbrains.dokka:dokka-base:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3 (*)
+     \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (*)
+
+dokkaJavadocRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJekyllPartialPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJekyllPartialRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJekyllPlugin
+\--- org.jetbrains.dokka:dokka-base:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |    \--- org.jetbrains:annotations:13.0
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.freemarker:freemarker:2.3.31
+     +--- org.jetbrains.kotlinx:kotlinx-html-jvm:0.7.3
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.4.31 -> 1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.4.31 -> 1.6.21
+     \--- org.jetbrains.dokka:dokka-analysis:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-intellij:1.6.21
+          +--- org.jetbrains.dokka:kotlin-analysis-compiler:1.6.21
+          \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaJekyllRuntime
+\--- org.jetbrains.dokka:dokka-core:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |         \--- org.jetbrains:annotations:13.0
+     +--- org.jsoup:jsoup:1.14.3
+     +--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4 (c)
+     |    |    |         +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4 (c)
+     |    |    |         \--- com.fasterxml.jackson.module:jackson-module-kotlin:2.12.4 (c)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4
+     |    |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- org.jetbrains.kotlin:kotlin-reflect:1.4.21 -> 1.6.21 (*)
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- com.fasterxml.jackson.dataformat:jackson-dataformat-xml:2.12.4
+     |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    +--- com.fasterxml.jackson.module:jackson-module-jaxb-annotations:2.12.4
+     |    |    +--- com.fasterxml.jackson.core:jackson-annotations:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-core:2.12.4 (*)
+     |    |    +--- com.fasterxml.jackson.core:jackson-databind:2.12.4 (*)
+     |    |    +--- jakarta.xml.bind:jakarta.xml.bind-api:2.3.2
+     |    |    |    \--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    +--- jakarta.activation:jakarta.activation-api:1.2.1
+     |    |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     |    +--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    +--- com.fasterxml.woodstox:woodstox-core:6.2.4
+     |    |    \--- org.codehaus.woodstox:stax2-api:4.2.1
+     |    \--- com.fasterxml.jackson:jackson-bom:2.12.4 (*)
+     +--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0
+     |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0
+     |         +--- org.jetbrains.kotlinx:kotlinx-coroutines-bom:1.6.0
+     |         |    +--- org.jetbrains.kotlinx:kotlinx-coroutines-core-jvm:1.6.0 (c)
+     |         |    \--- org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0 (c)
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.0 -> 1.6.21
+     |         |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         |    \--- org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.6.21
+     |         |         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.0 -> 1.6.21
+     +--- org.jetbrains:markdown:0.2.4
+     |    \--- org.jetbrains:markdown-jvm:0.2.4
+     |         +--- org.jetbrains.kotlin:kotlin-stdlib:1.5.0 -> 1.6.21 (*)
+     |         \--- org.jetbrains.kotlin:kotlin-stdlib-common:1.5.0 -> 1.6.21
+     \--- org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.6.21 (*)
+
+dokkaPlugin
+No dependencies
+
+dokkaRuntime
+No dependencies
+
+implementation - Implementation only dependencies for compilation 'main' (target  (jvm)). (n)
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (n)
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21 (n)
++--- org.postgresql:postgresql:42.2.2 (n)
+\--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8 (n)
+
+implementationDependenciesMetadata
++--- project :core
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    \--- org.jetbrains:annotations:13.0
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
+\--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
+
+intransitiveDependenciesMetadata
+No dependencies
+
+kotlinCompilerClasspath
+\--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    \--- org.jetbrains:annotations:13.0
+     +--- org.jetbrains.kotlin:kotlin-script-runtime:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     +--- org.jetbrains.kotlin:kotlin-daemon-embeddable:1.6.21
+     +--- org.jetbrains.intellij.deps:trove4j:1.0.20200330
+     \--- net.java.dev.jna:jna:5.6.0
+
+kotlinCompilerPluginClasspath
+No dependencies
+
+kotlinCompilerPluginClasspathMain - Kotlin compiler plugins for compilation 'main' (target  (jvm))
+\--- org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-scripting-common:1.6.21
+     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |         \--- org.jetbrains:annotations:13.0
+     |    +--- org.jetbrains.kotlin:kotlin-scripting-jvm:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-script-runtime:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |    |    \--- org.jetbrains.kotlin:kotlin-scripting-common:1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+
+kotlinCompilerPluginClasspathTest - Kotlin compiler plugins for compilation 'test' (target  (jvm))
+\--- org.jetbrains.kotlin:kotlin-scripting-compiler-embeddable:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-scripting-compiler-impl-embeddable:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-scripting-common:1.6.21
+     |    |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    |         +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    |         \--- org.jetbrains:annotations:13.0
+     |    +--- org.jetbrains.kotlin:kotlin-scripting-jvm:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-script-runtime:1.6.21
+     |    |    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     |    |    \--- org.jetbrains.kotlin:kotlin-scripting-common:1.6.21 (*)
+     |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+     \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+
+kotlinKlibCommonizerClasspath
+\--- org.jetbrains.kotlin:kotlin-klib-commonizer-embeddable:1.6.21
+     +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+     |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+     |    \--- org.jetbrains:annotations:13.0
+     \--- org.jetbrains.kotlin:kotlin-compiler-embeddable:1.6.21
+          +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+          +--- org.jetbrains.kotlin:kotlin-script-runtime:1.6.21
+          +--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+          |    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
+          +--- org.jetbrains.kotlin:kotlin-daemon-embeddable:1.6.21
+          +--- org.jetbrains.intellij.deps:trove4j:1.0.20200330
+          \--- net.java.dev.jna:jna:5.6.0
+
+kotlinNativeCompilerPluginClasspath
+No dependencies
+
+kotlinScriptDef - Script filename extensions discovery classpath configuration
+No dependencies
+
+kotlinScriptDefExtensions
+No dependencies
+
+mainSourceElements - List of source directories contained in the Main SourceSet. (n)
+No dependencies
+
+runtimeClasspath - Runtime classpath of compilation 'main' (target  (jvm)).
++--- project :core
+|    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    |    \--- org.jetbrains:annotations:13.0
+|    \--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
+\--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
+
+runtimeElements - Elements of runtime for main. (n)
+No dependencies
+
+runtimeElements-published (n)
+No dependencies
+
+runtimeOnly - Runtime only dependencies for compilation 'main' (target  (jvm)). (n)
+No dependencies
+
+runtimeOnlyDependenciesMetadata
+No dependencies
+
+signatures
+No dependencies
+
+sourceArtifacts (n)
+No dependencies
+
+testAnnotationProcessor - Annotation processors and their dependencies for source set 'test'.
+No dependencies
+
+testApi - API dependencies for compilation 'test' (target  (jvm)). (n)
+No dependencies
+
+testApiDependenciesMetadata
+No dependencies
+
+testCompileClasspath - Compile classpath for compilation 'test' (target  (jvm)).
++--- project :core
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    \--- org.jetbrains:annotations:13.0
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
++--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
++--- org.testng:testng:6.9.13
+|    +--- com.beust:jcommander:1.48
+|    +--- com.google.inject:guice:4.1.0
+|    |    +--- javax.inject:javax.inject:1
+|    |    +--- aopalliance:aopalliance:1.0
+|    |    \--- com.google.guava:guava:19.0
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.apache.ant:ant:1.9.7
+|    |    \--- org.apache.ant:ant-launcher:1.9.7
+|    +--- org.beanshell:bsh:2.0b4
+|    \--- org.yaml:snakeyaml:1.17
++--- com.alibaba:druid:1.0.31
++--- net.moznion:random-string:1.1.0
++--- com.fasterxml.jackson.core:jackson-databind:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3
+|    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (c)
+|    |         \--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3 (c)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.h2database:h2:1.4.197
++--- org.hsqldb:hsqldb:2.4.1
+\--- mysql:mysql-connector-java:6.0.6
+
+testCompileOnly - Compile only dependencies for compilation 'test' (target  (jvm)). (n)
+No dependencies
+
+testCompileOnlyDependenciesMetadata
+No dependencies
+
+testImplementation - Implementation only dependencies for compilation 'test' (target  (jvm)). (n)
++--- org.testng:testng:6.9.13 (n)
++--- com.alibaba:druid:1.0.31 (n)
++--- net.moznion:random-string:1.1.0 (n)
++--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (n)
++--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3 (n)
++--- com.h2database:h2:1.4.197 (n)
++--- org.hsqldb:hsqldb:2.4.1 (n)
+\--- mysql:mysql-connector-java:6.0.6 (n)
+
+testImplementationDependenciesMetadata
++--- project :core
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    \--- org.jetbrains:annotations:13.0
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|    \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
++--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
++--- org.testng:testng:6.9.13
+|    +--- com.beust:jcommander:1.48
+|    +--- com.google.inject:guice:4.1.0
+|    |    +--- javax.inject:javax.inject:1
+|    |    +--- aopalliance:aopalliance:1.0
+|    |    \--- com.google.guava:guava:19.0
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.apache.ant:ant:1.9.7
+|    |    \--- org.apache.ant:ant-launcher:1.9.7
+|    +--- org.beanshell:bsh:2.0b4
+|    \--- org.yaml:snakeyaml:1.17
++--- com.alibaba:druid:1.0.31
++--- net.moznion:random-string:1.1.0
++--- com.fasterxml.jackson.core:jackson-databind:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3
+|    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (c)
+|    |         \--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3 (c)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.h2database:h2:1.4.197
++--- org.hsqldb:hsqldb:2.4.1
+\--- mysql:mysql-connector-java:6.0.6
+
+testIntransitiveDependenciesMetadata
+No dependencies
+
+testKotlinScriptDef - Script filename extensions discovery classpath configuration
+No dependencies
+
+testKotlinScriptDefExtensions
+No dependencies
+
+testResultsElementsForTest - Directory containing binary results of running tests for the test Test Suite's test target. (n)
+No dependencies
+
+testRuntimeClasspath - Runtime classpath of compilation 'test' (target  (jvm)).
++--- project :core
+|    +--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21
+|    |    +--- org.jetbrains.kotlin:kotlin-stdlib-common:1.6.21
+|    |    \--- org.jetbrains:annotations:13.0
+|    \--- org.jetbrains.kotlin:kotlin-reflect:1.6.21
+|         \--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.jetbrains.kotlin:kotlin-stdlib:1.6.21 (*)
++--- org.jetbrains.kotlin:kotlin-reflect:1.6.21 (*)
++--- org.postgresql:postgresql:42.2.2
++--- com.microsoft.sqlserver:mssql-jdbc:7.4.1.jre8
++--- org.testng:testng:6.9.13
+|    +--- com.beust:jcommander:1.48
+|    +--- com.google.inject:guice:4.1.0
+|    |    +--- javax.inject:javax.inject:1
+|    |    +--- aopalliance:aopalliance:1.0
+|    |    \--- com.google.guava:guava:19.0
+|    +--- junit:junit:4.12
+|    |    \--- org.hamcrest:hamcrest-core:1.3
+|    +--- org.apache.ant:ant:1.9.7
+|    |    \--- org.apache.ant:ant-launcher:1.9.7
+|    +--- org.beanshell:bsh:2.0b4
+|    \--- org.yaml:snakeyaml:1.17
++--- com.alibaba:druid:1.0.31
++--- net.moznion:random-string:1.1.0
++--- com.fasterxml.jackson.core:jackson-databind:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3
+|    |         +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (c)
+|    |         +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (c)
+|    |         \--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3 (c)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3
+|    |    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.3
+|    +--- com.fasterxml.jackson.core:jackson-annotations:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-core:2.13.3 (*)
+|    +--- com.fasterxml.jackson.core:jackson-databind:2.13.3 (*)
+|    \--- com.fasterxml.jackson:jackson-bom:2.13.3 (*)
++--- com.h2database:h2:1.4.197
++--- org.hsqldb:hsqldb:2.4.1
+\--- mysql:mysql-connector-java:6.0.6
+
+testRuntimeOnly - Runtime only dependencies for compilation 'test' (target  (jvm)). (n)
+No dependencies
+
+testRuntimeOnlyDependenciesMetadata
+No dependencies
+
+(c) - dependency constraint
+(*) - dependencies omitted (listed previously)
+
+(n) - Not resolved (configuration is not meant to be resolved)
+
+A web-based, searchable dependency report is available by adding the --scan option.
+
+BUILD SUCCESSFUL in 10s
+10 actionable tasks: 1 executed, 9 up-to-date

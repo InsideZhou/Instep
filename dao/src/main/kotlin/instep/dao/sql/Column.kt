@@ -1,8 +1,5 @@
 package instep.dao.sql
 
-import instep.dao.Alias
-import instep.dao.impl.AbstractExpression
-
 @Suppress("UNCHECKED_CAST")
 abstract class Column<T : Column<T>>(val name: String, val table: Table) {
     var primary = false
@@ -84,8 +81,4 @@ enum class DateTimeColumnType {
 
 enum class BinaryColumnType {
     Varying, BLOB
-}
-
-class ColumnExpression(txt: String, val column: Column<*>?, override var alias: String) : AbstractExpression<ColumnExpression>(txt), Alias<ColumnExpression> {
-    constructor(column: Column<*>) : this(column.name, column, "")
 }

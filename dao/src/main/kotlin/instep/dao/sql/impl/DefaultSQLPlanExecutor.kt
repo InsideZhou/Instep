@@ -2,7 +2,6 @@ package instep.dao.sql.impl
 
 import instep.Instep
 import instep.InstepLogger
-import instep.collection.AssocArray
 import instep.dao.sql.*
 import instep.typeconversion.Converter
 import instep.typeconversion.ConverterEligible
@@ -44,8 +43,6 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
 
             if (plan.subPlans.isNotEmpty()) {
                 plan.subPlans.forEach {
-                    it.debug()
-
                     execute(it as S)
                 }
             }
@@ -122,9 +119,9 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         val conn = connectionProvider.getConnection()
         val dataRows = try {
             val rs = executeResultSet(conn, plan)
-            val dataRows = mutableListOf<AssocArray>()
+            val dataRows = mutableListOf<DataRow>()
 
-            typeconvert.getConverter(ResultSet::class.java, AssocArray::class.java)!!.let { converter ->
+            typeconvert.getConverter(ResultSet::class.java, DataRow::class.java)!!.let { converter ->
                 while (rs.next()) {
                     dataRows.add(converter.convert(rs))
                 }
@@ -138,11 +135,11 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             connectionProvider.releaseConnection(conn)
         }
 
-        if (cls.isAssignableFrom(AssocArray::class.java)) {
+        if (cls.isAssignableFrom(DataRow::class.java)) {
             return dataRows.map { it as T }
         }
 
-        typeconvert.getConverter(AssocArray::class.java, cls)?.let { converter ->
+        typeconvert.getConverter(DataRow::class.java, cls)?.let { converter ->
             return dataRows.map { converter.convert(it) }
         }
 

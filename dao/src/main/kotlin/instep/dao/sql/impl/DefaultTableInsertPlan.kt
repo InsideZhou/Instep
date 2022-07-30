@@ -23,7 +23,7 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
     }
 
     override fun addValue(column: Column<*>, value: Any?): TableInsertPlan {
-        if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
+        if (column.table != table) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
 
         setValue(column, value)
 

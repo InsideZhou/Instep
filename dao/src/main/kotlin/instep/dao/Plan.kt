@@ -16,6 +16,12 @@ interface Plan<T : Plan<T>> {
     val parameters: List<Any?>
 
     @Suppress("UNCHECKED_CAST")
+    fun trace(): T {
+        logger.message(statement).context("parameters") { parameterToLogFormat() }.trace()
+        return this as T
+    }
+
+    @Suppress("UNCHECKED_CAST")
     fun debug(): T {
         logger.message(statement).context("parameters") { parameterToLogFormat() }.debug()
         return this as T

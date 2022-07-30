@@ -23,7 +23,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
     }
 
     private fun assertColumnBelongToMe(column: Column<*>) {
-        if (table.columns.none { it == column }) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
+        if (column.table != table) throw DaoException("Column ${column.name} should belong to Table ${table.tableName}")
     }
 
     override fun set(column: Column<*>, value: Any?): TableUpdatePlan {

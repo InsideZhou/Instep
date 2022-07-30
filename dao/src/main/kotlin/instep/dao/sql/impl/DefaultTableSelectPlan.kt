@@ -34,14 +34,16 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
     protected open val joinTxt: String
         get() {
             val txt = join.joinToString("\n") {
-                val joinType = joinTypeToStr(it.joinType)
+                var item = "${joinTypeToStr(it.joinType)} ${it.text}"
 
-                if (it.alias.isBlank()) {
-                    "$joinType ${it.text}"
+                if (it.alias.isNotBlank()) {
+                    item += " AS ${it.alias}"
                 }
-                else {
-                    "$joinType ${it.text} AS ${it.alias}"
-                }
+
+                item += " ON ${it.condition.text}"
+
+
+                return@joinToString item
             }
 
             return if (txt.isEmpty()) "" else "\n$txt"
@@ -96,11 +98,11 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     override val parameters: List<Any?>
         get() {
-            val params = join.flatMap { it.parameters } + where.parameters + having.parameters
+            val params = join.flatMap { it.parameters + it.condition.parameters } + where.parameters + having.parameters
             return from.dialect.pagination.parameters(params, limit, offset)
         }
 
-    override var select = emptyList<ColumnExpression>()
+    override var select = emptyList<SelectExpression>()
 
     override var distinct: Boolean = false
 
@@ -120,8 +122,8 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     override var alias: String = ""
 
-    override fun selectExpression(vararg columnExpressions: ColumnExpression): TableSelectPlan {
-        this.select += columnExpressions.toList()
+    override fun selectExpression(vararg selectExpression: SelectExpression): TableSelectPlan {
+        this.select += selectExpression.toList()
         return this
     }
 
@@ -166,19 +168,28 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
         return this
     }
 
-    override fun leftJoin(table: Table): TableSelectPlan {
-        return join(TableFromItem(JoinType.Left, table))
+    override fun join(from: Column<*>, to: Column<*>): TableSelectPlan {
+        val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
+        return join(TableFromItem(JoinType.Inner, from, "${from.table.tableName}_${join.size}", condition))
     }
 
-    override fun join(table: Table): TableSelectPlan {
-        return join(TableFromItem(JoinType.Inner, table))
+    override fun join(to: Column<*>): TableSelectPlan {
+        val from = this.from.primaryKey ?: throw IllegalArgumentException("primary column required as join from")
+        return join(from, to)
     }
 
-    override fun rightJoin(table: Table): TableSelectPlan {
-        return join(TableFromItem(JoinType.Right, table))
+    override fun leftJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
+        val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
+        return join(TableFromItem(JoinType.Left, from, "${from.table.tableName}_${join.size}", condition))
     }
 
-    override fun outerJoin(table: Table): TableSelectPlan {
-        return join(TableFromItem(JoinType.Outer, table))
+    override fun rightJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
+        val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
+        return join(TableFromItem(JoinType.Right, from, "${from.table.tableName}_${join.size}", condition))
+    }
+
+    override fun outerJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
+        val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
+        return join(TableFromItem(JoinType.Outer, from, "${from.table.tableName}_${join.size}", condition))
     }
 }

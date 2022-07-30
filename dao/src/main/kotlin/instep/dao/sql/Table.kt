@@ -210,14 +210,20 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         return factory.createInstance(this)
     }
 
+    open fun selectAll(vararg exception: Column<*>): TableSelectPlan {
+        val factory = Instep.make(TableSelectPlanFactory::class.java)
+        val cols = this.columns.dropWhile { exception.contains(it) }
+        return factory.createInstance(this).select(*cols.toTypedArray())
+    }
+
     open fun select(vararg columns: Column<*>): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
         return factory.createInstance(this).select(*columns)
     }
 
-    open fun selectExpression(vararg columnExpressions: ColumnExpression): TableSelectPlan {
+    open fun selectExpression(vararg selectExpression: SelectExpression): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
-        return factory.createInstance(this).selectExpression(*columnExpressions)
+        return factory.createInstance(this).selectExpression(*selectExpression)
     }
 
     open fun update(): TableUpdatePlan {

@@ -7,7 +7,8 @@ import java.sql.Connection
 import java.sql.ResultSet
 
 @Suppress("UNCHECKED_CAST")
-val planExecutor = Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<SQLPlan<*>>
+val planExecutor: SQLPlanExecutor<SQLPlan<*>>
+    get() = Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<SQLPlan<*>>
 
 /**
  * @see [SQLPlanExecutor.execute]
@@ -15,6 +16,14 @@ val planExecutor = Instep.make(SQLPlanExecutor::class.java) as SQLPlanExecutor<S
 @Throws(SQLPlanExecutionException::class)
 fun SQLPlan<*>.execute() {
     planExecutor.execute(this)
+}
+
+/**
+ * @see [SQLPlanExecutor.executeDataRow]
+ */
+@Throws(SQLPlanExecutionException::class)
+fun SQLPlan<*>.executeDataRow(): List<DataRow> {
+    return planExecutor.executeDataRow(this)
 }
 
 /**

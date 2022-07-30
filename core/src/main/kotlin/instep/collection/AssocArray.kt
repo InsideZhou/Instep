@@ -37,7 +37,6 @@ open class AssocArray(val keyIgnoreCase: Boolean = false) : Collection<Any?> {
         }
     }
 
-    @Suppress("IMPLICIT_CAST_TO_ANY")
     val entries: Set<Pair<Any, Any?>>
         get() = map.map { (if (it.key.usingInt) it.key.intKey else it.key.stringKey) to it.value }.toSet()
 
@@ -144,8 +143,7 @@ class AAKey private constructor() : Any() {
         try {
             intKey = key.toInt()
             usingInt = true
-        }
-        catch (e: NumberFormatException) {
+        } catch (e: NumberFormatException) {
             stringKey = key
         }
     }

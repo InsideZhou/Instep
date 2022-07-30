@@ -22,4 +22,9 @@ interface SQLPlanExecutor<S : SQLPlan<*>> : PlanExecutor<S> {
 
     @Throws(SQLPlanExecutionException::class)
     fun executeResultSet(conn: Connection, plan: S): ResultSet
+
+    @Throws(SQLPlanExecutionException::class)
+    fun executeDataRow(plan: S): List<DataRow> {
+        return execute(plan, DataRow::class.java)
+    }
 }
