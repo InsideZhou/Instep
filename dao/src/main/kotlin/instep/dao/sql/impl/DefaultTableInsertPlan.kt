@@ -102,17 +102,9 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
                     }
 
                     when (col) {
-                        is StringColumn -> if (col.type == StringColumnType.UUID) {
-                            return@map table.dialect.parameterForUUIDType
-                        }
-                        else if (col.type == StringColumnType.JSON) {
-                            return@map table.dialect.parameterForJSONType
-                        }
-
-                        is ArbitraryColumn -> return@map it.value?.toString()
+                        is ArbitraryColumn -> it.value?.toString()
+                        else -> table.dialect.placeholderForParameter(col)
                     }
-
-                    "?"
                 }.joinToString(",")
             })"
 

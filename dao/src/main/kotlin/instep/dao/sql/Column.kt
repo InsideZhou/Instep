@@ -2,6 +2,8 @@ package instep.dao.sql
 
 @Suppress("UNCHECKED_CAST")
 abstract class Column<T : Column<T>>(val name: String, val table: Table) {
+    val qualifiedName = "${table.tableName}.${name}"
+
     var primary = false
     var nullable = true
     var unique = false
@@ -23,7 +25,7 @@ abstract class Column<T : Column<T>>(val name: String, val table: Table) {
         return this as T
     }
 
-    fun default(exp: String): T {
+    fun defaultValue(exp: String): T {
         default = exp
         return this as T
     }
@@ -32,11 +34,6 @@ abstract class Column<T : Column<T>>(val name: String, val table: Table) {
         comment = txt
         return this as T
     }
-
-    /**
-     * for java interop.
-     */
-    fun defaultValue(exp: String): T = default(exp)
 }
 
 abstract class NumberColumn<T : Column<T>>(name: String, table: Table) : Column<T>(name, table)
@@ -44,7 +41,6 @@ abstract class NumberColumn<T : Column<T>>(name: String, table: Table) : Column<
 class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name, table) {
     var autoIncrement = false
 
-    @Suppress("unused")
     fun autoIncrement(): IntegerColumn {
         autoIncrement = true
         return this

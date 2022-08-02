@@ -1,23 +1,11 @@
 package instep.dao
 
-import instep.dao.impl.DefaultExpression
-
 interface Expression<T : Expression<T>> {
     val text: String
     val parameters: List<Any?>
 
-    fun addParameter(placeholderName: String, parameter: Any?): T
-    fun addExpression(placeHolderName: String, expression: Expression<*>?): T
-}
-
-interface ExpressionFactory {
-    fun createInstance(txt: String): Expression<*>
-
-    companion object : ExpressionFactory {
-        override fun createInstance(txt: String): Expression<*> {
-            return DefaultExpression(txt)
-        }
-    }
+    fun placeholderToParameter(placeholderName: String, parameter: Any?): T
+    fun placeholderToExpression(placeHolderName: String, expression: Expression<*>?): T
 }
 
 interface Alias<out T> {

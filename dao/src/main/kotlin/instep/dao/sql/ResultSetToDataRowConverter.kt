@@ -17,50 +17,50 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
         columnInfoSetGenerator.generate(instance.metaData).forEach { item ->
             val label = item.label
             when (item.type) {
-                Types.BOOLEAN -> row[label] =
-                    {
-                        val value = instance.getBoolean(item.index)
+                Types.BOOLEAN -> {
+                    val value = instance.getBoolean(item.index)
+                    row[label] = if (instance.wasNull()) {
+                        null
+                    }
+                    else {
+                        value
+                    }
+                }
+
+                Types.BIT, Types.TINYINT -> {
+                    val value = instance.getByte(item.index)
+                    row[label] = if (instance.wasNull()) {
+                        null
+                    }
+                    else {
+                        value
+                    }
+                }
+
+                Types.SMALLINT -> {
+                    val value = instance.getShort(item.index)
+                    row[label] = if (instance.wasNull()) {
+                        null
+                    }
+                    else {
+                        value
+                    }
+                }
+
+                Types.INTEGER -> {
+                    val value = instance.getInt(item.index)
+                    row[label] =
                         if (instance.wasNull()) {
                             null
                         }
                         else {
                             value
                         }
-                    }
-
-                Types.BIT, Types.TINYINT -> row[label] = {
-                    val value = instance.getByte(item.index)
-                    if (instance.wasNull()) {
-                        null
-                    }
-                    else {
-                        value
-                    }
                 }
 
-                Types.SMALLINT -> row[label] = {
-                    val value = instance.getShort(item.index)
-                    if (instance.wasNull()) {
-                        null
-                    }
-                    else {
-                        value
-                    }
-                }
-
-                Types.INTEGER -> row[label] = {
-                    val value = instance.getInt(item.index)
-                    if (instance.wasNull()) {
-                        null
-                    }
-                    else {
-                        value
-                    }
-                }
-
-                Types.BIGINT -> row[label] = {
+                Types.BIGINT -> {
                     val value = instance.getLong(item.index)
-                    if (instance.wasNull()) {
+                    row[label] = if (instance.wasNull()) {
                         null
                     }
                     else {
@@ -68,9 +68,9 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                     }
                 }
 
-                Types.FLOAT, Types.REAL -> row[label] = {
+                Types.FLOAT, Types.REAL -> {
                     val value = instance.getFloat(item.index)
-                    if (instance.wasNull()) {
+                    row[label] = if (instance.wasNull()) {
                         null
                     }
                     else {
@@ -78,9 +78,9 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                     }
                 }
 
-                Types.DOUBLE -> row[label] = {
+                Types.DOUBLE -> {
                     val value = instance.getDouble(item.index)
-                    if (instance.wasNull()) {
+                    row[label] = if (instance.wasNull()) {
                         null
                     }
                     else {

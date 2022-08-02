@@ -1,7 +1,10 @@
 package instep.dao.sql.impl
 
 import instep.dao.DaoException
-import instep.dao.sql.*
+import instep.dao.sql.Condition
+import instep.dao.sql.SubSQLPlan
+import instep.dao.sql.Table
+import instep.dao.sql.TableDeletePlan
 
 open class DefaultTableDeletePlan(val table: Table) : TableDeletePlan, SubSQLPlan<TableDeletePlan>() {
     override var where: Condition = Condition.empty
@@ -27,13 +30,8 @@ open class DefaultTableDeletePlan(val table: Table) : TableDeletePlan, SubSQLPla
                 txt += " AND "
             }
 
-            val column = table.primaryKey
-            txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
-                "${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
-            }
-            else {
-                "${table.primaryKey!!.name}=?"
-            }
+            val column = table.primaryKey!!
+            txt += "${column.name}=${table.dialect.placeholderForParameter(column)}"
 
             return txt
         }

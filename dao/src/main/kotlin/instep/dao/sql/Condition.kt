@@ -8,11 +8,11 @@ open class Condition constructor(txt: String, vararg parameters: Any?) : Abstrac
     }
 
     open fun and(condition: Condition): Condition {
-        return joinCondition(condition, AND)
+        return joinCondition(condition, AND, false)
     }
 
     open fun or(condition: Condition): Condition {
-        return joinCondition(condition, OR)
+        return joinCondition(condition, OR, false)
     }
 
     open fun andGroup(condition: Condition): Condition {
@@ -23,7 +23,7 @@ open class Condition constructor(txt: String, vararg parameters: Any?) : Abstrac
         return joinCondition(condition, OR, true)
     }
 
-    private fun joinCondition(condition: Condition, word: String, grouping: Boolean = false): Condition {
+    private fun joinCondition(condition: Condition, word: String, grouping: Boolean): Condition {
         if (condition.text.isBlank()) return this
         if (this.text.isBlank()) return condition
 

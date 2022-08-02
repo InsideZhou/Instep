@@ -11,7 +11,6 @@ import java.math.BigDecimal
 import java.math.BigInteger
 import java.sql.*
 import java.time.*
-import java.time.temporal.Temporal
 import java.util.*
 
 @Suppress("MemberVisibilityCanBePrivate")
@@ -61,9 +60,6 @@ abstract class AbstractDialect : Dialect {
     }
 
     override val defaultValueForInsert: String = "NULL"
-
-    override val parameterForJSONType: String = "?"
-    override val parameterForUUIDType: String = "?"
 
     override val pagination: Pagination = StandardPagination()
     override val offsetDateTimeSupported: Boolean = true
@@ -164,12 +160,15 @@ abstract class AbstractDialect : Dialect {
             is OffsetDateTime -> value.toZonedDateTime().apply {
                 stmt.setTimestamp(index, Timestamp.from(value.toInstant()), Calendar.getInstance(TimeZone.getTimeZone(zone)))
             }
+
             is InputStream -> stmt.setBinaryStream(index, value)
             is Reader -> stmt.setCharacterStream(index, value)
             is List<*> -> stmt.setObject(index, value, JDBCType.ARRAY)
             else -> stmt.setObject(index, value)
         }
     }
+
+    override fun placeholderForParameter(column: Column<*>): String = "?"
 
     protected open fun definitionForBooleanColumn(column: BooleanColumn): String = "BOOLEAN"
 
@@ -244,6 +243,7 @@ abstract class AbstractDialect : Dialect {
                 else {
                     definitionForIntegerColumn(column)
                 }
+
             is FloatingColumn -> definitionForFloatingColumn(column)
             is DateTimeColumn -> definitionForDateTimeColumn(column)
             is BinaryColumn -> definitionForBinaryColumn(column)
@@ -272,168 +272,6 @@ abstract class AbstractDialect : Dialect {
 
     protected open fun definitionForColumns(vararg columns: Column<*>): String {
         return columns.joinToString(",\n") { definitionForColumn(it) }
-    }
-
-    override fun eq(column: Column<*>, value: Any): Condition {
-        return eq(column.name, value)
-    }
-
-    override fun notEQ(column: Column<*>, value: Any): Condition {
-        return notEQ(column.name, value)
-    }
-
-    override fun isNull(column: Column<*>): Condition {
-        return isNull(column.name)
-    }
-
-    override fun isNotNull(column: Column<*>): Condition {
-        return isNotNull(column.name)
-    }
-
-    override fun isNull(column: String): Condition {
-        return Condition("$column IS NULL")
-    }
-
-    override fun isNotNull(column: String): Condition {
-        return Condition("$column IS NOT NULL")
-    }
-
-    override fun <T : Number> lt(column: NumberColumn<*>, value: T): Condition {
-        return lt(column.name, value)
-    }
-
-    override fun <T : Number> lte(column: NumberColumn<*>, value: T): Condition {
-        return lte(column.name, value)
-    }
-
-    override fun <T : Enum<*>> lt(column: IntegerColumn, value: T): Condition {
-        return lt(column.name, value)
-    }
-
-    override fun <T : Enum<*>> lte(column: IntegerColumn, value: T): Condition {
-        return lte(column.name, value)
-    }
-
-    override fun <T : Temporal> lt(column: DateTimeColumn, value: T): Condition {
-        return lt(column.name, value)
-    }
-
-    override fun <T : Temporal> lte(column: DateTimeColumn, value: T): Condition {
-        return lte(column.name, value)
-    }
-
-    override fun <T : Number> gt(column: NumberColumn<*>, value: T): Condition {
-        return gt(column.name, value)
-    }
-
-    override fun <T : Number> gte(column: NumberColumn<*>, value: T): Condition {
-        return gte(column.name, value)
-    }
-
-    override fun <T : Enum<*>> gt(column: IntegerColumn, value: T): Condition {
-        return gt(column.name, value)
-    }
-
-    override fun <T : Enum<*>> gte(column: IntegerColumn, value: T): Condition {
-        return gte(column.name, value)
-    }
-
-    override fun <T : Temporal> gt(column: DateTimeColumn, value: T): Condition {
-        return gt(column.name, value)
-    }
-
-    override fun <T : Temporal> gte(column: DateTimeColumn, value: T): Condition {
-        return gte(column.name, value)
-    }
-
-    override fun <T : Number> eq(column: String, value: T): Condition {
-        return eq(column, value as Any)
-    }
-
-    override fun <T : Number> lt(column: String, value: T): Condition {
-        return lt(column, value)
-    }
-
-    override fun <T : Number> lte(column: String, value: T): Condition {
-        return lte(column, value as Any)
-    }
-
-    override fun <T : Number> gt(column: String, value: T): Condition {
-        return gt(column, value as Any)
-    }
-
-    override fun <T : Number> gte(column: String, value: T): Condition {
-        return gte(column, value as Any)
-    }
-
-    override fun eq(column: StringColumn, value: String): Condition {
-        return when (column.type) {
-            StringColumnType.UUID -> {
-                val condition = Condition("${column.name} = $parameterForUUIDType")
-                condition.addParameters(value)
-                return condition
-            }
-            else -> eq(column.name, value)
-        }
-    }
-
-    override fun notEQ(column: StringColumn, value: String): Condition {
-        return when (column.type) {
-            StringColumnType.UUID -> {
-                val condition = Condition("${column.name} <> $parameterForUUIDType")
-                condition.addParameters(value)
-                return condition
-            }
-            else -> notEQ(column.name, value)
-        }
-    }
-
-    override fun contains(column: StringColumn, value: String): Condition {
-        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
-        condition.addParameters("%$value%")
-        return condition
-    }
-
-    override fun startsWith(column: StringColumn, value: String): Condition {
-        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
-        condition.addParameters("$value%")
-        return condition
-    }
-
-    override fun endsWith(column: StringColumn, value: String): Condition {
-        val condition = Condition("${column.name} LIKE ${PlaceHolder.parameter}")
-        condition.addParameters("%$value")
-        return condition
-    }
-
-    override fun notInArray(column: StringColumn, value: Array<String>): Condition {
-        return when (column.type) {
-            StringColumnType.UUID -> notInArray(column.name, value, parameterForUUIDType)
-            else -> notInArray(column.name, value, PlaceHolder.parameter)
-        }
-    }
-
-    override fun <T : Number> notInArray(column: NumberColumn<*>, value: Array<T>): Condition {
-        return notInArray(column.name, value, PlaceHolder.parameter)
-    }
-
-    override fun notInArray(column: IntegerColumn, value: Array<Enum<*>>): Condition {
-        return notInArray(column.name, value, PlaceHolder.parameter)
-    }
-
-    override fun inArray(column: StringColumn, value: Array<String>): Condition {
-        return when (column.type) {
-            StringColumnType.UUID -> inArray(column.name, value, parameterForUUIDType)
-            else -> inArray(column.name, value, PlaceHolder.parameter)
-        }
-    }
-
-    override fun <T : Number> inArray(column: NumberColumn<*>, value: Array<T>): Condition {
-        return inArray(column.name, value, PlaceHolder.parameter)
-    }
-
-    override fun inArray(column: IntegerColumn, value: Array<Enum<*>>): Condition {
-        return inArray(column.name, value, PlaceHolder.parameter)
     }
 
     @Suppress("DuplicatedCode")

@@ -1,14 +1,12 @@
 package instep.dao.sql.impl
 
-import instep.Instep
 import instep.dao.Expression
-import instep.dao.ExpressionFactory
+import instep.dao.impl.DefaultExpression
 import instep.dao.sql.SQLPlan
 import instep.dao.sql.SubSQLPlan
 
 class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultSQLPlan>, SubSQLPlan<DefaultSQLPlan>() {
-    private val expressionFactory = Instep.make(ExpressionFactory::class.java)
-    private val superExpression = expressionFactory.createInstance(txt)
+    private val superExpression = DefaultExpression(txt)
 
     override val parameters: List<Any?>
         get() = superExpression.parameters
@@ -23,13 +21,13 @@ class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultS
             return superExpression.text
         }
 
-    override fun addParameter(placeholderName: String, parameter: Any?): DefaultSQLPlan {
-        superExpression.addParameter(placeholderName, parameter)
+    override fun placeholderToParameter(placeholderName: String, parameter: Any?): DefaultSQLPlan {
+        superExpression.placeholderToParameter(placeholderName, parameter)
         return this
     }
 
-    override fun addExpression(placeHolderName: String, expression: Expression<*>?): DefaultSQLPlan {
-        superExpression.addExpression(placeHolderName, expression)
+    override fun placeholderToExpression(placeHolderName: String, expression: Expression<*>?): DefaultSQLPlan {
+        superExpression.placeholderToExpression(placeHolderName, expression)
         return this
     }
 }

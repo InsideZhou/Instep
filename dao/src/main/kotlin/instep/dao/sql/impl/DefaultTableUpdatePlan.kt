@@ -64,7 +64,7 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                         val getterType = p.getter.returnType
                         p.getter.getAnnotationsByType(ConverterEligible::class.java)
                             .firstNotNullOfOrNull { converterEligible ->
-                                (typeConversion.getConverter(getterType, converterEligible.type.java, table.path(col)) as? Converter<Any, Any>)
+                                (typeConversion.getConverter(getterType, converterEligible.type.java, col.qualifiedName) as? Converter<Any, Any>)
                             }
                             ?.let { converter ->
                                 params[col] = converter.convert(value)
@@ -94,15 +94,9 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                     val column = it.key
                     val value = it.value
 
-                    val standardSetClause = "${it.key.name}=?"
+                    val standardSetClause = "${column.name}=${table.dialect.placeholderForParameter(column)}"
 
                     when (column) {
-                        is StringColumn -> when (column.type) {
-                            StringColumnType.UUID -> "${it.key.name}=${table.dialect.parameterForUUIDType}"
-                            StringColumnType.JSON -> "${it.key.name}=${table.dialect.parameterForJSONType}"
-                            else -> standardSetClause
-                        }
-
                         is NumberColumn -> when (value) {
                             is StepValue -> "${it.key.name}=(${it.key.name} + ?)"
                             else -> standardSetClause
@@ -125,13 +119,8 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                 txt += " AND "
             }
 
-            val column = table.primaryKey
-            txt += if (column is StringColumn && column.type == StringColumnType.UUID) {
-                "${table.primaryKey!!.name}=${table.dialect.parameterForUUIDType}"
-            }
-            else {
-                "${table.primaryKey!!.name}=?"
-            }
+            val column = table.primaryKey!!
+            txt += "${column.name}=${table.dialect.placeholderForParameter(column)}"
 
             return txt
         }

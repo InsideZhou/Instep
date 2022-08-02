@@ -1,5 +1,6 @@
 package instep.dao.sql
 
+import org.testng.Assert
 import org.testng.annotations.AfterClass
 import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
@@ -13,21 +14,24 @@ object TableSelectPlanTest {
 
     val stringGenerator = net.moznion.random.string.RandomStringGenerator()
 
-    object AccountTable : Table("account_" + stringGenerator.generateByRegex("[a-z]{8}"), "账号表") {
+    object AccountTable : Table("account", "账号表") {
         val id = long("id").primary().autoIncrement()
         val name = varchar("name", 256).notnull()
     }
 
-    object RoleTable : Table("role_" + stringGenerator.generateByRegex("[a-z]{8}"), "角色表") {
+    object RoleTable : Table("role", "角色表") {
         val id = long("id").primary().autoIncrement()
         val name = varchar("name", 256).notnull()
     }
 
-    object AccountRoleTable : Table("role_" + stringGenerator.generateByRegex("[a-z]{8}"), "用户角色关系表") {
+    object AccountRoleTable : Table("account_role", "用户角色关系表") {
         val accountId = long("account_id").notnull()
         val roleId = long("role_id").notnull()
         val remark = varchar("remark", 256).notnull()
     }
+
+    class Account(var id: Long = 0, var name: String = "")
+    class AccountWithRoleId(var id: Long = 0, var name: String = "", var roleId: Long = 0)
 
     var account = DataRow()
     var roleA = DataRow()
@@ -81,9 +85,23 @@ object TableSelectPlanTest {
 
     @Test
     fun getAccountWithRoles() {
-        AccountTable
-            .selectAll().select(RoleTable.id)
-            .join(AccountRoleTable.accountId).join(AccountRoleTable.roleId, RoleTable.id)
+        val plan = AccountTable
+            .selectExcept()
+            .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
+            .join(AccountRoleTable.roleId, RoleTable.id)
+            .where(AccountRoleTable.accountId gt 0)
             .debug()
+
+        val dataRows = plan.executeDataRow()
+        Assert.assertEquals(dataRows.size, 2)
+
+        val accounts = plan.execute(Account::class.java)
+        Assert.assertEquals(accounts.size, 2)
+
+        val accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
+        Assert.assertEquals(accountWithRoleIdList[0].id, accountWithRoleIdList[1].id)
+        Assert.assertEquals(accountWithRoleIdList[0].name, accountWithRoleIdList[1].name)
+        Assert.assertEquals(accountWithRoleIdList[0].roleId, 1)
+        Assert.assertEquals(accountWithRoleIdList[1].roleId, 2)
     }
 }

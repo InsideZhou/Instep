@@ -11,16 +11,22 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
                 "$selectWords * FROM ${from.tableName}"
             }
             else {
-                val selectTxt = select.joinToString(",") {
-                    if (it.alias.isBlank()) {
-                        it.text
+                val selectTexts = select.joinToString(",") {
+                    var txt = if (it is ColumnSelectExpression && join.isNotEmpty()) {
+                        "${it.column.table.tableName}.${it.column.name}"
                     }
                     else {
-                        "${it.text} AS ${it.alias}"
+                        it.text
                     }
+
+                    if (it.alias.isNotBlank()) {
+                        txt += " AS ${it.alias}"
+                    }
+
+                    txt
                 }
 
-                "$selectWords $selectTxt FROM ${from.tableName}"
+                "$selectWords $selectTexts FROM ${from.tableName}"
             }
         }
 
@@ -33,19 +39,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     protected open val joinTxt: String
         get() {
-            val txt = join.joinToString("\n") {
-                var item = "${joinTypeToStr(it.joinType)} ${it.text}"
-
-                if (it.alias.isNotBlank()) {
-                    item += " AS ${it.alias}"
-                }
-
-                item += " ON ${it.condition.text}"
-
-
-                return@joinToString item
-            }
-
+            val txt = join.joinToString("\n") { "${joinTypeToStr(it.joinType)} ${it.text} ON ${it.joinCondition.text}" }
             return if (txt.isEmpty()) "" else "\n$txt"
         }
 
@@ -65,7 +59,15 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
                 ""
             }
             else {
-                val txt = groupBy.joinToString(",") { it.text }
+                val txt = groupBy.joinToString(",") {
+                    if (it.table == from) {
+                        it.name
+                    }
+                    else {
+                        it.qualifiedName
+                    }
+                }
+
                 "\nGROUP BY $txt"
             }
         }
@@ -98,7 +100,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     override val parameters: List<Any?>
         get() {
-            val params = join.flatMap { it.parameters + it.condition.parameters } + where.parameters + having.parameters
+            val params = join.flatMap { it.parameters + it.joinCondition.parameters } + where.parameters + having.parameters
             return from.dialect.pagination.parameters(params, limit, offset)
         }
 
@@ -106,11 +108,11 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     override var distinct: Boolean = false
 
-    override var join = emptyList<FromItem<*>>()
+    override var join = emptyList<JoinItem<*>>()
 
     override var where: Condition = Condition.empty
 
-    override var groupBy = emptyList<ColumnExpression>()
+    override var groupBy = emptyList<Column<*>>()
 
     override var having: Condition = Condition.empty
 
@@ -132,8 +134,8 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
         return this
     }
 
-    override fun groupBy(vararg columnExpressions: ColumnExpression): TableSelectPlan {
-        this.groupBy += columnExpressions
+    override fun groupBy(vararg columns: Column<*>): TableSelectPlan {
+        this.groupBy += columns
         return this
     }
 
@@ -163,14 +165,14 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
         return this
     }
 
-    override fun join(fromItem: FromItem<*>): TableSelectPlan {
-        this.join += listOf(fromItem)
+    override fun join(joinItem: JoinItem<*>): TableSelectPlan {
+        this.join += listOf(joinItem)
         return this
     }
 
     override fun join(from: Column<*>, to: Column<*>): TableSelectPlan {
         val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
-        return join(TableFromItem(JoinType.Inner, from, "${from.table.tableName}_${join.size}", condition))
+        return join(TableJoinItem(JoinType.Inner, to, condition))
     }
 
     override fun join(to: Column<*>): TableSelectPlan {
@@ -180,16 +182,16 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     override fun leftJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
         val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
-        return join(TableFromItem(JoinType.Left, from, "${from.table.tableName}_${join.size}", condition))
+        return join(TableJoinItem(JoinType.Left, from, condition))
     }
 
     override fun rightJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
         val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
-        return join(TableFromItem(JoinType.Right, from, "${from.table.tableName}_${join.size}", condition))
+        return join(TableJoinItem(JoinType.Right, from, condition))
     }
 
     override fun outerJoin(from: Column<*>, to: Column<*>): TableSelectPlan {
         val condition = Condition("${from.table.tableName}.${from.name} = ${to.table.tableName}.${to.name}")
-        return join(TableFromItem(JoinType.Outer, from, "${from.table.tableName}_${join.size}", condition))
+        return join(TableJoinItem(JoinType.Outer, from, condition))
     }
 }

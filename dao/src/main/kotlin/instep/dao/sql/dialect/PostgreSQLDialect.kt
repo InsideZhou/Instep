@@ -1,10 +1,7 @@
 package instep.dao.sql.dialect
 
 import instep.Instep
-import instep.dao.sql.BinaryColumn
-import instep.dao.sql.IntegerColumn
-import instep.dao.sql.IntegerColumnType
-import instep.dao.sql.StringColumn
+import instep.dao.sql.*
 import instep.typeconversion.TypeConversion
 import org.postgresql.util.PGobject
 import java.sql.Blob
@@ -30,9 +27,6 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
         else -> "SERIAL"
     }
 
-    override val parameterForJSONType: String = "?::JSONB"
-    override val parameterForUUIDType: String = "?::UUID"
-
     override val defaultValueForInsert = "DEFAULT"
 
     override fun definitionForUUIDColumn(column: StringColumn): String = "UUID"
@@ -50,5 +44,19 @@ open class PostgreSQLDialect : SeparateCommentDialect() {
         }
 
         super.setParameterForPreparedStatement(stmt, index, value)
+    }
+
+    override fun placeholderForParameter(column: Column<*>): String {
+        when (column) {
+            is StringColumn -> {
+                when (column.type) {
+                    StringColumnType.JSON -> return "?::JSONB"
+                    StringColumnType.UUID -> return "?::UUID"
+                    else -> Unit
+                }
+            }
+        }
+
+        return super.placeholderForParameter(column)
     }
 }

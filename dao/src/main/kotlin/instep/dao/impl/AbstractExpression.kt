@@ -5,16 +5,14 @@ import instep.dao.Expression
 import instep.dao.PlaceHolder
 import instep.dao.PlaceHolderRemainingException
 
-@Suppress("UNCHECKED_CAST", "MemberVisibilityCanBePrivate")
+@Suppress("UNCHECKED_CAST")
 abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : Expression<T> {
-    @Suppress("RemoveRedundantQualifierName")
-    protected val rule = PlaceHolder.rule.copy()
-    protected val parameterPlaceHolder = PlaceHolder.parameter
+    protected open val parameterPlaceHolder = PlaceHolder.parameter
 
     private val params = AssocArray()
 
     init {
-        rule.placeholder.findAll(txt).forEachIndexed { i, matchResult ->
+        PlaceHolder.rule.placeholder.findAll(txt).forEachIndexed { i, matchResult ->
             val paramName = matchResult.groupValues[1]
 
             params.add(PlaceHolder(i, paramName))
@@ -25,7 +23,7 @@ abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : 
         get() {
             var index = 0
 
-            return rule.normalize(rule.placeholder.replace(txt) {
+            return PlaceHolder.rule.normalize(PlaceHolder.rule.placeholder.replace(txt) {
                 when (val param = params[index++]) {
                     is Expression<*> -> param.text
                     is PlaceHolder -> if (param.ignore) "" else parameterPlaceHolder
@@ -44,29 +42,18 @@ abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : 
             }
         }
 
-    override fun addParameter(placeholderName: String, parameter: Any?): T {
-        params.filter { item -> item is PlaceHolder && item.name == placeholderName }
-            .mapIndexed { i, _ -> i }
-            .forEach { i -> params[i] = parameter }
-
-        return this as T
-    }
-
-    fun addParameters(vararg parameters: Any?): T {
-        if (parameters.isNotEmpty()) {
-            val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
-
-            if (remainingPlaceHolderCount > 0) {
-                throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
+    override fun placeholderToParameter(placeholderName: String, parameter: Any?): T {
+        params.mapIndexed { i, item -> Pair(i, item) }
+            .filter { pair ->
+                val item = pair.second
+                item is PlaceHolder && item.name == placeholderName
             }
-
-            params.add(*parameters)
-        }
+            .forEach { pair -> params[pair.first] = parameter }
 
         return this as T
     }
 
-    override fun addExpression(placeHolderName: String, expression: Expression<*>?): T {
+    override fun placeholderToExpression(placeHolderName: String, expression: Expression<*>?): T {
         params.mapIndexed { i, item -> Pair(i, item) }
             .filter {
                 val p = it.second
@@ -83,4 +70,20 @@ abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : 
 
         return this as T
     }
+
+    open fun addParameters(vararg parameters: Any?): T {
+        if (parameters.isNotEmpty()) {
+            val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
+
+            if (remainingPlaceHolderCount > 0) {
+                throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
+            }
+
+            params.add(*parameters)
+        }
+
+        return this as T
+    }
 }
+
+open class DefaultExpression(txt: String) : AbstractExpression<DefaultExpression>(txt)

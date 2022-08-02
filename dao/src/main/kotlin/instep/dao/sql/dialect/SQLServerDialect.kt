@@ -88,7 +88,7 @@ open class SQLServerDialect : SeparateCommentDialect() {
 
     override fun createTableIfNotExists(tableName: String, tableComment: String, columns: List<Column<*>>): SQLPlan<*> {
         val existsTableCheck = DefaultSQLPlan("SELECT name FROM sys.tables WHERE name=\${name}")
-            .addParameter("name", tableName)
+            .placeholderToParameter("name", tableName)
 
         val existsTableName = existsTableCheck.executeScalar()
         if (tableName == existsTableName) return existsTableCheck

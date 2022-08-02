@@ -12,8 +12,6 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     constructor(tableName: String, tableComment: String) : this(tableName, tableComment, Instep.make(ConnectionProvider::class.java).dialect)
     constructor(tableName: String) : this(tableName, "")
 
-    open fun path(column: Column<*>): String = "${tableName}.${column.name}"
-
     /**
      * for java interop.
      */
@@ -210,12 +208,6 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         return factory.createInstance(this)
     }
 
-    open fun selectAll(vararg exception: Column<*>): TableSelectPlan {
-        val factory = Instep.make(TableSelectPlanFactory::class.java)
-        val cols = this.columns.dropWhile { exception.contains(it) }
-        return factory.createInstance(this).select(*cols.toTypedArray())
-    }
-
     open fun select(vararg columns: Column<*>): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
         return factory.createInstance(this).select(*columns)
@@ -224,6 +216,12 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
     open fun selectExpression(vararg selectExpression: SelectExpression): TableSelectPlan {
         val factory = Instep.make(TableSelectPlanFactory::class.java)
         return factory.createInstance(this).selectExpression(*selectExpression)
+    }
+
+    open fun selectExcept(vararg exception: Column<*>): TableSelectPlan {
+        val factory = Instep.make(TableSelectPlanFactory::class.java)
+        val cols = this.columns.dropWhile { exception.contains(it) }
+        return factory.createInstance(this).select(*cols.toTypedArray())
     }
 
     open fun update(): TableUpdatePlan {

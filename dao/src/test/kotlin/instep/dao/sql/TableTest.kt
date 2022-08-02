@@ -61,7 +61,7 @@ object TableTest {
                 override fun <T : Map<String, Any?>> convert(instance: T): String {
                     return objectMapper.writeValueAsString(instance)
                 }
-            }, AccountTable.path(AccountTable.preferences))
+            }, AccountTable.preferences.qualifiedName)
 
             it.register(object : Converter<PgArray, List<String>> {
                 override val from = PgArray::class.java
@@ -83,7 +83,7 @@ object TableTest {
                         "\"" + txt + "\""
                     }
                 }
-            }, AccountTable.path(AccountTable.tags))
+            }, AccountTable.tags.qualifiedName)
 
             it.register(object : Converter<PGobject, List<AccountLog>> {
                 override val from = PGobject::class.java
@@ -101,7 +101,7 @@ object TableTest {
                 override fun <T : List<AccountLog>> convert(instance: T): String {
                     return "'${objectMapper.writeValueAsString(instance)}'::jsonb"
                 }
-            }, AccountTable.path(AccountTable.logs))
+            }, AccountTable.logs.qualifiedName)
         }
     }
 
@@ -176,9 +176,9 @@ object TableTest {
         val avatar = lob("avatar")
         val remark = varchar("remark", 512)
 
-        val preferences = json("preferences").default("'{}'::jsonb")
-        val tags = arbitrary("tags", "text[]").default("'{}'::text[]")
-        val logs = arbitrary("logs", "jsonb").default("'[]'::jsonb")
+        val preferences = json("preferences").defaultValue("'{}'::jsonb")
+        val tags = arbitrary("tags", "text[]").defaultValue("'{}'::text[]")
+        val logs = arbitrary("logs", "jsonb").defaultValue("'[]'::jsonb")
     }
 
     @BeforeClass
@@ -193,7 +193,7 @@ object TableTest {
 
     @Test
     fun addColumn() {
-        AccountTable.addColumn(AccountTable.boolean("verified").default("false")).debug().execute()
+        AccountTable.addColumn(AccountTable.boolean("verified").defaultValue("false")).debug().execute()
     }
 
     @Test

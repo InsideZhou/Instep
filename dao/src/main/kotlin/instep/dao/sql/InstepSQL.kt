@@ -2,8 +2,6 @@ package instep.dao.sql
 
 import instep.Instep
 import instep.collection.AssocArray
-import instep.dao.Expression
-import instep.dao.ExpressionFactory
 import instep.dao.sql.impl.*
 import instep.reflection.JMirror
 import instep.servicecontainer.ServiceNotFoundException
@@ -36,11 +34,6 @@ object InstepSQL {
     fun <R> transaction(action: TransactionContext.() -> Unit) {
         val runner = Instep.make(ConnectionProvider::class.java).transactionRunner
         return runner.run(null, action)
-    }
-
-    fun expression(txt: String): Expression<*> {
-        val factory = Instep.make(ExpressionFactory::class.java)
-        return factory.createInstance(txt)
     }
 
     fun <T : Any> resultSetToInstanceByInstanceFirst(rs: ResultSet, dialect: Dialect, mirror: JMirror<T>, columnInfoSet: Set<ResultSetColumnInfo>): T {
@@ -106,12 +99,6 @@ object InstepSQL {
             Instep.make(SQLPlanExecutor::class.java)
         } catch (e: ServiceNotFoundException) {
             Instep.bind(SQLPlanExecutor::class.java, DefaultSQLPlanExecutor())
-        }
-
-        try {
-            Instep.make(ExpressionFactory::class.java)
-        } catch (e: ServiceNotFoundException) {
-            Instep.bind(ExpressionFactory::class.java, ExpressionFactory.Companion)
         }
 
         try {
