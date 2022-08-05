@@ -24,14 +24,12 @@ object InstepSQL {
         return Instep.make(ConnectionProvider::class.java).transactionRunner
     }
 
-    @Throws(TransactionAbortException::class)
-    fun <R> transaction(action: TransactionContext.() -> R): R {
+    fun <R> withTransaction(action: TransactionContext.() -> R): R {
         val runner = Instep.make(ConnectionProvider::class.java).transactionRunner
-        return runner.run(null, action)
+        return runner.with(null, action)
     }
 
-    @Throws(TransactionAbortException::class)
-    fun <R> transaction(action: TransactionContext.() -> Unit) {
+    fun transaction(action: TransactionContext.() -> Unit) {
         val runner = Instep.make(ConnectionProvider::class.java).transactionRunner
         return runner.run(null, action)
     }

@@ -53,7 +53,7 @@ class DefaultConnectionProvider(private val ds: DataSource, override val dialect
     private class DefaultTransactionRunner(private val connectionProvider: ConnectionProvider) : TransactionRunner {
         private val logger = InstepLogger.getLogger(DefaultTransactionRunner::class.java)
 
-        override fun <R> run(level: Int?, action: TransactionContext.() -> R): R {
+        override fun <R> with(level: Int?, action: TransactionContext.() -> R): R {
             var transactionContext = transactionContextThreadLocal.get()
             if (null == transactionContext) {
                 val conn = connectionProvider.getConnection()
