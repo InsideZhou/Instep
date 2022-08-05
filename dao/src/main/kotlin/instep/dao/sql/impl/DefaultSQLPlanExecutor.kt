@@ -79,7 +79,7 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
 
             if (!rs.next()) return null
 
-            return resultSetColumnValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T
+            return resultSetColumnValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T?
         } catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
@@ -208,4 +208,4 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
     }
 }
 
-data class ResultSetColumnInfo(val index: Int, val label: String, val type: Int)
+data class ResultSetColumnInfo(val index: Int, val label: String, val type: Int, val typeName: String)

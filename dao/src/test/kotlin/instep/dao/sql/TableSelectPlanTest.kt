@@ -85,7 +85,7 @@ object TableSelectPlanTest {
 
     @Test
     fun getAccountWithRoles() {
-        val plan = AccountTable
+        var plan = AccountTable
             .selectExcept()
             .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
             .join(AccountRoleTable.roleId, RoleTable.id)
@@ -98,10 +98,38 @@ object TableSelectPlanTest {
         val accounts = plan.execute(Account::class.java)
         Assert.assertEquals(accounts.size, 2)
 
-        val accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
+        var accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
         Assert.assertEquals(accountWithRoleIdList[0].id, accountWithRoleIdList[1].id)
         Assert.assertEquals(accountWithRoleIdList[0].name, accountWithRoleIdList[1].name)
         Assert.assertEquals(accountWithRoleIdList[0].roleId, 1)
         Assert.assertEquals(accountWithRoleIdList[1].roleId, 2)
+
+        plan = AccountTable
+            .selectExcept()
+            .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
+            .join(AccountRoleTable.roleId, RoleTable.id)
+            .where(AccountRoleTable.accountId gt 0)
+            .orderBy(RoleTable.id.asc())
+            .limit(1)
+            .offset(1)
+            .debug()
+
+        accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
+        Assert.assertEquals(accountWithRoleIdList.size, 1)
+        Assert.assertEquals(accountWithRoleIdList[0].roleId, 2)
+    }
+
+    @Test
+    fun aggregateAccountWithRoles() {
+        val plan = AccountTable
+            .selectExpression(AccountRoleTable.accountId.count())
+            .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
+            .join(AccountRoleTable.roleId, RoleTable.id)
+            .groupBy(RoleTable.id)
+            .having(Condition("${AccountRoleTable.accountId.count().text} > ?", 0))
+            .debug()
+
+        val dataRows = plan.executeDataRow()
+        Assert.assertEquals(dataRows.size, 2)
     }
 }

@@ -7,7 +7,7 @@ import java.sql.ResultSetMetaData
 open class DefaultColumnInfoSetGenerator : ColumnInfoSetGenerator {
     override fun generate(meta: ResultSetMetaData): Set<ResultSetColumnInfo> {
         return (1..meta.columnCount).map { i ->
-            ResultSetColumnInfo(i, meta.getColumnLabel(i), meta.getColumnType(i))
+            ResultSetColumnInfo(i, meta.getColumnLabel(i), meta.getColumnType(i), meta.getColumnTypeName(i))
         }.toSet()
     }
 }

@@ -40,20 +40,20 @@ infix fun <T : Enum<*>> IntegerColumn.lte(value: T): Condition = lte(value.ordin
 infix fun <T : Enum<*>> IntegerColumn.inArray(value: Array<T>): Condition = inArray(value.map { it.ordinal }.toTypedArray())
 
 
-fun Column<*>.alias(alias: String = "") = SelectExpression(qualifiedName, if (alias.isNotBlank()) alias else "${table.tableName}_$name")
-fun Column<*>.count() = SelectExpression("count(${name})", "${name}_count")
+fun Column<*>.alias(alias: String = "") = SelectExpression(qualifiedName, alias.ifBlank { "${table.tableName}_$name" })
+fun Column<*>.count(alias: String = "") = SelectExpression("count(${qualifiedName})", alias)
 
-fun NumberColumn<*>.sum() = SelectExpression("sum(${name})", "${name}_sum")
+fun NumberColumn<*>.sum(alias: String = "") = SelectExpression("sum(${qualifiedName})", alias)
 
-fun NumberColumn<*>.avg() = SelectExpression("avg(${name})", "${name}_avg")
+fun NumberColumn<*>.avg(alias: String = "") = SelectExpression("avg(${qualifiedName})", alias)
 
-fun NumberColumn<*>.max() = SelectExpression("max(${name})", "${name}_max")
+fun NumberColumn<*>.max(alias: String = "") = SelectExpression("max(${qualifiedName})", alias)
 
-fun NumberColumn<*>.min() = SelectExpression("min(${name})", "${name}_min")
+fun NumberColumn<*>.min(alias: String = "") = SelectExpression("min(${qualifiedName})", alias)
 
-fun DateTimeColumn.max() = SelectExpression("max(${name})", "${name}_max")
+fun DateTimeColumn.max(alias: String = "") = SelectExpression("max(${qualifiedName})", alias)
 
-fun DateTimeColumn.min() = SelectExpression("min(${name})", "${name}_min")
+fun DateTimeColumn.min(alias: String = "") = SelectExpression("min(${qualifiedName})", alias)
 
 @JvmOverloads
 fun Column<*>.asc(nullFirst: Boolean = false): OrderBy {

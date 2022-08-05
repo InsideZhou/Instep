@@ -292,7 +292,7 @@ object TableTest {
         val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
         val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
 
-        val account = AccountTable.select().where(AccountTable.id eq id).execute().single()
+        val account = AccountTable.select().where(AccountTable.id eq id).debug().execute().single()
 
         Assert.assertThrows(UnsupportedOperationException::class.java) { account[AccountTable.birthDate] }
         Assert.assertThrows(UnsupportedOperationException::class.java) { account[AccountTable.birthTime] }

@@ -85,7 +85,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
     val orderByTxt: String
         get() {
             val txt = orderBy.map {
-                val result = if (it.descending) "${it.column.name} DESC" else it.column.name
+                val result = if (it.descending) "${it.column.qualifiedName} DESC" else it.column.qualifiedName
                 return@map if (it.nullFirst) "$result NULL FIRST" else result
             }.joinToString(",")
 

@@ -12,13 +12,17 @@ import java.time.OffsetDateTime
 @Suppress("unused")
 open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
     override fun <T : ResultSet> convert(instance: T): DataRow {
+        val rowMeta = instance.metaData
         val row = DataRow()
 
-        columnInfoSetGenerator.generate(instance.metaData).forEach { item ->
-            val label = item.label
-            when (item.type) {
+        (1..instance.metaData.columnCount).map { index ->
+            val label = rowMeta.getColumnLabel(index)
+            val type = rowMeta.getColumnType(index)
+            val typeName = rowMeta.getColumnTypeName(index)
+
+            when (type) {
                 Types.BOOLEAN -> {
-                    val value = instance.getBoolean(item.index)
+                    val value = instance.getBoolean(index)
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -28,7 +32,13 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.BIT, Types.TINYINT -> {
-                    val value = instance.getByte(item.index)
+                    val value = if (typeName.contains("bool", true)) {
+                        instance.getBoolean(index)
+                    }
+                    else {
+                        instance.getByte(index)
+                    }
+
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -38,7 +48,7 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.SMALLINT -> {
-                    val value = instance.getShort(item.index)
+                    val value = instance.getShort(index)
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -48,7 +58,7 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.INTEGER -> {
-                    val value = instance.getInt(item.index)
+                    val value = instance.getInt(index)
                     row[label] =
                         if (instance.wasNull()) {
                             null
@@ -59,7 +69,7 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.BIGINT -> {
-                    val value = instance.getLong(item.index)
+                    val value = instance.getLong(index)
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -69,7 +79,7 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.FLOAT, Types.REAL -> {
-                    val value = instance.getFloat(item.index)
+                    val value = instance.getFloat(index)
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -79,7 +89,7 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.DOUBLE -> {
-                    val value = instance.getDouble(item.index)
+                    val value = instance.getDouble(index)
                     row[label] = if (instance.wasNull()) {
                         null
                     }
@@ -89,34 +99,34 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
                 }
 
                 Types.DATE -> row[label] = when (instance) {
-                    is AbstractDialect.ResultSet -> instance.getLocalDate(item.index)
-                    else -> instance.getDate(item.index)?.toLocalDate()
+                    is AbstractDialect.ResultSet -> instance.getLocalDate(index)
+                    else -> instance.getDate(index)?.toLocalDate()
                 }
 
                 Types.TIME -> row[label] = when (instance) {
-                    is AbstractDialect.ResultSet -> instance.getLocalTime(item.index)
-                    else -> instance.getTime(item.index)?.toLocalTime()
+                    is AbstractDialect.ResultSet -> instance.getLocalTime(index)
+                    else -> instance.getTime(index)?.toLocalTime()
                 }
 
                 Types.TIMESTAMP -> row[label] = when (instance) {
-                    is AbstractDialect.ResultSet -> instance.getLocalDateTime(item.index)
-                    else -> instance.getTimestamp(item.index)?.toLocalDateTime()
+                    is AbstractDialect.ResultSet -> instance.getLocalDateTime(index)
+                    else -> instance.getTimestamp(index)?.toLocalDateTime()
                 }
 
                 Types.TIMESTAMP_WITH_TIMEZONE -> row[label] = when (instance) {
-                    is AbstractDialect.ResultSet -> instance.getOffsetDateTime(item.index)
-                    else -> instance.getObject(item.index, OffsetDateTime::class.java)
+                    is AbstractDialect.ResultSet -> instance.getOffsetDateTime(index)
+                    else -> instance.getObject(index, OffsetDateTime::class.java)
                 }
 
-                Types.NUMERIC, Types.DECIMAL -> row[label] = instance.getBigDecimal(item.index)
-                Types.BINARY -> row[label] = instance.getBytes(item.index)
-                Types.CHAR, Types.VARCHAR, Types.LONGVARCHAR -> row[label] = instance.getString(item.index)
-                Types.NCHAR, Types.NVARCHAR, Types.LONGNVARCHAR -> row[label] = instance.getNString(item.index)
-                Types.CLOB -> row[label] = instance.getClob(item.index)
-                Types.BLOB -> row[label] = instance.getBlob(item.index)
-                Types.ARRAY -> row[label] = instance.getArray(item.index)
+                Types.NUMERIC, Types.DECIMAL -> row[label] = instance.getBigDecimal(index)
+                Types.BINARY -> row[label] = instance.getBytes(index)
+                Types.CHAR, Types.VARCHAR, Types.LONGVARCHAR -> row[label] = instance.getString(index)
+                Types.NCHAR, Types.NVARCHAR, Types.LONGNVARCHAR -> row[label] = instance.getNString(index)
+                Types.CLOB -> row[label] = instance.getClob(index)
+                Types.BLOB -> row[label] = instance.getBlob(index)
+                Types.ARRAY -> row[label] = instance.getArray(index)
                 Types.NULL -> row[label] = null
-                else -> row[label] = instance.getObject(item.index)
+                else -> row[label] = instance.getObject(index)
             }
         }
 
@@ -130,8 +140,6 @@ open class ResultSetToDataRowConverter : Converter<ResultSet, DataRow> {
 
 
     companion object {
-        private val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
-
         init {
             val typeconvert = Instep.make(TypeConversion::class.java)
             typeconvert.getConverter(ResultSet::class.java, AssocArray::class.java) ?: typeconvert.register(ResultSetToDataRowConverter())
