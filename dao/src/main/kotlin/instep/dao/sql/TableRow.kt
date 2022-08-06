@@ -229,7 +229,7 @@ class TableRow {
     }
 
     companion object {
-        fun createInstance(assocArray: AssocArray, table: Table, dialect: Dialect): TableRow {
+        fun createInstance(assocArray: AssocArray, table: Table): TableRow {
             val row = TableRow()
             table.columns.forEach { col ->
                 val entry = assocArray.entries.find { col.name.equals(it.first.toString(), ignoreCase = true) } ?: return@forEach

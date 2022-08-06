@@ -133,13 +133,25 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                     val value = it.value
 
                     when {
-                        (column is StringColumn && column.type == StringColumnType.JSON && null != value && value !is String) -> {
-                            typeConversion.getConverter(value.javaClass, String::class.java)?.convert(value)
-                                ?: value.toString()
+                        (column is StringColumn && null != value && value !is String) -> {
+                            typeConversion.getConverter(value.javaClass, String::class.java)?.convert(value) ?: value.toString()
                         }
 
-                        column is ArbitraryColumn -> Unit
+                        column is IntegerColumn && value is String -> when (column.type) {
+                            IntegerColumnType.Tiny -> value.toByte()
+                            IntegerColumnType.Small -> value.toShort()
+                            IntegerColumnType.Int -> value.toInt()
+                            IntegerColumnType.Long -> value.toLong()
+                        }
 
+                        column is FloatingColumn && value is String -> when (column.type) {
+                            FloatingColumnType.Double -> value.toDouble()
+                            FloatingColumnType.Float -> value.toFloat()
+                            else -> value
+                        }
+
+                        column is BooleanColumn && value is String -> value.toBoolean()
+                        column is ArbitraryColumn -> Unit
                         value is StepValue -> value.step
 
                         else -> value

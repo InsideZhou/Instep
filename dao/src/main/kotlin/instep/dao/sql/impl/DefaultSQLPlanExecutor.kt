@@ -8,6 +8,8 @@ import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
 import instep.util.path
 import instep.util.snakeToCamelCase
+import java.math.BigDecimal
+import java.math.BigInteger
 import java.sql.Connection
 import java.sql.ResultSet
 import java.sql.SQLException
@@ -46,7 +48,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                     execute(it as S)
                 }
             }
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
@@ -62,7 +65,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             if (!rs.next() || rs.wasNull()) return ""
 
             return rs.getString(1)
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
@@ -80,7 +84,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             if (!rs.next()) return null
 
             return resultSetColumnValueExtractor.extract(cls, resultSetDelegate.getDelegate(connectionProvider.dialect, rs), 1) as T?
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
@@ -93,7 +98,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         val conn = connectionProvider.getConnection()
         try {
             return preparedStatementGenerator.generate(conn, connectionProvider.dialect, plan).executeUpdate()
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
@@ -128,7 +134,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
             }
 
             dataRows
-        } catch (e: SQLException) {
+        }
+        catch (e: SQLException) {
             throw SQLPlanExecutionException(e)
         }
         finally {
@@ -145,8 +152,8 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
 
         if (TableRow::class.java.isAssignableFrom(cls)) {
             when (plan) {
-                is TableSelectPlan -> return dataRows.map { TableRow.createInstance(it, plan.from, connectionProvider.dialect) } as List<T>
-                is TableInsertPlan -> return dataRows.map { TableRow.createInstance(it, plan.table, connectionProvider.dialect) } as List<T>
+                is TableSelectPlan -> return dataRows.map { TableRow.createInstance(it, plan.from) } as List<T>
+                is TableInsertPlan -> return dataRows.map { TableRow.createInstance(it, plan.table) } as List<T>
                 else -> Unit
             }
         }
@@ -167,39 +174,69 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
                     .context("value", value)
                     .trace()
 
-                property.setter.getAnnotationsByType(ConverterEligible::class.java)
-                    .firstNotNullOfOrNull { converterEligible ->
-                        (typeconvert.getConverter(converterEligible.type.java, setterType, path) as? Converter<Any, Any>)
-                    }
-                    ?.let { converter ->
+                try {
+                    property.setter.getAnnotationsByType(ConverterEligible::class.java)
+                        .firstNotNullOfOrNull { converterEligible ->
+                            (typeconvert.getConverter(converterEligible.type.java, setterType, path) as? Converter<Any, Any>)
+                        }
+                        ?.let { converter ->
+                            property.setter.invoke(instance, converter.convert(value))
+                            return@forEach
+                        }
+
+                    (typeconvert.getConverter(value.javaClass, setterType) as? Converter<Any, Any>)?.let { converter ->
                         property.setter.invoke(instance, converter.convert(value))
                         return@forEach
                     }
 
-                (typeconvert.getConverter(value.javaClass, setterType) as? Converter<Any, Any>)?.let { converter ->
-                    property.setter.invoke(instance, converter.convert(value))
-                    return@forEach
-                }
+                    if (setterType == String::class.java && value !is String) {
+                        property.setter.invoke(instance, value.toString())
+                        return@forEach
+                    }
 
-                when (value) {
-                    is String -> {
-                        when {
-                            setterType.isEnum -> {
-                                property.setter.invoke(instance, setterType.enumConstants.first { it.toString() == value })
+                    when (value) {
+                        is String -> {
+                            when {
+                                setterType.isEnum -> {
+                                    property.setter.invoke(instance, setterType.enumConstants.first { it.toString() == value })
+                                }
+
+                                setterType == Byte::class.java -> value.toByte()
+                                setterType == Short::class.java -> value.toShort()
+                                setterType == Int::class.java -> value.toInt()
+                                setterType == Long::class.java -> value.toLong()
+                                setterType == BigInteger::class.java -> value.toBigInteger()
+
+                                setterType == Float::class.java -> value.toFloat()
+                                setterType == Double::class.java -> value.toDouble()
+                                setterType == BigDecimal::class.java -> value.toBigDecimal()
+
+                                setterType == Boolean::class.java -> value.toBoolean()
+
+                                else -> property.setter.invoke(instance, value)
                             }
-
-                            else -> property.setter.invoke(instance, value)
                         }
-                    }
 
-                    is LocalDateTime -> {
-                        when (setterType) {
-                            Instant::class.java -> property.setter.invoke(instance, value.toInstant(ZoneOffset.UTC))
-                            else -> property.setter.invoke(instance, value)
+                        is LocalDateTime -> {
+                            when (setterType) {
+                                Instant::class.java -> property.setter.invoke(instance, value.toInstant(ZoneOffset.UTC))
+                                else -> property.setter.invoke(instance, value)
+                            }
                         }
-                    }
 
-                    else -> property.setter.invoke(instance, value)
+                        else -> property.setter.invoke(instance, value)
+                    }
+                }
+                catch (e: IllegalArgumentException) {
+                    logger.message("cannot set value to instance using setter")
+                        .context("class", cls.name)
+                        .context("setter", property.setter.name)
+                        .context("setterType", setterType.name)
+                        .context("valueClass", value.javaClass.name)
+                        .context("value", value.toString())
+                        .error()
+
+                    throw e
                 }
             }
 
