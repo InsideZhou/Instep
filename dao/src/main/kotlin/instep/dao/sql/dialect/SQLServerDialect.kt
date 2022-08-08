@@ -90,7 +90,7 @@ open class SQLServerDialect : SeparateCommentDialect() {
         val existsTableCheck = DefaultSQLPlan("SELECT name FROM sys.tables WHERE name=\${name}")
             .placeholderToParameter("name", tableName)
 
-        val existsTableName = existsTableCheck.executeScalar()
+        val existsTableName = existsTableCheck.executeString()
         if (tableName == existsTableName) return existsTableCheck
 
         val ddl = "CREATE TABLE $tableName (\n"

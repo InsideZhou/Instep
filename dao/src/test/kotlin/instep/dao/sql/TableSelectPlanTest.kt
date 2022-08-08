@@ -47,19 +47,19 @@ object TableSelectPlanTest {
             .addValue(AccountTable.name, stringGenerator.generateByRegex("[a-zA-Z0-9]{8,16}"))
             .returning()
             .debug()
-            .executeDataRow().first()
+            .execute(DataRow::class.java).first()
 
         roleA = RoleTable.insert()
             .addValue(RoleTable.name, stringGenerator.generateByRegex("[a-zA-Z0-9]{8,16}"))
             .returning()
             .debug()
-            .executeDataRow().first()
+            .execute(DataRow::class.java).first()
 
         roleB = RoleTable.insert()
             .addValue(RoleTable.name, stringGenerator.generateByRegex("[a-zA-Z0-9]{8,16}"))
             .returning()
             .debug()
-            .executeDataRow().first()
+            .execute(DataRow::class.java).first()
 
         AccountRoleTable.insert()
             .addValue(AccountRoleTable.accountId, account[AccountTable.id])
@@ -92,7 +92,7 @@ object TableSelectPlanTest {
             .where(AccountRoleTable.accountId gt 0)
             .debug()
 
-        val dataRows = plan.executeDataRow()
+        val dataRows = plan.execute(DataRow::class.java)
         Assert.assertEquals(dataRows.size, 2)
 
         val accounts = plan.execute(Account::class.java)
@@ -129,7 +129,7 @@ object TableSelectPlanTest {
             .having(Condition("${AccountRoleTable.accountId.count().text} > ?", 0))
             .debug()
 
-        val dataRows = plan.executeDataRow()
+        val dataRows = plan.execute(DataRow::class.java)
         Assert.assertEquals(dataRows.size, 2)
     }
 }

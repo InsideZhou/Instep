@@ -103,7 +103,7 @@ object InstepSQLTest {
         TransactionTable.create().debug().execute()
     }
 
-    @AfterClass()
+    @AfterClass
     fun cleanUp() {
         TransactionTable.drop().execute()
     }
@@ -111,14 +111,14 @@ object InstepSQLTest {
     @Test
     fun executeScalar() {
         val scalar = when (dialect) {
-            is HSQLDialect -> InstepSQL.plan("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""").executeScalar()
-            is MySQLDialect -> InstepSQL.plan("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""").executeScalar()
-            is SQLServerDialect -> InstepSQL.plan("""SELECT format(current_timestamp, 'yyyy-MM-dd HH:mm:ss')""").executeScalar()
-            else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')""").executeScalar()
+            is HSQLDialect -> InstepSQL.plan("""VALUES(to_char(current_timestamp, 'YYYY-MM-DD HH24\:MI\:SS'))""").executeString()
+            is MySQLDialect -> InstepSQL.plan("""SELECT date_format(current_timestamp, '%Y-%m-%d %k\:%i\:%S')""").executeString()
+            is SQLServerDialect -> InstepSQL.plan("""SELECT format(current_timestamp, 'yyyy-MM-dd HH:mm:ss')""").executeString()
+            else -> InstepSQL.plan("""SELECT to_char(current_timestamp, 'YYYY-MM-DD HH24:MI:SS')""").executeString()
         }
         LocalDateTime.parse(scalar, DateTimeFormatter.ofPattern("""yyyy-MM-dd HH:mm:ss"""))
 
-        Assert.assertNull(InstepSQL.plan("""SELECT NULL""").executeScalar(Int::class.java))
+        Assert.assertEquals(InstepSQL.plan("""SELECT NULL""").executeLong(), 0)
     }
 
     @Test
@@ -138,6 +138,6 @@ object InstepSQLTest {
         }
         assert(TransactionTable[2] == null)
 
-        assert(TransactionTable.selectExpression(TransactionTable.id.count()).distinct().executeScalar().toInt() == 1)
+        Assert.assertEquals(TransactionTable.selectExpression(TransactionTable.id.count()).distinct().executeLong(), 1)
     }
 }

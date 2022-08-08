@@ -5,6 +5,7 @@ package instep.dao.sql
 import instep.Instep
 import java.sql.Connection
 import java.sql.ResultSet
+import java.time.temporal.Temporal
 
 @Suppress("UNCHECKED_CAST")
 val planExecutor: SQLPlanExecutor<SQLPlan<*>>
@@ -19,14 +20,6 @@ fun SQLPlan<*>.execute() {
 }
 
 /**
- * @see [SQLPlanExecutor.executeDataRow]
- */
-@Throws(SQLPlanExecutionException::class)
-fun SQLPlan<*>.executeDataRow(): List<DataRow> {
-    return planExecutor.executeDataRow(this)
-}
-
-/**
  * @see [SQLPlanExecutor.execute]
  */
 @Throws(SQLPlanExecutionException::class)
@@ -35,19 +28,35 @@ fun <T : Any> SQLPlan<*>.execute(cls: Class<T>): List<T> {
 }
 
 /**
- * @see [SQLPlanExecutor.executeScalar]
+ * @see [SQLPlanExecutor.executeString]
  */
 @Throws(SQLPlanExecutionException::class)
-fun SQLPlan<*>.executeScalar(): String {
-    return planExecutor.executeScalar(this)
+fun SQLPlan<*>.executeString(): String {
+    return planExecutor.executeString(this)
 }
 
 /**
- * @see [SQLPlanExecutor.executeScalar]
+ * @see [SQLPlanExecutor.executeLong]
  */
 @Throws(SQLPlanExecutionException::class)
-fun <T : Any> SQLPlan<*>.executeScalar(cls: Class<T>): T? {
-    return planExecutor.executeScalar(this, cls)
+fun SQLPlan<*>.executeLong(): Long {
+    return planExecutor.executeLong(this)
+}
+
+/**
+ * @see [SQLPlanExecutor.executeDouble]
+ */
+@Throws(SQLPlanExecutionException::class)
+fun SQLPlan<*>.executeDouble(): Double {
+    return planExecutor.executeDouble(this)
+}
+
+/**
+ * @see [SQLPlanExecutor.executeTemporal]
+ */
+@Throws(SQLPlanExecutionException::class)
+fun <R : Temporal> SQLPlan<*>.executeTemporal(cls: Class<R>): R? {
+    return planExecutor.executeTemporal(this, cls)
 }
 
 /**

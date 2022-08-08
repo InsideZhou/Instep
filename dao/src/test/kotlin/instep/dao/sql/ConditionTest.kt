@@ -31,7 +31,7 @@ object ConditionTest {
         insertAccounts()
     }
 
-    @AfterClass()
+    @AfterClass
     fun cleanUp() {
         AccountTable.drop().execute()
     }
@@ -98,10 +98,10 @@ object ConditionTest {
 
     @org.testng.annotations.Test
     fun containsTest() {
-        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "a").executeScalar()
-        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "i").executeScalar()
-        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "de").executeScalar()
-        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "mn").executeScalar()
+        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "a").executeString()
+        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "i").executeString()
+        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "de").executeString()
+        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name contains "mn").executeString()
 
         assert(a == "1")
         assert(i == "3")
@@ -111,10 +111,10 @@ object ConditionTest {
 
     @org.testng.annotations.Test
     fun startsWithTest() {
-        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "a").executeScalar()
-        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "i").executeScalar()
-        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "de").executeScalar()
-        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "mn").executeScalar()
+        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "a").executeString()
+        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "i").executeString()
+        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "de").executeString()
+        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name startsWith "mn").executeString()
 
         assert(a == "1")
         assert(i == "1")
@@ -124,10 +124,10 @@ object ConditionTest {
 
     @org.testng.annotations.Test
     fun endsWithTest() {
-        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "a").executeScalar()
-        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "i").executeScalar()
-        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "de").executeScalar()
-        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "mn").executeScalar()
+        val a = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "a").executeString()
+        val i = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "i").executeString()
+        val de = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "de").executeString()
+        val mn = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.name endsWith "mn").executeString()
 
         assert(a == "0")
         assert(i == "1")
@@ -138,7 +138,7 @@ object ConditionTest {
     @org.testng.annotations.Test
     fun beforeNowTest() {
         val now = Instant.now()
-        val count = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.createdAt lte now).debug().executeScalar(Long::class.java)
+        val count = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.createdAt lte now).debug().executeLong()
 
         Assert.assertEquals(11L, count)
     }

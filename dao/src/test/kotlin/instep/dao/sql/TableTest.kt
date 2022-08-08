@@ -141,6 +141,13 @@ object TableTest {
             get
             @ConverterEligible(PGobject::class)
             set
+
+        var privileges = ""
+    }
+
+    class AccountView {
+        var id: String = ""
+        var privileges: String = ""
     }
 
     data class AccountLog(var recordTime: Instant, var description: String) {
@@ -179,6 +186,7 @@ object TableTest {
         val preferences = json("preferences").defaultValue("'{}'::jsonb")
         val tags = arbitrary("tags", "text[]").defaultValue("'{}'::text[]")
         val logs = arbitrary("logs", "jsonb").defaultValue("'[]'::jsonb")
+        val privilegesJson = json("privileges").defaultValue("'[]'::jsonb")
     }
 
     @BeforeClass
@@ -186,7 +194,7 @@ object TableTest {
         AccountTable.create().debug().execute()
     }
 
-    @AfterClass()
+    @AfterClass
     fun cleanUp() {
         AccountTable.drop().execute()
     }
@@ -223,14 +231,42 @@ object TableTest {
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun maxAccountId() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
+    }
+
+    @Test(dependsOnMethods = ["insertAccounts"])
+    fun stringAsMedium() {
+        val privileges = """["/**"]"""
+        val id = AccountTable.select(AccountTable.id).orderBy(AccountTable.createdAt.desc()).executeString()
+        AccountTable.update()
+            .set(AccountTable.privilegesJson, privileges)
+            .whereKey(id)
+            .debug().execute()
+
+        val account = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).first()
+        Assert.assertEquals(account.privileges, privileges)
+    }
+
+    @Test(dependsOnMethods = ["insertAccounts"])
+    fun tableRow() {
+        val privileges = """["/**"]"""
+        val id = AccountTable.select(AccountTable.id).orderBy(AccountTable.createdAt.desc()).executeString()
+        AccountTable.update()
+            .set(AccountTable.privilegesJson, privileges)
+            .whereKey(id)
+            .debug().execute()
+
+        val row = AccountTable.select().where(AccountTable.id eq id).execute(TableRow::class.java).first()
+        val accountView = row.fillUp(AccountView::class.java)
+        Assert.assertEquals(accountView.id, id)
+        Assert.assertEquals(accountView.privileges, privileges)
     }
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun updateAccounts() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
 
         AccountTable.update()
             .set(AccountTable.name, "laozi")
@@ -280,8 +316,8 @@ object TableTest {
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun deleteAccounts() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
 
         AccountTable.delete().where(AccountTable.id eq id).debug().executeUpdate()
         assert(null == AccountTable[id])
@@ -289,8 +325,8 @@ object TableTest {
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun datetime() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
 
         val account = AccountTable.select().where(AccountTable.id eq id).debug().execute().single()
 
@@ -313,8 +349,8 @@ object TableTest {
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun rowToInstance() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val id = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
 
         val account = AccountTable.select().where(AccountTable.id eq id).execute(Account::class.java).single()
         assert(account.id == id)
@@ -325,16 +361,16 @@ object TableTest {
 
     @Test(dependsOnMethods = ["insertAccounts"])
     fun randomRow() {
-        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val idMax = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeScalar()
+        val latest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val idMax = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq latest!!).executeString()
 
-        val oldest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeScalar(Instant::class.java)
-        val idMin = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq oldest!!).executeScalar()
+        val oldest = AccountTable.selectExpression(AccountTable.createdAt.max()).executeTemporal(Instant::class.java)
+        val idMin = AccountTable.select(AccountTable.id).where(AccountTable.createdAt eq oldest!!).executeString()
 
         val idArray = setOf(idMax, idMin).toTypedArray()
 
         val plan = AccountTable.selectExpression(AccountTable.id.count()).where(AccountTable.id inArray idArray)
 
-        assert(plan.executeScalar() == idArray.size.toString())
+        Assert.assertEquals(plan.executeLong(), idArray.size.toLong())
     }
 }

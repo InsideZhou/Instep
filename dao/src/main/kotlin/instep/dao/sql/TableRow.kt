@@ -2,7 +2,7 @@ package instep.dao.sql
 
 import instep.ImpossibleBranch
 import instep.Instep
-import instep.collection.AssocArray
+import instep.util.snakeToCamelCase
 import java.io.InputStream
 import java.math.BigDecimal
 import java.sql.Blob
@@ -13,7 +13,7 @@ import java.time.*
 /**
  * A table row filled with data.
  */
-class TableRow {
+open class TableRow {
     private val offset = OffsetDateTime.now().offset
 
     private val map = mutableMapOf<Column<*>, Any?>()
@@ -228,57 +228,33 @@ class TableRow {
         map[column] = value
     }
 
-    companion object {
-        fun createInstance(assocArray: AssocArray, table: Table): TableRow {
-            val row = TableRow()
-            table.columns.forEach { col ->
-                val entry = assocArray.entries.find { col.name.equals(it.first.toString(), ignoreCase = true) } ?: return@forEach
+    fun <R : Any> fillUp(cls: Class<R>): R {
+        val instance = cls.getDeclaredConstructor().newInstance()
+        fillUp(instance)
+        return instance
+    }
 
-                row[col] = when (col) {
-                    is BooleanColumn -> entry.second as? Boolean
+    fun fillUp(pojo: Any) {
+        val targetMutableProperties = Instep.reflect(pojo).getMutablePropertiesUntil(Any::class.java)
+        targetMutableProperties.forEach { p ->
+            val setterType = p.setter.parameterTypes.first()
 
-                    is IntegerColumn -> when (col.type) {
-                        IntegerColumnType.Long -> entry.second as? Long
-                        IntegerColumnType.Int -> entry.second as? Int
-                        IntegerColumnType.Small -> entry.second as? Short
-                        IntegerColumnType.Tiny -> entry.second as? Byte
-                    }
-
-                    is StringColumn -> entry.second as? String
-
-                    is FloatingColumn -> when (col.type) {
-                        FloatingColumnType.Float -> entry.second as? Float
-                        FloatingColumnType.Double -> entry.second as? Double
-                        else -> entry.second as? BigDecimal
-                    }
-
-                    is DateTimeColumn -> when (col.type) {
-                        DateTimeColumnType.Date -> entry.second as? LocalDate
-                        DateTimeColumnType.Time -> entry.second as? LocalTime
-                        DateTimeColumnType.DateTime -> entry.second as? LocalDateTime
-                        DateTimeColumnType.OffsetDateTime -> entry.second as? OffsetDateTime
-                        DateTimeColumnType.Instant -> (entry.second as? LocalDateTime)?.toInstant(ZoneOffset.UTC)
-                    }
-
-                    is BinaryColumn -> when (col.type) {
-                        BinaryColumnType.BLOB -> entry.second as? Blob
-                        BinaryColumnType.Varying -> entry.second as? ByteArray
-                    }
-
-                    is ArbitraryColumn -> entry.second
-
-                    else -> throw ImpossibleBranch()
-                }
+            map.filter { entry ->
+                entry.value != null && p.field.name.equals(entry.key.name.snakeToCamelCase(), true) && setterType.isAssignableFrom(entry.value!!.javaClass)
+            }.firstNotNullOfOrNull { entry ->
+                entry.value
+            }?.let {
+                p.setter.invoke(pojo, it)
             }
-
-            return row
         }
+    }
 
-        fun <T : Table> createInstance(table: T, dialect: Dialect, resultSet: ResultSet): TableRow {
+    companion object {
+        fun <T : Table> createInstance(table: T, resultSet: ResultSet): TableRow {
             val resultSetDelegate = Instep.make(ResultSetDelegate::class.java)
             val columnInfoSetGenerator = Instep.make(ColumnInfoSetGenerator::class.java)
             val row = TableRow()
-            val rs = resultSetDelegate.getDelegate(dialect, resultSet)
+            val rs = resultSetDelegate.getDelegate(table.dialect, resultSet)
 
             val columnInfoSet = columnInfoSetGenerator.generate(rs.metaData)
             table.columns.forEach { col ->

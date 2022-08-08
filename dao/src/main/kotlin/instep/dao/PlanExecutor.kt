@@ -1,11 +1,17 @@
 package instep.dao
 
+import java.time.temporal.Temporal
+
 interface PlanExecutor<P : Plan<*>> {
     fun execute(plan: P)
 
-    fun executeScalar(plan: P): String
+    fun executeString(plan: P): String
 
-    fun <T : Any> executeScalar(plan: P, cls: Class<T>): T?
+    fun executeLong(plan: P): Long
+
+    fun executeDouble(plan: P): Double
+
+    fun <R : Temporal> executeTemporal(plan: P, cls: Class<R>): R?
 
     fun <T : Any> execute(plan: P, cls: Class<T>): List<T>
 }
