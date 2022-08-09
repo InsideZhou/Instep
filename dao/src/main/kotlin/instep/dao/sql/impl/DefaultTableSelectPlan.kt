@@ -7,11 +7,11 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
     protected open val baseSql: String
         get() {
-            return if (select.isEmpty()) {
-                "$selectWords * FROM ${from.tableName}"
+            val selectTexts = if (select.isEmpty()) {
+                "*"
             }
             else {
-                val selectTexts = select.joinToString(",") {
+                select.joinToString(",") {
                     var txt = if (it is ColumnSelectExpression && join.isNotEmpty()) {
                         "${it.column.table.tableName}.${it.column.name}"
                     }
@@ -25,9 +25,9 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, S
 
                     txt
                 }
-
-                "$selectWords $selectTexts FROM ${from.tableName}"
             }
+
+            return "$selectWords $selectTexts FROM ${from.tableName}"
         }
 
     protected open fun joinTypeToStr(joinType: JoinType): String = when (joinType) {
