@@ -27,6 +27,7 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
         }
     }
 
+    @JvmOverloads
     fun <R : Any> fillUp(cls: Class<R>, prefix: String = "", postfix: String = ""): R {
         val instance = cls.getDeclaredConstructor().newInstance()
         fillUp(instance, prefix, postfix)
@@ -34,6 +35,7 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
     }
 
     @Suppress("UNCHECKED_CAST")
+    @JvmOverloads
     fun fillUp(instance: Any, prefix: String = "", postfix: String = "") {
         val typeConversion = Instep.make(TypeConversion::class.java)
         val targetMutableProperties = Instep.reflect(instance).getMutablePropertiesUntil(Any::class.java)
