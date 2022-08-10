@@ -1,8 +1,8 @@
 package instep.dao.sql
 
+import instep.dao.AbstractExpression
 import instep.dao.Alias
 import instep.dao.Expression
-import instep.dao.AbstractExpression
 import instep.dao.sql.dialect.SQLServerDialect
 import instep.dao.sql.impl.DefaultTableSelectPlan
 
@@ -19,6 +19,21 @@ interface TableSelectPlan : SQLPlan<TableSelectPlan>, WhereClause<TableSelectPla
 
     fun select(vararg columns: Column<*>): TableSelectPlan {
         return selectExpression(*columns.map { ColumnSelectExpression(it) }.toTypedArray())
+    }
+
+    fun select(vararg tables: Table): TableSelectPlan {
+        return selectExpression(
+            *tables.flatMap { it.columns }.map { ColumnSelectExpression(it) }.toTypedArray()
+        )
+    }
+
+    fun selectExcept(table: Table, vararg exceptions: Column<*>): TableSelectPlan {
+        return selectExpression(
+            *table.columns
+                .filterNot { exceptions.contains(it) }
+                .map { ColumnSelectExpression(it) }
+                .toTypedArray()
+        )
     }
 
     fun selectExpression(vararg selectExpression: SelectExpression): TableSelectPlan
