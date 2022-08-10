@@ -2,7 +2,7 @@ package instep.dao.sql
 
 import instep.dao.Alias
 import instep.dao.Expression
-import instep.dao.impl.AbstractExpression
+import instep.dao.AbstractExpression
 import instep.dao.sql.dialect.SQLServerDialect
 import instep.dao.sql.impl.DefaultTableSelectPlan
 

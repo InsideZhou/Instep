@@ -1,7 +1,7 @@
 package instep.dao.sql.impl
 
 import instep.dao.Expression
-import instep.dao.impl.DefaultExpression
+import instep.dao.DefaultExpression
 import instep.dao.sql.SQLPlan
 import instep.dao.sql.SubSQLPlan
 

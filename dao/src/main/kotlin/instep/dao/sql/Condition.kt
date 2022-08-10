@@ -1,6 +1,6 @@
 package instep.dao.sql
 
-import instep.dao.impl.AbstractExpression
+import instep.dao.AbstractExpression
 
 open class Condition constructor(txt: String, vararg parameters: Any?) : AbstractExpression<Condition>(txt) {
     init {

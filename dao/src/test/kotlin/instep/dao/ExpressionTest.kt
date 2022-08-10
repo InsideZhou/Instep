@@ -1,6 +1,5 @@
 package instep.dao
 
-import instep.dao.impl.DefaultExpression
 import instep.dao.sql.Condition
 import instep.dao.sql.InstepSQL
 import org.testng.Assert
