@@ -16,6 +16,7 @@ import java.time.LocalDateTime
 import java.time.ZoneOffset
 
 
+@Suppress("MemberVisibilityCanBePrivate")
 class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
     private val logger = InstepLogger.getLogger(DataRow::class.java)
 
@@ -26,19 +27,19 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
         }
     }
 
-    fun <R : Any> fillUp(cls: Class<R>): R {
+    fun <R : Any> fillUp(cls: Class<R>, prefix: String = "", postfix: String = ""): R {
         val instance = cls.getDeclaredConstructor().newInstance()
-        fillUp(instance)
+        fillUp(instance, prefix, postfix)
         return instance
     }
 
     @Suppress("UNCHECKED_CAST")
-    fun fillUp(instance: Any) {
+    fun fillUp(instance: Any, prefix: String = "", postfix: String = "") {
         val typeConversion = Instep.make(TypeConversion::class.java)
         val targetMutableProperties = Instep.reflect(instance).getMutablePropertiesUntil(Any::class.java)
 
         entries.filter { null != it.second }.forEach { pair ->
-            val property = targetMutableProperties.find { it.field.name.equals(pair.first.toString().snakeToCamelCase()) } ?: return@forEach
+            val property = targetMutableProperties.find { "$prefix${it.field.name}$postfix" == (pair.first.toString().snakeToCamelCase()) } ?: return@forEach
             val setterType = property.setter.parameterTypes.first()
             val value = pair.second!!
             val path = instance.javaClass.path(property.field)
