@@ -21,17 +21,20 @@ interface TableSelectPlan : SQLPlan<TableSelectPlan>, WhereClause<TableSelectPla
         return selectExpression(*columns.map { ColumnSelectExpression(it) }.toTypedArray())
     }
 
-    fun select(vararg tables: Table): TableSelectPlan {
-        return selectExpression(
-            *tables.flatMap { it.columns }.map { ColumnSelectExpression(it) }.toTypedArray()
-        )
-    }
-
-    fun selectExcept(table: Table, vararg exceptions: Column<*>): TableSelectPlan {
+    fun select(table: Table, aliasPrefix: String = "", vararg exceptions: Column<*>): TableSelectPlan {
         return selectExpression(
             *table.columns
                 .filterNot { exceptions.contains(it) }
-                .map { ColumnSelectExpression(it) }
+                .map {
+                    val prefix = if (table != from) {
+                        aliasPrefix.ifBlank { "${table.tableName}_" }
+                    }
+                    else {
+                        aliasPrefix
+                    }
+
+                    ColumnSelectExpression(it, prefix + it.name)
+                }
                 .toTypedArray()
         )
     }

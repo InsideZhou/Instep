@@ -149,7 +149,6 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         }
     }
 
-    @Suppress("UNCHECKED_CAST")
     override fun <T : Any> execute(plan: S, cls: Class<T>): List<T> {
         val conn = connectionProvider.getConnection()
 

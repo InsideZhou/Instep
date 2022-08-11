@@ -87,8 +87,9 @@ object TableSelectPlanTest {
     fun getAccountWithRoles() {
         var plan = AccountTable
             .selectExcept()
-            .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
+            .join(AccountRoleTable.accountId)
             .join(AccountRoleTable.roleId, RoleTable.id)
+            .selectExpression(RoleTable.id.alias())
             .where(AccountRoleTable.accountId gt 0)
             .debug()
 
@@ -106,8 +107,9 @@ object TableSelectPlanTest {
 
         plan = AccountTable
             .selectExcept()
-            .join(AccountRoleTable.accountId).selectExpression(RoleTable.id.alias())
+            .join(AccountRoleTable.accountId)
             .join(AccountRoleTable.roleId, RoleTable.id)
+            .selectExpression(RoleTable.id.alias())
             .where(AccountRoleTable.accountId gt 0)
             .orderBy(RoleTable.id.asc())
             .limit(1)

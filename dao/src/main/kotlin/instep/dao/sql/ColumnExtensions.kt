@@ -40,19 +40,28 @@ infix fun <T : Enum<*>> IntegerColumn.lte(value: T): Condition = lte(value.ordin
 infix fun <T : Enum<*>> IntegerColumn.inArray(value: Array<T>): Condition = inArray(value.map { it.ordinal }.toTypedArray())
 
 
+@JvmOverloads
 fun Column<*>.alias(alias: String = "") = SelectExpression(qualifiedName, alias.ifBlank { "${table.tableName}_$name" })
+
+@JvmOverloads
 fun Column<*>.count(alias: String = "") = SelectExpression("count(${qualifiedName})", alias)
 
+@JvmOverloads
 fun NumberColumn<*>.sum(alias: String = "") = SelectExpression("sum(${qualifiedName})", alias)
 
+@JvmOverloads
 fun NumberColumn<*>.avg(alias: String = "") = SelectExpression("avg(${qualifiedName})", alias)
 
+@JvmOverloads
 fun NumberColumn<*>.max(alias: String = "") = SelectExpression("max(${qualifiedName})", alias)
 
+@JvmOverloads
 fun NumberColumn<*>.min(alias: String = "") = SelectExpression("min(${qualifiedName})", alias)
 
+@JvmOverloads
 fun DateTimeColumn.max(alias: String = "") = SelectExpression("max(${qualifiedName})", alias)
 
+@JvmOverloads
 fun DateTimeColumn.min(alias: String = "") = SelectExpression("min(${qualifiedName})", alias)
 
 @JvmOverloads
