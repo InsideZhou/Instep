@@ -7,8 +7,8 @@ import instep.collection.AssocArray
 import instep.typeconversion.Converter
 import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
+import instep.util.camelCaseToSnake
 import instep.util.path
-import instep.util.snakeToCamelCase
 import java.math.BigDecimal
 import java.math.BigInteger
 import java.time.Instant
@@ -41,7 +41,11 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
         val targetMutableProperties = Instep.reflect(instance).getMutablePropertiesUntil(Any::class.java)
 
         entries.filter { null != it.second }.forEach { pair ->
-            val property = targetMutableProperties.find { "$prefix${it.field.name}$postfix" == (pair.first.toString().snakeToCamelCase()) } ?: return@forEach
+            val property = targetMutableProperties.find {
+                val instanceSide = "$prefix${it.field.name}$postfix".camelCaseToSnake()
+                val rowSide = pair.first.toString()
+                instanceSide == rowSide
+            } ?: return@forEach
             val setterType = property.setter.parameterTypes.first()
             val value = pair.second!!
             val path = instance.javaClass.path(property.field)

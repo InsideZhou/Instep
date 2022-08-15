@@ -122,7 +122,6 @@ open class DefaultSQLPlanExecutor<S : SQLPlan<*>>(
         }
     }
 
-    @Suppress("LiftReturnOrAssignment")
     override fun executeUpdate(plan: S): Int {
         val conn = connectionProvider.getConnection()
         try {

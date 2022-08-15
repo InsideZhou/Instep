@@ -33,6 +33,8 @@ object TableSelectPlanTest {
     class Account(var id: Long = 0, var name: String = "")
     class AccountWithRoleId(var id: Long = 0, var name: String = "", var roleId: Long = 0)
 
+    class AccountWithRole(var id: Long = 0, var name: String = "", var roleId: Long = 0, var roleName: String = "")
+
     var account = DataRow()
     var roleA = DataRow()
     var roleB = DataRow()
@@ -85,6 +87,8 @@ object TableSelectPlanTest {
 
     @Test
     fun getAccountWithRoles() {
+        val rolePrefix = "${RoleTable.tableName}_"
+
         var plan = AccountTable
             .selectExcept()
             .join(AccountRoleTable.accountId)
@@ -99,7 +103,7 @@ object TableSelectPlanTest {
         val accounts = plan.execute(Account::class.java)
         Assert.assertEquals(accounts.size, 2)
 
-        var accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
+        val accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
         Assert.assertEquals(accountWithRoleIdList[0].id, accountWithRoleIdList[1].id)
         Assert.assertEquals(accountWithRoleIdList[0].name, accountWithRoleIdList[1].name)
         Assert.assertEquals(accountWithRoleIdList[0].roleId, 1)
@@ -109,16 +113,22 @@ object TableSelectPlanTest {
             .selectExcept()
             .join(AccountRoleTable.accountId)
             .join(AccountRoleTable.roleId, RoleTable.id)
-            .selectExpression(RoleTable.id.alias())
+            .select(RoleTable, rolePrefix)
             .where(AccountRoleTable.accountId gt 0)
             .orderBy(RoleTable.id.asc())
             .limit(1)
             .offset(1)
             .debug()
 
-        accountWithRoleIdList = plan.execute(AccountWithRoleId::class.java)
-        Assert.assertEquals(accountWithRoleIdList.size, 1)
-        Assert.assertEquals(accountWithRoleIdList[0].roleId, 2)
+        val accountWithRoles = plan.execute(DataRow::class.java).map { row ->
+            val instance = row.fillUp(AccountWithRole::class.java)
+            row.fillUp(instance, rolePrefix)
+            instance
+        }
+
+        Assert.assertEquals(accountWithRoles.size, 1)
+        Assert.assertEquals(accountWithRoles[0].roleId, 2)
+        Assert.assertTrue(accountWithRoles[0].roleName.isNotBlank())
     }
 
     @Test
