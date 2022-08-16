@@ -4,7 +4,6 @@ import instep.Instep
 import instep.dao.DaoException
 import instep.dao.sql.*
 import instep.typeconversion.Converter
-import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
 
 open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPlan<TableUpdatePlan>() {
@@ -62,14 +61,10 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, SubSQLPla
                         }
 
                         val getterType = p.getter.returnType
-                        p.getter.getAnnotationsByType(ConverterEligible::class.java)
-                            .firstNotNullOfOrNull { converterEligible ->
-                                (typeConversion.getConverter(getterType, converterEligible.type.java, col.qualifiedName) as? Converter<Any, Any>)
-                            }
-                            ?.let { converter ->
-                                params[col] = converter.convert(value)
-                                return@forEach
-                            }
+                        (typeConversion.getConverter(getterType, String::class.java, col.qualifiedName) as? Converter<Any, String>)?.let { converter ->
+                            params[col] = converter.convert(value)
+                            return@forEach
+                        }
 
                         params[col] = value
                     }

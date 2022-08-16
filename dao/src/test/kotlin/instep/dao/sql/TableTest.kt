@@ -10,7 +10,6 @@ import instep.dao.sql.dialect.MySQLDialect
 import instep.dao.sql.dialect.PostgreSQLDialect
 import instep.dao.sql.dialect.SQLServerDialect
 import instep.typeconversion.Converter
-import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
 import instep.util.path
 import org.postgresql.jdbc.PgArray
@@ -21,7 +20,7 @@ import org.testng.annotations.BeforeClass
 import org.testng.annotations.Test
 import java.time.*
 import java.util.*
-import kotlin.reflect.jvm.javaField
+import kotlin.reflect.jvm.javaSetter
 
 @Suppress("UNCHECKED_CAST")
 object TableTest {
@@ -52,7 +51,7 @@ object TableTest {
                 override fun <T : PGobject> convert(instance: T): Map<String, Any?> {
                     return objectMapper.readValue(instance.value, object : TypeReference<Map<String, Any?>>() {})
                 }
-            }, Account::class.java.path(Account::preferences.javaField!!))
+            }, Account::preferences.javaSetter!!.path())
 
             it.register(object : Converter<Map<String, Any?>, String> {
                 override val from = Map::class.java as Class<Map<String, Any?>>
@@ -72,7 +71,7 @@ object TableTest {
                         arrayListOf(*array)
                     } ?: arrayListOf()
                 }
-            }, Account::class.java.path(Account::tags.javaField!!))
+            }, Account::tags.javaSetter!!.path())
 
             it.register(object : Converter<List<String>, String> {
                 override val from = List::class.java as Class<List<String>>
@@ -92,7 +91,7 @@ object TableTest {
                 override fun <T : PGobject> convert(instance: T): List<AccountLog> {
                     return objectMapper.readValue(instance.value, object : TypeReference<List<AccountLog>>() {})
                 }
-            }, Account::class.java.path(Account::logs.javaField!!))
+            }, Account::logs.javaSetter!!.path())
 
             it.register(object : Converter<List<AccountLog>, String> {
                 override val from = List::class.java as Class<List<AccountLog>>
@@ -125,22 +124,8 @@ object TableTest {
         var remark: String? = null
 
         var preferences = emptyMap<String, Any?>()
-            @ConverterEligible(String::class)
-            get
-            @ConverterEligible(PGobject::class)
-            set
-
         var tags = emptyList<String>()
-            @ConverterEligible(String::class)
-            get
-            @ConverterEligible(PgArray::class)
-            set
-
         var logs = emptyList<AccountLog>()
-            @ConverterEligible(String::class)
-            get
-            @ConverterEligible(PGobject::class)
-            set
 
         var privileges = ""
     }

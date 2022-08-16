@@ -4,8 +4,8 @@ import instep.Instep
 import instep.InstepLogger
 import instep.collection.AAKey
 import instep.collection.AssocArray
+import instep.reflection.MutableProperty
 import instep.typeconversion.Converter
-import instep.typeconversion.ConverterEligible
 import instep.typeconversion.TypeConversion
 import instep.util.camelCaseToSnake
 import instep.util.path
@@ -28,15 +28,15 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
     }
 
     @JvmOverloads
-    fun <R : Any> fillUp(cls: Class<R>, prefix: String = "", postfix: String = ""): R {
+    fun <R : Any> fillUp(cls: Class<R>, prefix: String = "", postfix: String = "", setterFunction: ((MutableProperty, Any) -> Boolean)? = null): R {
         val instance = cls.getDeclaredConstructor().newInstance()
-        fillUp(instance, prefix, postfix)
+        fillUp(instance, prefix, postfix, setterFunction)
         return instance
     }
 
     @Suppress("UNCHECKED_CAST")
     @JvmOverloads
-    fun fillUp(instance: Any, prefix: String = "", postfix: String = "") {
+    fun fillUp(instance: Any, prefix: String = "", postfix: String = "", setterFunction: ((MutableProperty, Any) -> Boolean)? = null) {
         val typeConversion = Instep.make(TypeConversion::class.java)
         val targetMutableProperties = Instep.reflect(instance).getMutablePropertiesUntil(Any::class.java)
 
@@ -46,9 +46,12 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
                 val rowSide = pair.first.toString()
                 instanceSide == rowSide
             } ?: return@forEach
-            val setterType = property.setter.parameterTypes.first()
             val value = pair.second!!
-            val path = instance.javaClass.path(property.field)
+
+            if (setterFunction?.invoke(property, value) == true) return@forEach
+
+            val setterType = property.setter.parameterTypes.first()
+            val path = property.setter.path()
 
             logger.message("setting value to target by setter")
                 .context("property", path)
@@ -57,16 +60,7 @@ class DataRow(keyIgnoreCase: Boolean = false) : AssocArray(keyIgnoreCase) {
                 .trace()
 
             try {
-                property.setter.getAnnotationsByType(ConverterEligible::class.java)
-                    .firstNotNullOfOrNull { converterEligible ->
-                        (typeConversion.getConverter(converterEligible.type.java, setterType, path) as? Converter<Any, Any>)
-                    }
-                    ?.let { converter ->
-                        property.setter.invoke(instance, converter.convert(value))
-                        return@forEach
-                    }
-
-                (typeConversion.getConverter(value.javaClass, setterType) as? Converter<Any, Any>)?.let { converter ->
+                (typeConversion.getConverter(value.javaClass, setterType, path) as? Converter<Any, Any>)?.let { converter ->
                     property.setter.invoke(instance, converter.convert(value))
                     return@forEach
                 }

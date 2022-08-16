@@ -1,6 +1,7 @@
 package instep.util
 
 import java.lang.reflect.Field
+import java.lang.reflect.Method
 
 
 fun Class<*>.isCommon(): Boolean {
@@ -15,4 +16,5 @@ fun Class<*>.isContainer(): Boolean {
     return !special
 }
 
-fun Class<*>.path(field: Field): String = "${this.name}#${field.name}"
+fun Field.path(): String = "${this.declaringClass.name}#${this.name}"
+fun Method.path(): String = "${this.declaringClass.name}#${this.name}"
