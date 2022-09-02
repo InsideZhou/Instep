@@ -2,11 +2,10 @@ package instep.dao.sql.impl
 
 import instep.dao.DaoException
 import instep.dao.sql.Condition
-import instep.dao.sql.SubSQLPlan
 import instep.dao.sql.Table
 import instep.dao.sql.TableDeletePlan
 
-open class DefaultTableDeletePlan(val table: Table) : TableDeletePlan, SubSQLPlan<TableDeletePlan>() {
+open class DefaultTableDeletePlan(val table: Table) : TableDeletePlan, AbstractTablePlan<TableDeletePlan>() {
     override var where: Condition = Condition.empty
     private var pkValue: Any? = null
 

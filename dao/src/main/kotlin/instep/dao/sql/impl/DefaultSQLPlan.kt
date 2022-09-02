@@ -1,33 +1,37 @@
 package instep.dao.sql.impl
 
+import instep.InstepLogger
+import instep.dao.AbstractExpression
 import instep.dao.Expression
-import instep.dao.DefaultExpression
 import instep.dao.sql.SQLPlan
-import instep.dao.sql.SubSQLPlan
 
-class DefaultSQLPlan(txt: String) : SQLPlan<DefaultSQLPlan>, Expression<DefaultSQLPlan>, SubSQLPlan<DefaultSQLPlan>() {
-    private val superExpression = DefaultExpression(txt)
 
-    override val parameters: List<Any?>
-        get() = superExpression.parameters
+abstract class AbstractSQLPlan<T : SQLPlan<T>>(txt: String) : AbstractExpression<T>(txt), SQLPlan<T> {
+    override val logger: InstepLogger = InstepLogger.getLogger(SQLPlan::class.java)
 
-    override val statement: String
-        get() {
-            return superExpression.text
-        }
+    override val subPlans: MutableList<SQLPlan<*>> = mutableListOf()
 
+    override fun addSubPlan(plan: SQLPlan<*>): SQLPlan<*> {
+        subPlans.add(plan)
+
+        return this
+    }
+
+    override fun toString(): String {
+        return """${statement}\n${parameterToLogFormat()}"""
+    }
+}
+
+abstract class AbstractTablePlan<T : SQLPlan<T>>() : AbstractSQLPlan<T>("") {
     override val text: String
         get() {
-            return superExpression.text
+            return statement
         }
+}
 
-    override fun placeholderToParameter(placeholderName: String, parameter: Any?): DefaultSQLPlan {
-        superExpression.placeholderToParameter(placeholderName, parameter)
-        return this
-    }
-
-    override fun placeholderToExpression(placeHolderName: String, expression: Expression<*>?): DefaultSQLPlan {
-        superExpression.placeholderToExpression(placeHolderName, expression)
-        return this
-    }
+open class DefaultSQLPlan(txt: String) : AbstractSQLPlan<DefaultSQLPlan>(txt), Expression<DefaultSQLPlan> {
+    override val statement: String
+        get() {
+            return text
+        }
 }

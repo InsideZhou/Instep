@@ -7,7 +7,7 @@ import instep.dao.sql.*
 import instep.typeconversion.TypeConversion
 
 @Suppress("MemberVisibilityCanBePrivate")
-open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, SubSQLPlan<TableInsertPlan>() {
+open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, AbstractTablePlan<TableInsertPlan>() {
     protected val params = mutableMapOf<Column<*>, Any?>()
 
     private val typeConversion = Instep.make(TypeConversion::class.java)

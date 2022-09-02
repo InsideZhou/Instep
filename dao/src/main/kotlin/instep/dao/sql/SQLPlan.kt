@@ -1,29 +1,16 @@
 package instep.dao.sql
 
-import instep.InstepLogger
+import instep.dao.Expression
 import instep.dao.Plan
 import instep.dao.sql.impl.DefaultSQLPlan
 
-interface SQLPlan<T : SQLPlan<T>> : Plan<T> {
+@Suppress("unused")
+interface SQLPlan<T : SQLPlan<T>> : Plan<T>, Expression<T> {
     val subPlans: MutableList<SQLPlan<*>>
 
     fun addSubPlan(plan: SQLPlan<*>): SQLPlan<*>
-}
 
-abstract class SubSQLPlan<T : SQLPlan<T>> : SQLPlan<T> {
-    override val logger: InstepLogger = InstepLogger.getLogger(SQLPlan::class.java)
-
-    override val subPlans: MutableList<SQLPlan<*>> = mutableListOf()
-
-    override fun addSubPlan(plan: SQLPlan<*>): SQLPlan<*> {
-        subPlans.add(plan)
-
-        return this
-    }
-
-    override fun toString(): String {
-        return """${statement}\n${parameterToLogFormat()}"""
-    }
+    fun addParameters(vararg parameters: Any?): T
 }
 
 interface SQLPlanFactory<out T : SQLPlan<*>> {

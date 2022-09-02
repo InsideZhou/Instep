@@ -2,7 +2,7 @@ package instep.dao.sql.impl
 
 import instep.dao.sql.*
 
-open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, SubSQLPlan<TableSelectPlan>() {
+open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, AbstractTablePlan<TableSelectPlan>() {
     protected open val selectWords get() = if (distinct) "SELECT DISTINCT" else "SELECT"
 
     protected open val baseSql: String
