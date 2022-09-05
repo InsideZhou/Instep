@@ -66,11 +66,12 @@ open class DefaultTableInsertPlan(override val table: Table) : TableInsertPlan, 
                             it.field.get(table)
                         }
 
-                        if (col is IntegerColumn && col.primary && col.autoIncrement) {
-                            setValue(col as Column<*>, Table.DefaultInsertValue)
+                        val value = p.getter.invoke(obj)
+                        if (null == value && (col as Column<*>).primary) {
+                            setValue(col, Table.DefaultInsertValue)
                         }
                         else {
-                            setValue(col as Column<*>, p.getter.invoke(obj))
+                            setValue(col as Column<*>, value)
                         }
                     }
             }
