@@ -8,7 +8,7 @@ interface WhereClause<out T> {
             conditions.reduce(Condition::and)
         }
         else {
-            where.andGroup(conditions.reduce(Condition::and))
+            where.and(conditions.reduce(Condition::and).grouped())
         }
 
         @Suppress("unchecked_cast") return this as T

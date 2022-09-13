@@ -24,4 +24,10 @@ object ExpressionTest {
         assert(expression.parameters.size == 3)
         assert(expression.text == "name = ? AND age >= ? AND army IS NOT NULL AND elite >= ?")
     }
+
+    @Test
+    fun conditionGrouping() {
+        val condition = Condition("army IS NOT NULL").and(Condition("elite >= ?", 100).or(Condition("elite < ?", 0)).grouped()).grouped()
+        Assert.assertEquals(condition.text, "(army IS NOT NULL AND (elite >= ? OR elite < ?))")
+    }
 }

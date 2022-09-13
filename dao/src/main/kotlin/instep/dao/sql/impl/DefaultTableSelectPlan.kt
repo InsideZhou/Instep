@@ -144,7 +144,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, A
             conditions.reduce(Condition::and)
         }
         else {
-            this.having.andGroup(conditions.reduce(Condition::and))
+            this.having.and(conditions.reduce(Condition::and).grouped())
         }
 
         return this
