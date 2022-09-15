@@ -10,27 +10,27 @@ abstract class Column<T : Column<T>>(val name: String, val table: Table) {
     var default = ""
     var comment = ""
 
-    fun primary(): T {
+    open fun primary(): T {
         primary = true
         return this as T
     }
 
-    fun notnull(): T {
+    open fun notnull(): T {
         this.nullable = false
         return this as T
     }
 
-    fun unique(): T {
+    open fun unique(): T {
         this.unique = true
         return this as T
     }
 
-    fun defaultValue(exp: String): T {
+    open fun defaultValue(exp: String): T {
         default = exp
         return this as T
     }
 
-    fun comment(txt: String): T {
+    open fun comment(txt: String): T {
         comment = txt
         return this as T
     }
@@ -41,7 +41,7 @@ abstract class NumberColumn<T : Column<T>>(name: String, table: Table) : Column<
 open class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name, table) {
     var autoIncrement = false
 
-    fun autoIncrement(): IntegerColumn {
+    open fun autoIncrement(): IntegerColumn {
         autoIncrement = true
         return this
     }
