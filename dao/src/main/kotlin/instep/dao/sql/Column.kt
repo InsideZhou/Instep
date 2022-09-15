@@ -38,7 +38,7 @@ abstract class Column<T : Column<T>>(val name: String, val table: Table) {
 
 abstract class NumberColumn<T : Column<T>>(name: String, table: Table) : Column<T>(name, table)
 
-class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name, table) {
+open class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : NumberColumn<IntegerColumn>(name, table) {
     var autoIncrement = false
 
     fun autoIncrement(): IntegerColumn {
@@ -47,14 +47,14 @@ class IntegerColumn(name: String, table: Table, val type: IntegerColumnType) : N
     }
 }
 
-class BooleanColumn(name: String, table: Table) : Column<BooleanColumn>(name, table)
-class StringColumn(name: String, table: Table, val type: StringColumnType, val length: Int = 256) : Column<StringColumn>(name, table)
-class FloatingColumn(name: String, table: Table, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) :
+open class BooleanColumn(name: String, table: Table) : Column<BooleanColumn>(name, table)
+open class StringColumn(name: String, table: Table, val type: StringColumnType, val length: Int = 256) : Column<StringColumn>(name, table)
+open class FloatingColumn(name: String, table: Table, val type: FloatingColumnType, val precision: Int = 0, val scale: Int = 0) :
     NumberColumn<FloatingColumn>(name, table)
 
-class DateTimeColumn(name: String, table: Table, val type: DateTimeColumnType) : Column<DateTimeColumn>(name, table)
-class BinaryColumn(name: String, table: Table, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(name, table)
-class ArbitraryColumn(name: String, table: Table, val definition: String) : Column<ArbitraryColumn>(name, table)
+open class DateTimeColumn(name: String, table: Table, val type: DateTimeColumnType) : Column<DateTimeColumn>(name, table)
+open class BinaryColumn(name: String, table: Table, val type: BinaryColumnType, val length: Int = 0) : Column<BinaryColumn>(name, table)
+open class ArbitraryColumn(name: String, table: Table, val definition: String) : Column<ArbitraryColumn>(name, table)
 
 enum class StringColumnType {
     Char, Varchar, Text, JSON, UUID
