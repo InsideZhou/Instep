@@ -69,7 +69,7 @@ interface TableSelectPlanFactory<out T : TableSelectPlan> {
 
 open class SelectExpression(txt: String, override var alias: String) : AbstractExpression<SelectExpression>(txt), Alias<SelectExpression>
 
-open class ColumnSelectExpression(val column: Column<*>, override var alias: String) : SelectExpression(column.name, alias) {
+open class ColumnSelectExpression(val column: Column<*>, override var alias: String) : SelectExpression(column.qualifiedName, alias) {
     constructor(column: Column<*>) : this(column, "")
 }
 

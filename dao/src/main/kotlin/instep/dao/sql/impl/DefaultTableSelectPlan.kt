@@ -12,12 +12,7 @@ open class DefaultTableSelectPlan(override val from: Table) : TableSelectPlan, A
             }
             else {
                 select.joinToString(",") {
-                    var txt = if (it is ColumnSelectExpression && join.isNotEmpty()) {
-                        "${it.column.table.tableName}.${it.column.name}"
-                    }
-                    else {
-                        it.text
-                    }
+                    var txt = it.text
 
                     if (it.alias.isNotBlank()) {
                         txt += " AS ${it.alias}"
