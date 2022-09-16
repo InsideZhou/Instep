@@ -11,6 +11,8 @@ interface Expression<T : Expression<T>> {
     fun placeholderToExpression(placeHolderName: String, expression: String): T {
         return placeholderToExpression(placeHolderName, DefaultExpression(expression))
     }
+
+    fun parameterToLogFormat(): String = parameters.joinToString("|", transform = Any?::toString)
 }
 
 interface Alias<out T> {
@@ -70,12 +72,7 @@ abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : 
 
     override val parameters: List<Any?>
         get() {
-            return params.flatMap { item ->
-                when (item) {
-                    is Expression<*> -> item.parameters
-                    else -> listOf(item)
-                }
-            }
+            return params.filterNot { it is Expression<*> }
         }
 
     override fun placeholderToParameter(placeholderName: String, parameter: Any?): T {
@@ -108,17 +105,13 @@ abstract class AbstractExpression<T : Expression<T>>(private val txt: String) : 
     }
 
     open fun addParameters(vararg parameters: Any?): T {
-        if (parameters.isNotEmpty()) {
-            val remainingPlaceHolderCount = params.count { p -> p is PlaceHolder }
-
-            if (remainingPlaceHolderCount > 0) {
-                throw PlaceHolderRemainingException("$remainingPlaceHolderCount placeholders remaining, cannot add positional parameters.")
-            }
-
-            params.add(*parameters)
-        }
+        params.add(*parameters)
 
         return this as T
+    }
+
+    override fun toString(): String {
+        return """${text}\n${parameterToLogFormat()}"""
     }
 }
 

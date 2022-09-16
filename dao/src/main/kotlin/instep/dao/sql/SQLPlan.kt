@@ -11,6 +11,10 @@ interface SQLPlan<T : SQLPlan<T>> : Plan<T>, Expression<T> {
     fun addSubPlan(plan: SQLPlan<*>): SQLPlan<*>
 
     fun addParameters(vararg parameters: Any?): T
+
+    override fun parameterToLogFormat(): String {
+        return super<Plan>.parameterToLogFormat()
+    }
 }
 
 interface SQLPlanFactory<out T : SQLPlan<*>> {

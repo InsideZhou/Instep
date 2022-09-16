@@ -17,12 +17,19 @@ object ExpressionTest {
         assert(expression.parameters.all { it is PlaceHolder })
 
         expression.placeholderToParameter("name", "ZhangFei")
-        Assert.assertThrows(PlaceHolderRemainingException::class.java) { expression.addParameters(18) }
+        expression.addParameters(18)
 
         val condition = Condition("army IS NOT NULL").and(Condition("elite >= ?", 100))
         expression.placeholderToExpression("condition", condition)
-        assert(expression.parameters.size == 3)
-        assert(expression.text == "name = ? AND age >= ? AND army IS NOT NULL AND elite >= ?")
+        Assert.assertEquals(expression.text, "name = ? AND age >= ? AND army IS NOT NULL AND elite >= ?")
+
+        Assert.assertEquals(expression.parameters.size, 2)
+        Assert.assertEquals(expression.parameters[0], "ZhangFei")
+        Assert.assertEquals(expression.parameters[1] as Int, 18)
+
+        expression.addParameters(*condition.parameters.toTypedArray())
+        Assert.assertEquals(expression.parameters.size, 3)
+        Assert.assertEquals(expression.parameters[2] as Int, 100)
     }
 
     @Test

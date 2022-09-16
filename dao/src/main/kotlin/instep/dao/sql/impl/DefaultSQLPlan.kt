@@ -16,10 +16,6 @@ abstract class AbstractSQLPlan<T : SQLPlan<T>>(txt: String) : AbstractExpression
 
         return this
     }
-
-    override fun toString(): String {
-        return """${statement}\n${parameterToLogFormat()}"""
-    }
 }
 
 abstract class AbstractTablePlan<T : SQLPlan<T>>() : AbstractSQLPlan<T>("") {
