@@ -3,6 +3,7 @@ package instep.dao.sql
 import instep.ImpossibleBranch
 import instep.Instep
 import instep.dao.DaoException
+import instep.reflection.Property
 
 /**
  * Abstract DAO object.
@@ -152,18 +153,17 @@ abstract class Table(val tableName: String, val tableComment: String, val dialec
         return ArbitraryColumn(name, this, definition)
     }
 
-    val columns: List<Column<*>>
-        get() {
-            val mirror = Instep.reflect(this)
+    val columnProperties: List<Property>
+        get() = Instep.reflect(this).getPropertiesUntil(Table::class.java).filter { Column::class.java.isAssignableFrom(it.field.type) }
 
-            return mirror.getPropertiesUntil(Table::class.java).filter { Column::class.java.isAssignableFrom(it.field.type) }.map {
-                if (null != it.getter) {
-                    it.getter!!.invoke(this)
-                }
-                else {
-                    it.field.get(this)
-                } as Column<*>
+    val columns: List<Column<*>>
+        get() = columnProperties.map {
+            if (null != it.getter) {
+                it.getter!!.invoke(this)
             }
+            else {
+                it.field.get(this)
+            } as Column<*>
         }
 
     val primaryKey: Column<*>?

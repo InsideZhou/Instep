@@ -39,36 +39,36 @@ open class DefaultTableUpdatePlan(val table: Table) : TableUpdatePlan, AbstractT
     @Suppress("UNCHECKED_CAST")
     override fun set(obj: Any): TableUpdatePlan {
         val mirror = Instep.reflect(obj)
-        val tableMirror = Instep.reflect(table)
 
         mirror.readableProperties.forEach { p ->
-            tableMirror.getPropertiesUntil(Table::class.java)
-                .find {
-                    p.field.name == it.field.name && Column::class.java.isAssignableFrom(it.field.type)
-                }?.let {
-                    val col = if (null != it.getter) {
-                        it.getter!!.invoke(table)
+            table.columnProperties.find { colProperty -> colProperty.field.name == p.field.name }?.let { colProperty ->
+                val col = (colProperty.getter?.invoke(table) ?: colProperty.field.get(table)) as Column<*>
+                if (!col.primary) {
+                    val value = p.getter.invoke(obj)
+                    if (null == value) {
+                        params[col] = null
+                        return@forEach
                     }
-                    else {
-                        it.field.get(table)
-                    } as Column<*>
 
-                    if (!col.primary) {
-                        val value = p.getter.invoke(obj)
-                        if (null == value) {
-                            params[col] = null
-                            return@forEach
-                        }
-
-                        val getterType = p.getter.returnType
-                        (typeConversion.getConverter(getterType, String::class.java, col.qualifiedName) as? Converter<Any, String>)?.let { converter ->
-                            params[col] = converter.convert(value)
-                            return@forEach
-                        }
-
-                        params[col] = value
+                    val getterType = p.getter.returnType
+                    (typeConversion.getConverter(getterType, String::class.java, col.qualifiedName) as? Converter<Any, String>)?.let { converter ->
+                        params[col] = converter.convert(value)
+                        return@forEach
                     }
+
+                    params[col] = value
                 }
+            }
+        }
+
+        return this
+    }
+
+    override fun set(colNameToValues: Map<String, *>): TableUpdatePlan {
+        colNameToValues.forEach { entry ->
+            table.columns.find { col -> col.name == entry.key }?.let {
+                set(it, entry.value)
+            }
         }
 
         return this
